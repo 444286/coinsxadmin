@@ -135,10 +135,22 @@ tr:hover td{background:rgba(255,255,255,.02);}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loader-row td{text-align:center;padding:30px;color:var(--text2);}
 
-/* Ad section separator */
-.ad-section-sep{border:none;border-top:1px dashed var(--border);margin:18px 0;}
-.ad-slot-label{font-size:12px;color:var(--blue);font-weight:700;font-family:var(--font-en);letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.ad-slot-label::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--blue);}
+/* popup preview */
+.popup-preview-box{background:var(--bg3);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:14px;text-align:center;}
+.popup-preview-icon{font-size:36px;margin-bottom:6px;}
+.popup-preview-title{font-family:var(--font-en);font-weight:800;font-size:15px;color:var(--gold);margin-bottom:8px;}
+.popup-preview-msg{font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-line;margin-bottom:12px;}
+.popup-preview-btn{background:var(--gold);color:#000;border:none;border-radius:8px;padding:8px 22px;font-size:13px;font-weight:700;cursor:default;font-family:var(--font-bn);}
+
+/* toggle switch */
+.toggle-wrap{display:flex;align-items:center;gap:10px;}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:var(--bg3);border:1px solid var(--border);border-radius:24px;cursor:pointer;transition:background .2s,border-color .2s;}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;background:var(--text2);border-radius:50%;transition:transform .2s,background .2s;}
+.toggle input:checked + .toggle-slider{background:rgba(63,185,80,.2);border-color:var(--green);}
+.toggle input:checked + .toggle-slider::before{transform:translateX(20px);background:var(--green);}
+.toggle-label{font-size:13px;font-weight:600;color:var(--text);}
 
 input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--blue);}
 .row-check{width:36px;}
@@ -268,6 +280,52 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
       <div class="page-header">
         <div class="page-title">⚙️ কনফিগারেশন</div>
         <button class="btn btn-gold" onclick="saveConfig()">💾 সেভ করুন</button>
+      </div>
+
+      <!-- ══ POPUP SETTINGS ══ -->
+      <div class="panel">
+        <div class="panel-head">🔔 স্টার্টআপ পপআপ সেটিংস
+          <span class="badge badge-blue">প্রতিবার অ্যাপ খুললে দেখাবে</span>
+        </div>
+        <div class="panel-body">
+          <div style="margin-bottom:16px;">
+            <div class="toggle-wrap">
+              <label class="toggle">
+                <input type="checkbox" id="cfg_popupEnabled" onchange="updatePopupPreview()">
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="toggle-label">পপআপ সক্রিয় করুন</span>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-bottom:0;">
+            <div class="form-group">
+              <label>আইকন (ইমোজি)</label>
+              <input type="text" id="cfg_popupIcon" placeholder="📢" maxlength="4" oninput="updatePopupPreview()">
+            </div>
+            <div class="form-group">
+              <label>বাটন টেক্সট</label>
+              <input type="text" id="cfg_popupBtnText" placeholder="ঠিক আছে" oninput="updatePopupPreview()">
+            </div>
+            <div class="form-group full">
+              <label>শিরোনাম (Title)</label>
+              <input type="text" id="cfg_popupTitle" placeholder="স্বাগতম!" oninput="updatePopupPreview()">
+            </div>
+            <div class="form-group full">
+              <label>বার্তা (Message) — একাধিক লাইন সম্ভব</label>
+              <textarea id="cfg_popupMessage" rows="4" placeholder="এখানে ইউজারদের জন্য নির্দেশনা লিখুন..." oninput="updatePopupPreview()"></textarea>
+            </div>
+          </div>
+          <!-- Live Preview -->
+          <div style="margin-top:16px;">
+            <div style="font-size:11px;color:var(--text2);font-weight:600;letter-spacing:.5px;margin-bottom:8px;">👁️ LIVE PREVIEW</div>
+            <div class="popup-preview-box">
+              <div class="popup-preview-icon" id="prevIcon">📢</div>
+              <div class="popup-preview-title" id="prevTitle">শিরোনাম</div>
+              <div class="popup-preview-msg" id="prevMsg">বার্তা এখানে দেখাবে...</div>
+              <button class="popup-preview-btn" id="prevBtn">ঠিক আছে</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- AD SLOT 1 -->
@@ -404,28 +462,17 @@ function fmtDate(ts){return ts?new Date(ts).toLocaleDateString('bn-BD',{day:'2-d
 
 /* ══ LOGIN ══ */
 let adminPassHash = '';
-
 async function initAdmin() {
   try {
     const snap = await dbGet('admin/creds');
-    if (snap.exists() && snap.val().password) {
-      adminPassHash = snap.val().password;
-    } else {
-      adminPassHash = 'admin123';
-      await dbSet('admin/creds', { password: 'admin123' });
-    }
+    if (snap.exists() && snap.val().password) { adminPassHash = snap.val().password; }
+    else { adminPassHash = 'admin123'; await dbSet('admin/creds', { password: 'admin123' }); }
     document.getElementById('loginLoading').textContent = '✅ Firebase সংযুক্ত';
-  } catch(e) {
-    document.getElementById('loginLoading').textContent = '❌ Firebase সংযোগ ব্যর্থ';
-  }
+  } catch(e) { document.getElementById('loginLoading').textContent = '❌ Firebase সংযোগ ব্যর্থ'; }
 }
-
 function onFirebaseReady() { initAdmin(); }
-if (window._firebaseReady) {
-  onFirebaseReady();
-} else {
-  document.addEventListener('firebaseReady', onFirebaseReady, { once: true });
-}
+if (window._firebaseReady) { onFirebaseReady(); }
+else { document.addEventListener('firebaseReady', onFirebaseReady, { once: true }); }
 
 function doLogin(){
   const pass=document.getElementById('loginPass').value;
@@ -434,9 +481,7 @@ function doLogin(){
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('mainApp').style.display='flex';
     loadDashboard();loadWithdrawals();loadUsers();loadConfig();loadTasks();loadHelp();
-  } else {
-    document.getElementById('loginErr').style.display='block';
-  }
+  } else { document.getElementById('loginErr').style.display='block'; }
 }
 function logout(){document.getElementById('loginScreen').style.display='flex';document.getElementById('mainApp').style.display='none';document.getElementById('loginPass').value='';}
 
@@ -463,18 +508,7 @@ async function loadDashboard(){
   if(!wSnap.exists()){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:20px;">কোনো রিকোয়েস্ট নেই</td></tr>';return;}
   const pending=Object.entries(wSnap.val()).filter(([,v])=>v.status==='pending').sort(([,a],[,b])=>b.requestedAt-a.requestedAt).slice(0,10);
   if(pending.length===0){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:20px;">কোনো পেন্ডিং নেই</td></tr>';return;}
-  tbody.innerHTML=pending.map(([k,v])=>`
-    <tr>
-      <td>${v.name||v.uid}</td>
-      <td><span class="badge badge-blue">${v.method?.toUpperCase()}</span></td>
-      <td style="font-family:var(--font-en)">${v.number}</td>
-      <td style="color:var(--gold);font-family:var(--font-en);font-weight:700">৳${Number(v.amount).toFixed(2)}</td>
-      <td>${fmtDate(v.requestedAt)}</td>
-      <td class="td-actions">
-        <button class="btn btn-green btn-sm" onclick="approveWithdrawal('${k}','${v.uid}',${v.amount})">✅</button>
-        <button class="btn btn-red btn-sm" onclick="rejectWithdrawal('${k}','${v.uid}',${v.amount})">❌</button>
-      </td>
-    </tr>`).join('');
+  tbody.innerHTML=pending.map(([k,v])=>`<tr><td>${v.name||v.uid}</td><td><span class="badge badge-blue">${v.method?.toUpperCase()}</span></td><td style="font-family:var(--font-en)">${v.number}</td><td style="color:var(--gold);font-family:var(--font-en);font-weight:700">৳${Number(v.amount).toFixed(2)}</td><td>${fmtDate(v.requestedAt)}</td><td class="td-actions"><button class="btn btn-green btn-sm" onclick="approveWithdrawal('${k}','${v.uid}',${v.amount})">✅</button><button class="btn btn-red btn-sm" onclick="rejectWithdrawal('${k}','${v.uid}',${v.amount})">❌</button></td></tr>`).join('');
 }
 
 /* ══ WITHDRAWALS ══ */
@@ -491,37 +525,10 @@ function renderWithdrawals(){
   const tbody=document.getElementById('withdrawalTable');
   const entries=Object.entries(allWithdrawals).filter(([,v])=>filter==='all'||v.status===filter).sort(([,a],[,b])=>b.requestedAt-a.requestedAt);
   if(entries.length===0){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:30px;">কোনো রিকোয়েস্ট নেই</td></tr>';return;}
-  tbody.innerHTML=entries.map(([k,v])=>`
-    <tr>
-      <td class="row-check"><input type="checkbox" class="w-check" data-key="${k}" data-uid="${v.uid}" data-amount="${v.amount}" onchange="updateBulkBar()"></td>
-      <td><div style="font-weight:600">${v.name||'—'}</div><div style="font-size:11px;color:var(--text2);font-family:var(--font-en)">${v.uid}</div></td>
-      <td><span class="badge badge-blue">${v.method?.toUpperCase()}</span></td>
-      <td style="font-family:var(--font-en)">${v.number}</td>
-      <td style="color:var(--gold);font-family:var(--font-en);font-weight:700">৳${Number(v.amount).toFixed(2)}</td>
-      <td>${fmtDate(v.requestedAt)}</td>
-      <td><span class="pill pill-${v.status}">${{pending:'পেন্ডিং',approved:'অনুমোদিত',rejected:'বাতিল'}[v.status]||v.status}</span></td>
-      <td class="td-actions">${v.status==='pending'?`
-        <button class="btn btn-green btn-sm" onclick="approveWithdrawal('${k}','${v.uid}',${v.amount})">✅ অনুমোদন</button>
-        <button class="btn btn-red btn-sm" onclick="rejectWithdrawal('${k}','${v.uid}',${v.amount})">❌ বাতিল</button>`:'—'}
-      </td>
-    </tr>`).join('');
+  tbody.innerHTML=entries.map(([k,v])=>`<tr><td class="row-check"><input type="checkbox" class="w-check" data-key="${k}" data-uid="${v.uid}" data-amount="${v.amount}" onchange="updateBulkBar()"></td><td><div style="font-weight:600">${v.name||'—'}</div><div style="font-size:11px;color:var(--text2);font-family:var(--font-en)">${v.uid}</div></td><td><span class="badge badge-blue">${v.method?.toUpperCase()}</span></td><td style="font-family:var(--font-en)">${v.number}</td><td style="color:var(--gold);font-family:var(--font-en);font-weight:700">৳${Number(v.amount).toFixed(2)}</td><td>${fmtDate(v.requestedAt)}</td><td><span class="pill pill-${v.status}">${{pending:'পেন্ডিং',approved:'অনুমোদিত',rejected:'বাতিল'}[v.status]||v.status}</span></td><td class="td-actions">${v.status==='pending'?`<button class="btn btn-green btn-sm" onclick="approveWithdrawal('${k}','${v.uid}',${v.amount})">✅ অনুমোদন</button><button class="btn btn-red btn-sm" onclick="rejectWithdrawal('${k}','${v.uid}',${v.amount})">❌ বাতিল</button>`:'—'}</td></tr>`).join('');
 }
-
-async function approveWithdrawal(key,uid,amount){
-  if(!confirm('এই উইথড্র অনুমোদন করবেন?'))return;
-  await dbUpdate(`withdrawals/${key}`,{status:'approved',processedAt:Date.now()});
-  showToast('উইথড্র অনুমোদিত হয়েছে ✅','success');
-  loadWithdrawals();loadDashboard();
-}
-async function rejectWithdrawal(key,uid,amount){
-  if(!confirm('এই উইথড্র বাতিল করবেন? ব্যালেন্স ফেরত দেওয়া হবে।'))return;
-  const uSnap=await dbGet(`users/${uid}`);
-  if(uSnap.exists()){const cur=uSnap.val().balance||0;await dbUpdate(`users/${uid}`,{balance:cur+Number(amount)});}
-  await dbUpdate(`withdrawals/${key}`,{status:'rejected',processedAt:Date.now()});
-  showToast('উইথড্র বাতিল ও ব্যালেন্স ফেরত দেওয়া হয়েছে','error');
-  loadWithdrawals();loadDashboard();
-}
-
+async function approveWithdrawal(key,uid,amount){if(!confirm('এই উইথড্র অনুমোদন করবেন?'))return;await dbUpdate(`withdrawals/${key}`,{status:'approved',processedAt:Date.now()});showToast('উইথড্র অনুমোদিত হয়েছে ✅','success');loadWithdrawals();loadDashboard();}
+async function rejectWithdrawal(key,uid,amount){if(!confirm('এই উইথড্র বাতিল করবেন? ব্যালেন্স ফেরত দেওয়া হবে।'))return;const uSnap=await dbGet(`users/${uid}`);if(uSnap.exists()){const cur=uSnap.val().balance||0;await dbUpdate(`users/${uid}`,{balance:cur+Number(amount)});}await dbUpdate(`withdrawals/${key}`,{status:'rejected',processedAt:Date.now()});showToast('উইথড্র বাতিল ও ব্যালেন্স ফেরত দেওয়া হয়েছে','error');loadWithdrawals();loadDashboard();}
 function updateBulkBar(){const checked=document.querySelectorAll('.w-check:checked').length;const bar=document.getElementById('bulkBar');bar.classList.toggle('visible',checked>0);document.getElementById('selectedCount').textContent=`${checked} সিলেক্ট`;}
 function toggleAll(el){document.querySelectorAll('.w-check').forEach(c=>{c.checked=el.checked;});updateBulkBar();}
 async function bulkApprove(){const checks=[...document.querySelectorAll('.w-check:checked')];if(checks.length===0)return;if(!confirm(`${checks.length} টি উইথড্র অনুমোদন করবেন?`))return;for(const c of checks){await dbUpdate(`withdrawals/${c.dataset.key}`,{status:'approved',processedAt:Date.now()});}showToast(`${checks.length} টি অনুমোদিত ✅`,'success');loadWithdrawals();loadDashboard();}
@@ -535,21 +542,7 @@ function filterUsers(){
   const entries=Object.entries(allUsers).filter(([uid,u])=>!q||u.name?.toLowerCase().includes(q)||uid.includes(q)).sort(([,a],[,b])=>(b.totalEarned||0)-(a.totalEarned||0));
   const tbody=document.getElementById('userTable');
   if(entries.length===0){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:30px;">কোনো ইউজার নেই</td></tr>';return;}
-  tbody.innerHTML=entries.map(([uid,u])=>`
-    <tr>
-      <td><div style="font-weight:600">${u.name||'—'}</div><div style="font-size:11px;color:var(--text2)">@${u.username||'—'}</div></td>
-      <td style="font-family:var(--font-en);font-size:12px">${uid}</td>
-      <td style="color:var(--gold);font-family:var(--font-en);font-weight:700">৳${Number(u.balance||0).toFixed(2)}</td>
-      <td style="font-family:var(--font-en)">৳${Number(u.totalEarned||0).toFixed(2)}</td>
-      <td>${u.referCount||0}</td>
-      <td>${fmtDate(u.joinedAt)}</td>
-      <td><span class="pill ${u.blocked?'pill-blocked':'pill-active'}">${u.blocked?'ব্লক':'সক্রিয়'}</span></td>
-      <td class="td-actions">
-        ${u.blocked?`<button class="btn btn-green btn-sm" onclick="toggleBlock('${uid}',false)">✅ আনব্লক</button>`:`<button class="btn btn-red btn-sm" onclick="toggleBlock('${uid}',true)">🚫 ব্লক</button>`}
-        <button class="btn btn-ghost btn-sm" onclick="editUserBalance('${uid}',${u.balance||0})">💰</button>
-        <button class="btn btn-red btn-sm" onclick="deleteUser('${uid}')">🗑️</button>
-      </td>
-    </tr>`).join('');
+  tbody.innerHTML=entries.map(([uid,u])=>`<tr><td><div style="font-weight:600">${u.name||'—'}</div><div style="font-size:11px;color:var(--text2)">@${u.username||'—'}</div></td><td style="font-family:var(--font-en);font-size:12px">${uid}</td><td style="color:var(--gold);font-family:var(--font-en);font-weight:700">৳${Number(u.balance||0).toFixed(2)}</td><td style="font-family:var(--font-en)">৳${Number(u.totalEarned||0).toFixed(2)}</td><td>${u.referCount||0}</td><td>${fmtDate(u.joinedAt)}</td><td><span class="pill ${u.blocked?'pill-blocked':'pill-active'}">${u.blocked?'ব্লক':'সক্রিয়'}</span></td><td class="td-actions">${u.blocked?`<button class="btn btn-green btn-sm" onclick="toggleBlock('${uid}',false)">✅ আনব্লক</button>`:`<button class="btn btn-red btn-sm" onclick="toggleBlock('${uid}',true)">🚫 ব্লক</button>`}<button class="btn btn-ghost btn-sm" onclick="editUserBalance('${uid}',${u.balance||0})">💰</button><button class="btn btn-red btn-sm" onclick="deleteUser('${uid}')">🗑️</button></td></tr>`).join('');
 }
 async function toggleBlock(uid,block){await dbUpdate(`users/${uid}`,{blocked:block});showToast(block?'ইউজার ব্লক করা হয়েছে':'ইউজার আনব্লক করা হয়েছে',block?'error':'success');loadUsers();}
 async function editUserBalance(uid,cur){const val=prompt(`বর্তমান ব্যালেন্স: ৳${cur}\nনতুন ব্যালেন্স লিখুন:`);if(val===null)return;const newBal=parseFloat(val);if(isNaN(newBal)){showToast('সঠিক মান দিন','error');return;}await dbUpdate(`users/${uid}`,{balance:newBal});showToast('ব্যালেন্স আপডেট হয়েছে ✅','success');loadUsers();}
@@ -558,6 +551,15 @@ async function deleteUser(uid){if(!confirm('এই ইউজার মুছে 
 /* ══ CONFIG ══ */
 async function loadConfig(){
   const snap=await dbGet('config');if(!snap.exists())return;const c=snap.val();
+  // popup
+  const p=c.popup||{};
+  document.getElementById('cfg_popupEnabled').checked = !!p.enabled;
+  document.getElementById('cfg_popupIcon').value    = p.icon    || '📢';
+  document.getElementById('cfg_popupTitle').value   = p.title   || '';
+  document.getElementById('cfg_popupMessage').value = p.message || '';
+  document.getElementById('cfg_popupBtnText').value = p.btnText || 'ঠিক আছে';
+  updatePopupPreview();
+  // ads & general
   document.getElementById('cfg_ad1Link').value=c.ad1Link||'';
   document.getElementById('cfg_ad1Earn').value=c.ad1Earn||0.5;
   document.getElementById('cfg_ad1Cooldown').value=c.ad1Cooldown||60;
@@ -574,9 +576,24 @@ async function loadConfig(){
   document.getElementById('cfg_referEarn').value=c.referEarn||5;
   document.getElementById('cfg_supportLink').value=c.supportLink||'';
 }
+
+function updatePopupPreview(){
+  document.getElementById('prevIcon').textContent  = document.getElementById('cfg_popupIcon').value  || '📢';
+  document.getElementById('prevTitle').textContent = document.getElementById('cfg_popupTitle').value || 'শিরোনাম';
+  document.getElementById('prevMsg').textContent   = document.getElementById('cfg_popupMessage').value || 'বার্তা এখানে দেখাবে...';
+  document.getElementById('prevBtn').textContent   = document.getElementById('cfg_popupBtnText').value || 'ঠিক আছে';
+}
+
 async function saveConfig(){
   const newPass=document.getElementById('cfg_adminPass').value.trim();
   const upd={
+    popup:{
+      enabled: document.getElementById('cfg_popupEnabled').checked,
+      icon:    document.getElementById('cfg_popupIcon').value.trim()    || '📢',
+      title:   document.getElementById('cfg_popupTitle').value.trim(),
+      message: document.getElementById('cfg_popupMessage').value.trim(),
+      btnText: document.getElementById('cfg_popupBtnText').value.trim() || 'ঠিক আছে',
+    },
     ad1Link:document.getElementById('cfg_ad1Link').value.trim(),
     ad1Earn:parseFloat(document.getElementById('cfg_ad1Earn').value)||0.5,
     ad1Cooldown:parseInt(document.getElementById('cfg_ad1Cooldown').value)||60,
@@ -604,18 +621,7 @@ async function loadTasks(){
   const snap=await dbGet('config/tasks');
   if(!snap.exists()){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:20px;">কোনো টাস্ক নেই</td></tr>';return;}
   const tasks=snap.val();
-  tbody.innerHTML=Object.entries(tasks).map(([k,t])=>`
-    <tr>
-      <td style="font-size:22px">${t.icon||'✅'}</td>
-      <td style="font-weight:600">${t.name}</td>
-      <td style="color:var(--text2);font-size:12px">${t.desc||'—'}</td>
-      <td style="color:var(--gold);font-family:var(--font-en);font-weight:700">৳${Number(t.reward||0).toFixed(0)}</td>
-      <td style="font-size:12px"><a href="${t.link||'#'}" target="_blank" style="color:var(--blue)">লিংক</a></td>
-      <td class="td-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openTaskModal('${k}')">✏️</button>
-        <button class="btn btn-red btn-sm" onclick="deleteTask('${k}')">🗑️</button>
-      </td>
-    </tr>`).join('');
+  tbody.innerHTML=Object.entries(tasks).map(([k,t])=>`<tr><td style="font-size:22px">${t.icon||'✅'}</td><td style="font-weight:600">${t.name}</td><td style="color:var(--text2);font-size:12px">${t.desc||'—'}</td><td style="color:var(--gold);font-family:var(--font-en);font-weight:700">৳${Number(t.reward||0).toFixed(0)}</td><td style="font-size:12px"><a href="${t.link||'#'}" target="_blank" style="color:var(--blue)">লিংক</a></td><td class="td-actions"><button class="btn btn-ghost btn-sm" onclick="openTaskModal('${k}')">✏️</button><button class="btn btn-red btn-sm" onclick="deleteTask('${k}')">🗑️</button></td></tr>`).join('');
 }
 function openTaskModal(key=''){
   const modal=document.getElementById('taskModal');modal.style.display='flex';
@@ -639,16 +645,7 @@ async function loadHelp(){
   const snap=await dbGet('config/helpItems');const el=document.getElementById('helpList');
   if(!snap.exists()){el.innerHTML='<div style="color:var(--text2);padding:20px;">কোনো আইটেম নেই</div>';return;}
   const items=snap.val();
-  el.innerHTML=Object.entries(items).map(([k,it])=>`
-    <div class="panel" style="margin-bottom:10px;">
-      <div class="panel-head">${it.q}
-        <div style="display:flex;gap:6px;">
-          <button class="btn btn-ghost btn-sm" onclick="openHelpModal('${k}')">✏️</button>
-          <button class="btn btn-red btn-sm" onclick="deleteHelp('${k}')">🗑️</button>
-        </div>
-      </div>
-      <div class="panel-body" style="font-size:13px;color:var(--text2)">${it.a}</div>
-    </div>`).join('');
+  el.innerHTML=Object.entries(items).map(([k,it])=>`<div class="panel" style="margin-bottom:10px;"><div class="panel-head">${it.q}<div style="display:flex;gap:6px;"><button class="btn btn-ghost btn-sm" onclick="openHelpModal('${k}')">✏️</button><button class="btn btn-red btn-sm" onclick="deleteHelp('${k}')">🗑️</button></div></div><div class="panel-body" style="font-size:13px;color:var(--text2)">${it.a}</div></div>`).join('');
 }
 function openHelpModal(key=''){
   const modal=document.getElementById('helpModal');modal.style.display='flex';
