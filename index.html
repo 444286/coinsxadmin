@@ -198,6 +198,18 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
 .bulk-bar{display:none;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.3);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;align-items:center;gap:10px;font-size:13px;}
 .bulk-bar.visible{display:flex;}
 
+/* ── AD CHAINS PAGE (NEW) ── */
+.slot-count-btn{width:34px;height:34px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-family:var(--font-en);font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s,background .15s;}
+.slot-count-btn.active{border-color:var(--purple);color:var(--purple);background:rgba(188,140,255,.1);}
+.slot-row{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:8px;}
+.slot-num{width:26px;height:26px;border-radius:50%;background:var(--purple);color:#fff;font-family:var(--font-en);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.slot-row select{margin:0;}
+.flow-chip{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-family:var(--font-en);font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:5px;}
+.flow-chip .fc-num{background:rgba(255,255,255,.12);border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:9px;}
+.flow-arrow{color:var(--text2);font-size:12px;}
+.flow-chip.reward{background:rgba(63,185,80,.15);color:var(--green);border-color:rgba(63,185,80,.3);}
+.flow-chip.action{background:rgba(88,166,255,.15);color:var(--blue);border-color:rgba(88,166,255,.3);}
+
 /* Skeleton loader for ad stats */
 .skel{background:linear-gradient(90deg,var(--bg3) 25%,rgba(255,255,255,.04) 50%,var(--bg3) 75%);background-size:200% 100%;animation:skelAnim 1.4s infinite;border-radius:6px;height:32px;width:80px;}
 @keyframes skelAnim{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -231,6 +243,7 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
     <div class="nav-item" onclick="showPage('withdrawals',event)"><span class="nav-icon">💸</span> উইথড্র রিকোয়েস্ট</div>
     <div class="nav-item" onclick="showPage('users',event)"><span class="nav-icon">👥</span> ইউজার ম্যানেজ</div>
     <div class="nav-item" onclick="showPage('config',event)"><span class="nav-icon">⚙️</span> এড ও কনফিগ</div>
+    <div class="nav-item" onclick="showPage('adchains',event)"><span class="nav-icon">🔗</span> এড চেইন</div>
     <div class="nav-item" onclick="showPage('tasks',event)"><span class="nav-icon">✅</span> টাস্ক ম্যানেজ</div>
     <div class="nav-item" onclick="showPage('help',event)"><span class="nav-icon">❓</span> সাহায্য আইটেম</div>
     <div class="sidebar-footer">
@@ -474,6 +487,175 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
       </div>
     </div>
 
+    <!-- AD CHAINS (NEW) -->
+    <div class="panel-page" id="pg-adchains">
+      <div class="page-header">
+        <div class="page-title">🔗 এড চেইন</div>
+        <span class="badge badge-purple">Watch Chain + Withdraw Chain</span>
+      </div>
+
+      <div class="panel" style="border-color:rgba(245,200,66,.25);">
+        <div class="panel-body" style="font-size:12px;color:var(--text2);line-height:1.8;">
+          💡 <b style="color:var(--text)">কিভাবে কাজ করে:</b><br>
+          ১. <b style="color:var(--gold)">Network Credentials</b> এ ID বসান<br>
+          ২. প্রতিটি Slot এ কোন network চলবে তা বেছে নিন<br>
+          ৩. Save করুন — Mini App এ সাথে সাথে apply হবে
+        </div>
+      </div>
+
+      <!-- CREDENTIALS -->
+      <div class="panel">
+        <div class="panel-head">
+          🔑 Ad Network Credentials
+          <button class="btn btn-gold btn-sm" onclick="saveAdCredentials()">💾 Save Credentials</button>
+        </div>
+        <div class="panel-body">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:14px;">একবার ID বসান — Watch ও Withdraw চুটি chain এই ব্যবহার হবে</div>
+
+          <div class="panel" style="background:var(--bg3);margin-bottom:14px;">
+            <div class="panel-body" style="font-size:11px;color:var(--text2);line-height:1.9;padding:12px 14px;">
+              <b style="color:var(--text)">🛈 SDK Info</b><br>
+              <b>Adsgram:</b> <code style="color:var(--blue);">&lt;script src="https://sad.adsgram.ai/js/sad.min.js"&gt;</code> — Mini App এ যোগ ✅<br>
+              <b>Monetag:</b> Zone ID দিলে auto-load হয় ✅<br>
+              <b>Adsterra:</b> Direct Link বা Script — Adsterra ব্লক নিন
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <!-- Adsgram -->
+            <div class="panel" style="margin-bottom:0;">
+              <div class="panel-head" style="font-size:12px;">
+                <span>🟥 Adsgram</span>
+                <label class="toggle"><input type="checkbox" id="cred_adsgramEnabled"><span class="toggle-slider"></span></label>
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                  <label>BLOCK ID</label>
+                  <input type="text" id="cred_adsgramBlockId" placeholder="int-32887">
+                </div>
+                <div style="font-size:10px;color:var(--text2);margin-top:8px;">
+                  <a href="https://ads.gram.io" target="_blank" style="color:var(--blue);">ads.gram.io</a> → Create Block → Block ID
+                </div>
+              </div>
+            </div>
+            <!-- Monetag -->
+            <div class="panel" style="margin-bottom:0;">
+              <div class="panel-head" style="font-size:12px;">
+                <span>💰 Monetag</span>
+                <label class="toggle"><input type="checkbox" id="cred_monetagEnabled"><span class="toggle-slider"></span></label>
+              </div>
+              <div class="panel-body">
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label>ZONE ID</label>
+                  <input type="text" id="cred_monetagZoneId" placeholder="10900318">
+                </div>
+                <div class="form-group">
+                  <label>TYPE</label>
+                  <select id="cred_monetagType">
+                    <option value="interstitial">Interstitial</option>
+                    <option value="rewarded">Rewarded Popup</option>
+                    <option value="inapp">In-App Interstitial</option>
+                  </select>
+                </div>
+                <div style="font-size:10px;color:var(--text2);margin-top:8px;">
+                  <a href="https://monetag.com" target="_blank" style="color:var(--blue);">monetag.com</a> → Zones → Zone ID
+                </div>
+              </div>
+            </div>
+            <!-- Adsterra -->
+            <div class="panel" style="margin-bottom:0;">
+              <div class="panel-head" style="font-size:12px;">
+                <span>⭐ Adsterra</span>
+                <label class="toggle"><input type="checkbox" id="cred_adsterraEnabled"><span class="toggle-slider"></span></label>
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                  <label>DIRECT LINK</label>
+                  <input type="url" id="cred_adsterraLink" placeholder="https://...">
+                </div>
+                <div style="font-size:10px;color:var(--text2);margin-top:8px;">
+                  <a href="https://adsterra.com" target="_blank" style="color:var(--blue);">adsterra.com</a> → Direct Link বা Social Bar
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WATCH & EARN CHAIN -->
+      <div class="panel">
+        <div class="panel-head">
+          📺 Watch &amp; Earn Chain
+          <button class="btn btn-gold btn-sm" onclick="saveWatchChain()">💾 Save Watch Chain</button>
+        </div>
+        <div class="panel-body">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:14px;">Home page এ Watch button এ ক্লিক করলে এই chain চলে — শেষে রিওয়ার্ড যোগ হয়</div>
+
+          <div class="form-grid-3" style="margin-bottom:18px;">
+            <div class="form-group">
+              <label>প্রতি চেইনে কতটি বিজ্ঞাপন (1-5)</label>
+              <div style="display:flex;gap:6px;" id="watchSlotCountBtns"></div>
+            </div>
+            <div class="form-group">
+              <label>রিওয়ার্ড (৳ মোট)</label>
+              <input type="number" id="watch_reward" placeholder="10" min="0" step="0.01" oninput="refreshWatchPreview()">
+            </div>
+            <div class="form-group">
+              <label>কুলডাউন (সেকেন্ড)</label>
+              <input type="number" id="watch_cooldown" placeholder="60" min="0">
+            </div>
+          </div>
+
+          <div class="form-group full" style="margin-bottom:18px;max-width:280px;">
+            <label>দৈনিক সীমা (DAILY LIMIT)</label>
+            <input type="number" id="watch_dailyLimit" placeholder="5" min="1">
+            <div style="font-size:10px;color:var(--text2);">একদিনে কত বার সম্পূর্ণ chain দেখানো যাবে</div>
+          </div>
+
+          <div style="font-size:11px;color:var(--text2);font-weight:700;letter-spacing:.5px;margin-bottom:10px;">📡 AD SLOT QUEUE</div>
+          <div id="watchSlotQueue"></div>
+
+          <div style="margin-top:14px;">
+            <div style="font-size:10px;color:var(--text2);font-weight:700;letter-spacing:.5px;margin-bottom:8px;">👁️ FLOW PREVIEW</div>
+            <div id="watchFlowPreview" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--text2);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WITHDRAW AD CHAIN -->
+      <div class="panel">
+        <div class="panel-head">
+          🛡️ Withdraw Ad Chain
+          <span style="display:flex;align-items:center;gap:10px;">
+            <label class="toggle"><input type="checkbox" id="withdraw_chainEnabled"><span class="toggle-slider"></span></label>
+            <button class="btn btn-green btn-sm" onclick="saveWithdrawChain()">💾 Save</button>
+          </span>
+        </div>
+        <div class="panel-body">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:14px;">Withdraw button → এই chain চলে → এর পরে উইথড্র submit হয়</div>
+
+          <div class="form-grid" style="margin-bottom:18px;">
+            <div class="form-group">
+              <label>Withdraw এর আগে কতটি বিজ্ঞাপন (1-5)</label>
+              <div style="display:flex;gap:6px;" id="withdrawSlotCountBtns"></div>
+            </div>
+            <div class="form-group">
+              <label>ইউজারকে দেখানো বার্তা</label>
+              <input type="text" id="withdraw_message" placeholder="উইথড্রর আগে বিজ্ঞাপন দেখুন 👇">
+            </div>
+          </div>
+
+          <div style="font-size:11px;color:var(--text2);font-weight:700;letter-spacing:.5px;margin-bottom:10px;">📡 AD SLOT QUEUE</div>
+          <div id="withdrawSlotQueue"></div>
+
+          <div style="margin-top:14px;">
+            <div style="font-size:10px;color:var(--text2);font-weight:700;letter-spacing:.5px;margin-bottom:8px;">👁️ FLOW PREVIEW</div>
+            <div id="withdrawFlowPreview" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--text2);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- TASKS -->
     <div class="panel-page" id="pg-tasks">
       <div class="page-header">
@@ -576,7 +758,7 @@ function doLogin(){
   if(pass===adminPassHash){
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('mainApp').style.display='flex';
-    loadDashboard();loadWithdrawals();loadUsers();loadConfig();loadTasks();loadHelp();
+    loadDashboard();loadWithdrawals();loadUsers();loadConfig();loadAdChains();loadTasks();loadHelp();
   } else { document.getElementById('loginErr').style.display='block'; }
 }
 function logout(){document.getElementById('loginScreen').style.display='flex';document.getElementById('mainApp').style.display='none';document.getElementById('loginPass').value='';}
@@ -789,6 +971,135 @@ async function saveConfig(){
   showToast('কনফিগ সেভ হয়েছে ✅','success');
 }
 
+/* ══════════════════════════════════════════
+   AD CHAINS — credentials, watch chain, withdraw chain (NEW)
+   ══════════════════════════════════════════ */
+const NETWORK_META = {
+  adsgram:  { label:'Adsgram',  icon:'🟥' },
+  monetag:  { label:'Monetag',  icon:'💰' },
+  adsterra: { label:'Adsterra', icon:'⭐' },
+};
+let watchSlotCount = 5, withdrawSlotCount = 5;
+let watchSlots = ['adsterra','adsgram','monetag','adsterra','adsgram'];
+let withdrawSlots = ['adsterra','adsgram','monetag','adsgram','adsterra'];
+
+function buildSlotCountButtons(containerId, current, onPick) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = [1,2,3,4,5].map(n =>
+    `<button type="button" class="slot-count-btn ${n===current?'active':''}" data-n="${n}" onclick="${onPick}(${n})">${n}</button>`
+  ).join('');
+}
+function networkOptionsHtml(selected) {
+  return Object.entries(NETWORK_META).map(([key,m]) =>
+    `<option value="${key}" ${key===selected?'selected':''}>${m.icon} ${m.label}</option>`
+  ).join('');
+}
+function renderSlotQueue(containerId, slots, count, onChangeFn) {
+  const el = document.getElementById(containerId);
+  let html = '';
+  for (let i=0;i<count;i++){
+    const val = slots[i] || 'adsterra';
+    html += `<div class="slot-row">
+      <div class="slot-num">${i+1}</div>
+      <div style="font-size:12px;color:var(--text2);width:50px;flex-shrink:0;">Slot ${i+1}</div>
+      <select onchange="${onChangeFn}(${i},this.value)" style="flex:1;">${networkOptionsHtml(val)}</select>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+function renderFlowPreview(containerId, slots, count, rewardLabel) {
+  const el = document.getElementById(containerId);
+  let html = `<span class="flow-chip action">▶ Watch</span>`;
+  for (let i=0;i<count;i++){
+    const m = NETWORK_META[slots[i]] || NETWORK_META.adsterra;
+    html += `<span class="flow-arrow">→</span><span class="flow-chip">${m.icon} ${m.label} <span class="fc-num">#${i+1}</span></span>`;
+  }
+  if (rewardLabel) html += `<span class="flow-arrow">→</span><span class="flow-chip reward">🪙 ${rewardLabel}</span>`;
+  el.innerHTML = html;
+}
+
+function pickWatchSlotCount(n){watchSlotCount=n;buildSlotCountButtons('watchSlotCountBtns',n,'pickWatchSlotCount');renderSlotQueue('watchSlotQueue',watchSlots,n,'setWatchSlot');refreshWatchPreview();}
+function setWatchSlot(i,val){watchSlots[i]=val;refreshWatchPreview();}
+function refreshWatchPreview(){const reward=document.getElementById('watch_reward').value;renderFlowPreview('watchFlowPreview',watchSlots,watchSlotCount,reward?`৳${parseFloat(reward).toFixed(2)}`:'');}
+
+function pickWithdrawSlotCount(n){withdrawSlotCount=n;buildSlotCountButtons('withdrawSlotCountBtns',n,'pickWithdrawSlotCount');renderSlotQueue('withdrawSlotQueue',withdrawSlots,n,'setWithdrawSlot');refreshWithdrawPreview();}
+function setWithdrawSlot(i,val){withdrawSlots[i]=val;refreshWithdrawPreview();}
+function refreshWithdrawPreview(){renderFlowPreview('withdrawFlowPreview',withdrawSlots,withdrawSlotCount,'Submit');
+  // Override last chip label to "Submit" with check icon style
+  const el=document.getElementById('withdrawFlowPreview');
+  let html = `<span class="flow-chip action">🛡️ Withdraw</span>`;
+  for (let i=0;i<withdrawSlotCount;i++){
+    const m = NETWORK_META[withdrawSlots[i]] || NETWORK_META.adsterra;
+    html += `<span class="flow-arrow">→</span><span class="flow-chip">${m.icon} ${m.label} <span class="fc-num">#${i+1}</span></span>`;
+  }
+  html += `<span class="flow-arrow">→</span><span class="flow-chip reward">✅ Submit</span>`;
+  el.innerHTML = html;
+}
+
+async function loadAdChains(){
+  const snap = await dbGet('adChains');
+  const d = snap.exists() ? snap.val() : {};
+  const cred = d.credentials || {};
+  document.getElementById('cred_adsgramEnabled').checked = cred.adsgram?.enabled !== false;
+  document.getElementById('cred_adsgramBlockId').value   = cred.adsgram?.blockId || '';
+  document.getElementById('cred_monetagEnabled').checked = cred.monetag?.enabled !== false;
+  document.getElementById('cred_monetagZoneId').value    = cred.monetag?.zoneId || '';
+  document.getElementById('cred_monetagType').value      = cred.monetag?.type || 'interstitial';
+  document.getElementById('cred_adsterraEnabled').checked = cred.adsterra?.enabled !== false;
+  document.getElementById('cred_adsterraLink').value     = cred.adsterra?.link || '';
+
+  const w = d.watchChain || {};
+  watchSlotCount = w.slotCount || 5;
+  watchSlots = (w.slots && w.slots.length) ? w.slots.slice(0,5) : watchSlots;
+  while (watchSlots.length < 5) watchSlots.push('adsterra');
+  document.getElementById('watch_reward').value     = w.reward ?? 10;
+  document.getElementById('watch_cooldown').value   = w.cooldown ?? 60;
+  document.getElementById('watch_dailyLimit').value = w.dailyLimit ?? 5;
+  buildSlotCountButtons('watchSlotCountBtns', watchSlotCount, 'pickWatchSlotCount');
+  renderSlotQueue('watchSlotQueue', watchSlots, watchSlotCount, 'setWatchSlot');
+  refreshWatchPreview();
+
+  const wd = d.withdrawChain || {};
+  withdrawSlotCount = wd.slotCount || 5;
+  withdrawSlots = (wd.slots && wd.slots.length) ? wd.slots.slice(0,5) : withdrawSlots;
+  while (withdrawSlots.length < 5) withdrawSlots.push('adsterra');
+  document.getElementById('withdraw_chainEnabled').checked = wd.enabled !== false;
+  document.getElementById('withdraw_message').value = wd.message || 'উইথড্রর আগে বিজ্ঞাপন দেখুন 👇';
+  buildSlotCountButtons('withdrawSlotCountBtns', withdrawSlotCount, 'pickWithdrawSlotCount');
+  renderSlotQueue('withdrawSlotQueue', withdrawSlots, withdrawSlotCount, 'setWithdrawSlot');
+  refreshWithdrawPreview();
+}
+
+async function saveAdCredentials(){
+  const cred = {
+    adsgram:  { enabled: document.getElementById('cred_adsgramEnabled').checked, blockId: document.getElementById('cred_adsgramBlockId').value.trim() },
+    monetag:  { enabled: document.getElementById('cred_monetagEnabled').checked, zoneId: document.getElementById('cred_monetagZoneId').value.trim(), type: document.getElementById('cred_monetagType').value },
+    adsterra: { enabled: document.getElementById('cred_adsterraEnabled').checked, link: document.getElementById('cred_adsterraLink').value.trim() },
+  };
+  await dbUpdate('adChains', { credentials: cred });
+  showToast('Ad Network Credentials সেভ হয়েছে ✅','success');
+}
+async function saveWatchChain(){
+  const watchChain = {
+    slotCount: watchSlotCount,
+    slots: watchSlots.slice(0, watchSlotCount),
+    reward: parseFloat(document.getElementById('watch_reward').value) || 0,
+    cooldown: parseInt(document.getElementById('watch_cooldown').value) || 60,
+    dailyLimit: parseInt(document.getElementById('watch_dailyLimit').value) || 5,
+  };
+  await dbUpdate('adChains', { watchChain });
+  showToast('Watch Chain সেভ হয়েছে ✅','success');
+}
+async function saveWithdrawChain(){
+  const withdrawChain = {
+    enabled: document.getElementById('withdraw_chainEnabled').checked,
+    slotCount: withdrawSlotCount,
+    slots: withdrawSlots.slice(0, withdrawSlotCount),
+    message: document.getElementById('withdraw_message').value.trim() || 'উইথড্রর আগে বিজ্ঞাপন দেখুন 👇',
+  };
+  await dbUpdate('adChains', { withdrawChain });
+  showToast('Withdraw Ad Chain সেভ হয়েছে ✅','success');
+}
 /* ══ TASKS ══ */
 async function loadTasks(){
   const tbody=document.getElementById('taskTable');
