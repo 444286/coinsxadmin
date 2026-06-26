@@ -42,7 +42,7 @@
 :root{
   --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--card:#1c2128;
   --gold:#f5c842;--gold2:#ffde7d;--green:#3fb950;--red:#f85149;
-  --blue:#58a6ff;--purple:#bc8cff;
+  --blue:#58a6ff;--purple:#bc8cff;--orange:#f0883e;--teal:#39d353;
   --text:#e6edf3;--text2:#8b949e;--border:#30363d;
   --radius:12px;--radius-sm:8px;
   --font-bn:'Noto Sans Bengali',sans-serif;--font-en:'Exo 2',sans-serif;
@@ -69,12 +69,55 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .badge-green{background:rgba(63,185,80,.15);color:var(--green);}
 .badge-red{background:rgba(248,81,73,.15);color:var(--red);}
 .badge-blue{background:rgba(88,166,255,.15);color:var(--blue);}
+.badge-orange{background:rgba(240,136,62,.15);color:var(--orange);}
+.badge-purple{background:rgba(188,140,255,.15);color:var(--purple);}
 
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:50%;opacity:.06;transform:translate(20px,-20px);}
+.stat-card.s-blue::before{background:var(--blue);}
+.stat-card.s-gold::before{background:var(--gold);}
+.stat-card.s-red::before{background:var(--red);}
+.stat-card.s-purple::before{background:var(--purple);}
 .stat-label{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:600;letter-spacing:.5px;}
 .stat-value{font-family:var(--font-en);font-weight:800;font-size:24px;}
 .stat-sub{font-size:11px;color:var(--text2);margin-top:4px;}
+
+/* ── AD STATS SECTION (NEW) ── */
+.ad-stats-section{margin-bottom:20px;}
+.ad-stats-title{font-family:var(--font-en);font-weight:700;font-size:13px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.ad-stats-title .today-badge{background:linear-gradient(90deg,rgba(63,185,80,.2),rgba(57,211,83,.1));border:1px solid rgba(63,185,80,.3);color:var(--teal);font-size:10px;padding:2px 8px;border-radius:20px;letter-spacing:.5px;}
+.ad-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.ad-stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden;transition:border-color .2s;}
+.ad-stat-card:hover{border-color:rgba(255,255,255,.12);}
+.ad-stat-card .as-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ad-stat-card .as-icon{font-size:26px;}
+.ad-stat-card .as-slot{font-family:var(--font-en);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.5px;}
+.as-slot-1{background:rgba(88,166,255,.15);color:var(--blue);}
+.as-slot-2{background:rgba(240,136,62,.15);color:var(--orange);}
+.as-slot-3{background:rgba(188,140,255,.15);color:var(--purple);}
+.ad-stat-card .as-count{font-family:var(--font-en);font-weight:900;font-size:32px;line-height:1;margin-bottom:4px;}
+.as-count-1{color:var(--blue);}
+.as-count-2{color:var(--orange);}
+.as-count-3{color:var(--purple);}
+.ad-stat-card .as-label{font-size:11px;color:var(--text2);}
+.ad-stat-card .as-bar-wrap{margin-top:12px;background:var(--bg3);border-radius:4px;height:4px;overflow:hidden;}
+.ad-stat-card .as-bar{height:100%;border-radius:4px;transition:width .6s ease;}
+.as-bar-1{background:linear-gradient(90deg,var(--blue),#a8d5ff);}
+.as-bar-2{background:linear-gradient(90deg,var(--orange),#ffd09e);}
+.as-bar-3{background:linear-gradient(90deg,var(--purple),#dfc5ff);}
+.ad-stat-card .as-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+.as-unique{font-size:10px;color:var(--text2);}
+.as-unique span{color:var(--text);font-weight:600;font-family:var(--font-en);}
+.ad-total-card{background:linear-gradient(135deg,rgba(63,185,80,.08),rgba(57,211,83,.04));border:1px solid rgba(63,185,80,.2);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px;margin-top:12px;}
+.ad-total-icon{font-size:32px;}
+.ad-total-info{flex:1;}
+.ad-total-label{font-size:12px;color:var(--text2);font-weight:600;margin-bottom:4px;}
+.ad-total-value{font-family:var(--font-en);font-weight:900;font-size:28px;color:var(--teal);}
+.ad-total-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.ad-total-right{text-align:right;}
+.ad-total-date{font-size:11px;color:var(--text2);}
+.ad-total-date span{display:block;font-family:var(--font-en);font-weight:700;font-size:13px;color:var(--text);margin-top:2px;}
 
 .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;}
 .panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-family:var(--font-en);font-weight:700;font-size:14px;}
@@ -135,14 +178,12 @@ tr:hover td{background:rgba(255,255,255,.02);}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loader-row td{text-align:center;padding:30px;color:var(--text2);}
 
-/* popup preview */
 .popup-preview-box{background:var(--bg3);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:14px;text-align:center;}
 .popup-preview-icon{font-size:36px;margin-bottom:6px;}
 .popup-preview-title{font-family:var(--font-en);font-weight:800;font-size:15px;color:var(--gold);margin-bottom:8px;}
 .popup-preview-msg{font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-line;margin-bottom:12px;}
 .popup-preview-btn{background:var(--gold);color:#000;border:none;border-radius:8px;padding:8px 22px;font-size:13px;font-weight:700;cursor:default;font-family:var(--font-bn);}
 
-/* toggle switch */
 .toggle-wrap{display:flex;align-items:center;gap:10px;}
 .toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
 .toggle input{opacity:0;width:0;height:0;}
@@ -157,7 +198,11 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
 .bulk-bar{display:none;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.3);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;align-items:center;gap:10px;font-size:13px;}
 .bulk-bar.visible{display:flex;}
 
-@media(max-width:768px){.sidebar{width:200px;}.main{margin-left:200px;}.stats-grid{grid-template-columns:1fr 1fr;}.form-grid{grid-template-columns:1fr;}.form-grid-3{grid-template-columns:1fr;}.form-grid-4{grid-template-columns:1fr 1fr;}}
+/* Skeleton loader for ad stats */
+.skel{background:linear-gradient(90deg,var(--bg3) 25%,rgba(255,255,255,.04) 50%,var(--bg3) 75%);background-size:200% 100%;animation:skelAnim 1.4s infinite;border-radius:6px;height:32px;width:80px;}
+@keyframes skelAnim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+@media(max-width:768px){.sidebar{width:200px;}.main{margin-left:200px;}.stats-grid{grid-template-columns:1fr 1fr;}.ad-stats-grid{grid-template-columns:1fr;}.form-grid{grid-template-columns:1fr;}.form-grid-3{grid-template-columns:1fr;}.form-grid-4{grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.sidebar{display:none;}.main{margin-left:0;}}
 </style>
 </head>
@@ -202,12 +247,83 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
         <div class="page-title">📊 ড্যাশবোর্ড</div>
         <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">🔄 রিফ্রেশ</button>
       </div>
+
+      <!-- General Stats -->
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">মোট ইউজার</div><div class="stat-value" id="statUsers">—</div><div class="stat-sub">নিবন্ধিত</div></div>
-        <div class="stat-card"><div class="stat-label">মোট পেমেন্ট</div><div class="stat-value" style="color:var(--gold)" id="statPaid">—</div><div class="stat-sub">অনুমোদিত</div></div>
-        <div class="stat-card"><div class="stat-label">পেন্ডিং রিকোয়েস্ট</div><div class="stat-value" style="color:var(--red)" id="statPending">—</div><div class="stat-sub">অপেক্ষমান</div></div>
-        <div class="stat-card"><div class="stat-label">মোট রেফার</div><div class="stat-value" style="color:var(--purple)" id="statRefer">—</div><div class="stat-sub">সফল রেফার</div></div>
+        <div class="stat-card s-blue"><div class="stat-label">মোট ইউজার</div><div class="stat-value" id="statUsers">—</div><div class="stat-sub">নিবন্ধিত</div></div>
+        <div class="stat-card s-gold"><div class="stat-label">মোট পেমেন্ট</div><div class="stat-value" style="color:var(--gold)" id="statPaid">—</div><div class="stat-sub">অনুমোদিত</div></div>
+        <div class="stat-card s-red"><div class="stat-label">পেন্ডিং রিকোয়েস্ট</div><div class="stat-value" style="color:var(--red)" id="statPending">—</div><div class="stat-sub">অপেক্ষমান</div></div>
+        <div class="stat-card s-purple"><div class="stat-label">মোট রেফার</div><div class="stat-value" style="color:var(--purple)" id="statRefer">—</div><div class="stat-sub">সফল রেফার</div></div>
       </div>
+
+      <!-- ══ TODAY'S AD STATS (NEW) ══ -->
+      <div class="ad-stats-section">
+        <div class="ad-stats-title">
+          📺 আজকের এড পরিসংখ্যান
+          <span class="today-badge" id="todayDateBadge">লোড হচ্ছে...</span>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto;font-size:11px;" onclick="loadAdStats()">🔄</button>
+        </div>
+
+        <div class="ad-stats-grid">
+          <!-- Slot 1 -->
+          <div class="ad-stat-card">
+            <div class="as-top">
+              <span class="as-icon">📡</span>
+              <span class="as-slot as-slot-1">SLOT 1</span>
+            </div>
+            <div class="as-count as-count-1" id="adStat1Count"><div class="skel"></div></div>
+            <div class="as-label">বার দেখা হয়েছে আজ</div>
+            <div class="as-bar-wrap"><div class="as-bar as-bar-1" id="adBar1" style="width:0%"></div></div>
+            <div class="as-footer">
+              <span class="as-unique">ইউনিক ইউজার: <span id="adUniq1">—</span></span>
+              <span style="font-size:10px;color:var(--text2);" id="adEarn1Label"></span>
+            </div>
+          </div>
+          <!-- Slot 2 -->
+          <div class="ad-stat-card">
+            <div class="as-top">
+              <span class="as-icon">⚡</span>
+              <span class="as-slot as-slot-2">SLOT 2</span>
+            </div>
+            <div class="as-count as-count-2" id="adStat2Count"><div class="skel"></div></div>
+            <div class="as-label">বার দেখা হয়েছে আজ</div>
+            <div class="as-bar-wrap"><div class="as-bar as-bar-2" id="adBar2" style="width:0%"></div></div>
+            <div class="as-footer">
+              <span class="as-unique">ইউনিক ইউজার: <span id="adUniq2">—</span></span>
+              <span style="font-size:10px;color:var(--text2);" id="adEarn2Label"></span>
+            </div>
+          </div>
+          <!-- Slot 3 -->
+          <div class="ad-stat-card">
+            <div class="as-top">
+              <span class="as-icon">🎯</span>
+              <span class="as-slot as-slot-3">SLOT 3</span>
+            </div>
+            <div class="as-count as-count-3" id="adStat3Count"><div class="skel"></div></div>
+            <div class="as-label">বার দেখা হয়েছে আজ</div>
+            <div class="as-bar-wrap"><div class="as-bar as-bar-3" id="adBar3" style="width:0%"></div></div>
+            <div class="as-footer">
+              <span class="as-unique">ইউনিক ইউজার: <span id="adUniq3">—</span></span>
+              <span style="font-size:10px;color:var(--text2);" id="adEarn3Label"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total today -->
+        <div class="ad-total-card">
+          <div class="ad-total-icon">📊</div>
+          <div class="ad-total-info">
+            <div class="ad-total-label">আজ সর্বমোট এড দেখা হয়েছে</div>
+            <div class="ad-total-value" id="adTotalToday">—</div>
+            <div class="ad-total-sub" id="adTotalEarned">আনুমানিক আয়: ৳—</div>
+          </div>
+          <div class="ad-total-right">
+            <div class="ad-total-date">তারিখ<span id="adTodayDate">—</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- ══ END AD STATS ══ -->
+
       <div class="panel">
         <div class="panel-head">⏳ সাম্প্রতিক পেন্ডিং উইথড্র</div>
         <div class="panel-body">
@@ -281,8 +397,6 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
         <div class="page-title">⚙️ কনফিগারেশন</div>
         <button class="btn btn-gold" onclick="saveConfig()">💾 সেভ করুন</button>
       </div>
-
-      <!-- ══ POPUP SETTINGS ══ -->
       <div class="panel">
         <div class="panel-head">🔔 স্টার্টআপ পপআপ সেটিংস
           <span class="badge badge-blue">প্রতিবার অ্যাপ খুললে দেখাবে</span>
@@ -298,24 +412,11 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
             </div>
           </div>
           <div class="form-grid" style="margin-bottom:0;">
-            <div class="form-group">
-              <label>আইকন (ইমোজি)</label>
-              <input type="text" id="cfg_popupIcon" placeholder="📢" maxlength="4" oninput="updatePopupPreview()">
-            </div>
-            <div class="form-group">
-              <label>বাটন টেক্সট</label>
-              <input type="text" id="cfg_popupBtnText" placeholder="ঠিক আছে" oninput="updatePopupPreview()">
-            </div>
-            <div class="form-group full">
-              <label>শিরোনাম (Title)</label>
-              <input type="text" id="cfg_popupTitle" placeholder="স্বাগতম!" oninput="updatePopupPreview()">
-            </div>
-            <div class="form-group full">
-              <label>বার্তা (Message) — একাধিক লাইন সম্ভব</label>
-              <textarea id="cfg_popupMessage" rows="4" placeholder="এখানে ইউজারদের জন্য নির্দেশনা লিখুন..." oninput="updatePopupPreview()"></textarea>
-            </div>
+            <div class="form-group"><label>আইকন (ইমোজি)</label><input type="text" id="cfg_popupIcon" placeholder="📢" maxlength="4" oninput="updatePopupPreview()"></div>
+            <div class="form-group"><label>বাটন টেক্সট</label><input type="text" id="cfg_popupBtnText" placeholder="ঠিক আছে" oninput="updatePopupPreview()"></div>
+            <div class="form-group full"><label>শিরোনাম (Title)</label><input type="text" id="cfg_popupTitle" placeholder="স্বাগতম!" oninput="updatePopupPreview()"></div>
+            <div class="form-group full"><label>বার্তা (Message)</label><textarea id="cfg_popupMessage" rows="4" placeholder="এখানে নির্দেশনা লিখুন..." oninput="updatePopupPreview()"></textarea></div>
           </div>
-          <!-- Live Preview -->
           <div style="margin-top:16px;">
             <div style="font-size:11px;color:var(--text2);font-weight:600;letter-spacing:.5px;margin-bottom:8px;">👁️ LIVE PREVIEW</div>
             <div class="popup-preview-box">
@@ -327,24 +428,17 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
           </div>
         </div>
       </div>
-
-      <!-- AD SLOT 1 -->
       <div class="panel">
         <div class="panel-head">📡 Ad Slot 1 — Adsterra Direct Link</div>
         <div class="panel-body">
           <div class="form-grid-4">
-            <div class="form-group full" style="grid-column:span 2">
-              <label>Adsterra Direct Link (Slot 1)</label>
-              <input type="url" id="cfg_ad1Link" placeholder="https://...">
-            </div>
+            <div class="form-group full" style="grid-column:span 2"><label>Adsterra Direct Link (Slot 1)</label><input type="url" id="cfg_ad1Link" placeholder="https://..."></div>
             <div class="form-group"><label>আয় (৳)</label><input type="number" id="cfg_ad1Earn" placeholder="0.50" step="0.01" min="0"></div>
             <div class="form-group"><label>কুলডাউন (সেকেন্ড)</label><input type="number" id="cfg_ad1Cooldown" placeholder="60" min="0"></div>
             <div class="form-group"><label>দৈনিক লিমিট (বার)</label><input type="number" id="cfg_ad1DailyLimit" placeholder="5" min="1"></div>
           </div>
         </div>
       </div>
-
-      <!-- AD SLOT 2 -->
       <div class="panel">
         <div class="panel-head">⚡ Ad Slot 2 — Monetag</div>
         <div class="panel-body">
@@ -356,24 +450,17 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--bl
           </div>
         </div>
       </div>
-
-      <!-- AD SLOT 3 -->
       <div class="panel">
         <div class="panel-head">🎯 Ad Slot 3 — Adsterra Direct Link</div>
         <div class="panel-body">
           <div class="form-grid-4">
-            <div class="form-group full" style="grid-column:span 2">
-              <label>Adsterra Direct Link (Slot 3)</label>
-              <input type="url" id="cfg_ad3Link" placeholder="https://...">
-            </div>
+            <div class="form-group full" style="grid-column:span 2"><label>Adsterra Direct Link (Slot 3)</label><input type="url" id="cfg_ad3Link" placeholder="https://..."></div>
             <div class="form-group"><label>আয় (৳)</label><input type="number" id="cfg_ad3Earn" placeholder="0.75" step="0.01" min="0"></div>
             <div class="form-group"><label>কুলডাউন (সেকেন্ড)</label><input type="number" id="cfg_ad3Cooldown" placeholder="90" min="0"></div>
             <div class="form-group"><label>দৈনিক লিমিট (বার)</label><input type="number" id="cfg_ad3DailyLimit" placeholder="5" min="1"></div>
           </div>
         </div>
       </div>
-
-      <!-- GENERAL -->
       <div class="panel">
         <div class="panel-head">🔧 সাধারণ সেটিংস</div>
         <div class="panel-body">
@@ -460,6 +547,15 @@ function dbRemove(p)   { return window._remove(dbRef(p)); }
 function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type}`;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 function fmtDate(ts){return ts?new Date(ts).toLocaleDateString('bn-BD',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';}
 
+function todayKey(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function todayDisplay(){
+  const d=new Date();
+  return d.toLocaleDateString('bn-BD',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+
 /* ══ LOGIN ══ */
 let adminPassHash = '';
 async function initAdmin() {
@@ -493,6 +589,85 @@ function showPage(name, evt) {
   if(evt) evt.currentTarget.classList.add('active');
 }
 
+/* ══════════════════════════════════════════
+   AD STATS — TODAY'S WATCH COUNT (NEW)
+   ══════════════════════════════════════════ */
+let _adConfig = {};
+
+async function loadAdStats() {
+  const today = todayKey();
+
+  // Set date badges
+  document.getElementById('todayDateBadge').textContent = todayDisplay();
+  document.getElementById('adTodayDate').textContent = todayDisplay();
+
+  // Load config for earn rates
+  const cfgSnap = await dbGet('config');
+  if (cfgSnap.exists()) _adConfig = cfgSnap.val();
+  const earn1 = Number(_adConfig.ad1Earn || 0.5);
+  const earn2 = Number(_adConfig.ad2Earn || 1.0);
+  const earn3 = Number(_adConfig.ad3Earn || 0.75);
+
+  document.getElementById('adEarn1Label').textContent = `প্রতিটি ৳${earn1.toFixed(2)}`;
+  document.getElementById('adEarn2Label').textContent = `প্রতিটি ৳${earn2.toFixed(2)}`;
+  document.getElementById('adEarn3Label').textContent = `প্রতিটি ৳${earn3.toFixed(2)}`;
+
+  // Load all users
+  const usersSnap = await dbGet('users');
+  if (!usersSnap.exists()) {
+    ['1','2','3'].forEach(n => {
+      document.getElementById(`adStat${n}Count`).textContent = '0';
+      document.getElementById(`adUniq${n}`).textContent = '0';
+      document.getElementById(`adBar${n}`).style.width = '0%';
+    });
+    document.getElementById('adTotalToday').textContent = '0';
+    document.getElementById('adTotalEarned').textContent = 'আনুমানিক আয়: ৳0.00';
+    return;
+  }
+
+  const users = usersSnap.val();
+
+  // Count watches for each slot
+  let count1=0, count2=0, count3=0;
+  let uniq1=0, uniq2=0, uniq3=0;
+
+  Object.values(users).forEach(u => {
+    const daily = u.adWatchedDaily || {};
+    // Slot 1
+    const w1 = daily.ad1?.[today] || 0;
+    if (w1 > 0) { count1 += w1; uniq1++; }
+    // Slot 2
+    const w2 = daily.ad2?.[today] || 0;
+    if (w2 > 0) { count2 += w2; uniq2++; }
+    // Slot 3
+    const w3 = daily.ad3?.[today] || 0;
+    if (w3 > 0) { count3 += w3; uniq3++; }
+  });
+
+  const totalToday = count1 + count2 + count3;
+  const totalEarned = (count1 * earn1) + (count2 * earn2) + (count3 * earn3);
+  const maxCount = Math.max(count1, count2, count3, 1);
+
+  // Render counts
+  document.getElementById('adStat1Count').textContent = count1;
+  document.getElementById('adStat2Count').textContent = count2;
+  document.getElementById('adStat3Count').textContent = count3;
+
+  // Render unique users
+  document.getElementById('adUniq1').textContent = uniq1;
+  document.getElementById('adUniq2').textContent = uniq2;
+  document.getElementById('adUniq3').textContent = uniq3;
+
+  // Render progress bars (relative to slot with most views)
+  document.getElementById('adBar1').style.width = `${Math.round((count1/maxCount)*100)}%`;
+  document.getElementById('adBar2').style.width = `${Math.round((count2/maxCount)*100)}%`;
+  document.getElementById('adBar3').style.width = `${Math.round((count3/maxCount)*100)}%`;
+
+  // Totals
+  document.getElementById('adTotalToday').textContent = totalToday;
+  document.getElementById('adTotalEarned').textContent = `আনুমানিক ইউজার আয়: ৳${totalEarned.toFixed(2)}`;
+}
+
 /* ══ DASHBOARD ══ */
 async function loadDashboard(){
   const [usersSnap,wSnap]=await Promise.all([dbGet('users'),dbGet('withdrawals')]);
@@ -509,6 +684,9 @@ async function loadDashboard(){
   const pending=Object.entries(wSnap.val()).filter(([,v])=>v.status==='pending').sort(([,a],[,b])=>b.requestedAt-a.requestedAt).slice(0,10);
   if(pending.length===0){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:20px;">কোনো পেন্ডিং নেই</td></tr>';return;}
   tbody.innerHTML=pending.map(([k,v])=>`<tr><td>${v.name||v.uid}</td><td><span class="badge badge-blue">${v.method?.toUpperCase()}</span></td><td style="font-family:var(--font-en)">${v.number}</td><td style="color:var(--gold);font-family:var(--font-en);font-weight:700">৳${Number(v.amount).toFixed(2)}</td><td>${fmtDate(v.requestedAt)}</td><td class="td-actions"><button class="btn btn-green btn-sm" onclick="approveWithdrawal('${k}','${v.uid}',${v.amount})">✅</button><button class="btn btn-red btn-sm" onclick="rejectWithdrawal('${k}','${v.uid}',${v.amount})">❌</button></td></tr>`).join('');
+
+  // Load ad stats alongside dashboard
+  await loadAdStats();
 }
 
 /* ══ WITHDRAWALS ══ */
@@ -551,7 +729,6 @@ async function deleteUser(uid){if(!confirm('এই ইউজার মুছে 
 /* ══ CONFIG ══ */
 async function loadConfig(){
   const snap=await dbGet('config');if(!snap.exists())return;const c=snap.val();
-  // popup
   const p=c.popup||{};
   document.getElementById('cfg_popupEnabled').checked = !!p.enabled;
   document.getElementById('cfg_popupIcon').value    = p.icon    || '📢';
@@ -559,7 +736,6 @@ async function loadConfig(){
   document.getElementById('cfg_popupMessage').value = p.message || '';
   document.getElementById('cfg_popupBtnText').value = p.btnText || 'ঠিক আছে';
   updatePopupPreview();
-  // ads & general
   document.getElementById('cfg_ad1Link').value=c.ad1Link||'';
   document.getElementById('cfg_ad1Earn').value=c.ad1Earn||0.5;
   document.getElementById('cfg_ad1Cooldown').value=c.ad1Cooldown||60;
@@ -576,14 +752,12 @@ async function loadConfig(){
   document.getElementById('cfg_referEarn').value=c.referEarn||5;
   document.getElementById('cfg_supportLink').value=c.supportLink||'';
 }
-
 function updatePopupPreview(){
   document.getElementById('prevIcon').textContent  = document.getElementById('cfg_popupIcon').value  || '📢';
   document.getElementById('prevTitle').textContent = document.getElementById('cfg_popupTitle').value || 'শিরোনাম';
   document.getElementById('prevMsg').textContent   = document.getElementById('cfg_popupMessage').value || 'বার্তা এখানে দেখাবে...';
   document.getElementById('prevBtn').textContent   = document.getElementById('cfg_popupBtnText').value || 'ঠিক আছে';
 }
-
 async function saveConfig(){
   const newPass=document.getElementById('cfg_adminPass').value.trim();
   const upd={
