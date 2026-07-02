@@ -248,36 +248,6 @@ input:checked+.sldr:before{transform:translateX(20px);background:#fff}
   </div>
 
   <div class="chain-wrap">
-    <div class="chain-hd"><div class="chain-title">📡 Ad Slot 1 <span style="font-size:12px;color:var(--muted);font-weight:500">(Home — বাম কার্ড)</span></div><button class="btn bg" onclick="saveChain('s1')">💾 Save Slot 1</button></div>
-    <div class="chain-sub">Home page এর প্রথম Ad কার্ড (📡) → এই chain চলে → টাকা যোগ হয়</div>
-    <div class="fc" style="margin-bottom:14px">
-      <div class="fg3">
-        <div class="fg"><label>প্রতি সেশনে মোট বিজ্ঞাপন (1-5)</label><div class="cnt-sel" id="s1-cnt"><div class="cnt-opt active" data-n="1" onclick="setCnt('s1',1)">1</div><div class="cnt-opt" data-n="2" onclick="setCnt('s1',2)">2</div><div class="cnt-opt" data-n="3" onclick="setCnt('s1',3)">3</div><div class="cnt-opt" data-n="4" onclick="setCnt('s1',4)">4</div><div class="cnt-opt" data-n="5" onclick="setCnt('s1',5)">5</div></div><input type="hidden" id="s1-count" value="1"></div>
-        <div class="fg"><label>পুরস্কার (৳ টাকা)</label><div class="input-prefix"><span>৳</span><input type="number" id="s1-reward" value="0.50" step="0.01" placeholder="0.50"></div></div>
-        <div class="fg"><label>Cooldown (সেকেন্ড)</label><input type="number" id="s1-cooldown" value="60" placeholder="60"><div style="font-size:11px;color:var(--muted);margin-top:4px">Claim এর পর কত সেকেন্ড button বন্ধ থাকবে</div></div>
-      </div>
-      <div class="fg" style="margin-top:14px"><label>দৈনিক সীমা (Daily Limit)</label><div style="display:flex;align-items:center;gap:10px"><input type="number" id="s1-dailylimit" value="5" placeholder="5" style="width:120px"><span style="font-size:12px;color:var(--muted)">একজন ইউজার দিনে সর্বোচ্চ এতবার এই Slot দেখতে পারবে</span></div></div>
-    </div>
-    <div class="sec-lbl">📋 Ad Slot Queue</div><div class="slot-queue" id="s1-slots"></div>
-    <div class="sec-lbl">👁️ Flow Preview</div><div class="flow-prev" id="s1-preview"><span style="color:var(--muted);font-size:12px">Save করলে দেখাবে</span></div>
-  </div>
-
-  <div class="chain-wrap">
-    <div class="chain-hd"><div class="chain-title">⚡ Ad Slot 2 <span style="font-size:12px;color:var(--muted);font-weight:500">(Home — ডান কার্ড)</span></div><button class="btn bg" onclick="saveChain('s2')">💾 Save Slot 2</button></div>
-    <div class="chain-sub">Home page এর দ্বিতীয় Ad কার্ড (⚡) → এই chain চলে → টাকা যোগ হয়</div>
-    <div class="fc" style="margin-bottom:14px">
-      <div class="fg3">
-        <div class="fg"><label>প্রতি সেশনে মোট বিজ্ঞাপন (1-5)</label><div class="cnt-sel" id="s2-cnt"><div class="cnt-opt active" data-n="1" onclick="setCnt('s2',1)">1</div><div class="cnt-opt" data-n="2" onclick="setCnt('s2',2)">2</div><div class="cnt-opt" data-n="3" onclick="setCnt('s2',3)">3</div><div class="cnt-opt" data-n="4" onclick="setCnt('s2',4)">4</div><div class="cnt-opt" data-n="5" onclick="setCnt('s2',5)">5</div></div><input type="hidden" id="s2-count" value="1"></div>
-        <div class="fg"><label>পুরস্কার (৳ টাকা)</label><div class="input-prefix"><span>৳</span><input type="number" id="s2-reward" value="1.00" step="0.01" placeholder="1.00"></div></div>
-        <div class="fg"><label>Cooldown (সেকেন্ড)</label><input type="number" id="s2-cooldown" value="120" placeholder="120"><div style="font-size:11px;color:var(--muted);margin-top:4px">Claim এর পর কত সেকেন্ড button বন্ধ থাকবে</div></div>
-      </div>
-      <div class="fg" style="margin-top:14px"><label>দৈনিক সীমা (Daily Limit)</label><div style="display:flex;align-items:center;gap:10px"><input type="number" id="s2-dailylimit" value="5" placeholder="5" style="width:120px"><span style="font-size:12px;color:var(--muted)">একজন ইউজার দিনে সর্বোচ্চ এতবার এই Slot দেখতে পারবে</span></div></div>
-    </div>
-    <div class="sec-lbl">📋 Ad Slot Queue</div><div class="slot-queue" id="s2-slots"></div>
-    <div class="sec-lbl">👁️ Flow Preview</div><div class="flow-prev" id="s2-preview"><span style="color:var(--muted);font-size:12px">Save করলে দেখাবে</span></div>
-  </div>
-
-  <div class="chain-wrap">
     <div class="chain-hd"><div class="chain-title">🎯 Ad Slot 3 <span style="font-size:12px;color:var(--muted);font-weight:500">(Home — নিচের চওড়া কার্ড)</span></div><button class="btn bg" onclick="saveChain('s3')">💾 Save Slot 3</button></div>
     <div class="chain-sub">Home page এর তৃতীয় Ad কার্ড (🎯) → এই chain চলে → টাকা যোগ হয়</div>
     <div class="fc" style="margin-bottom:14px">
@@ -383,8 +353,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 let AU={},AW={},wdf='all';
-let chainCounts={s1:1,s2:1,s3:1,wd:1};
-const SLOT_LABEL={s1:'Slot 1',s2:'Slot 2',s3:'Slot 3',wd:'Withdraw'};
+let chainCounts={s3:1,wd:1};
+const SLOT_LABEL={s3:'Slot 3',wd:'Withdraw'};
 
 // ── Today's Ads Helper (CoinsX schema: adWatchedDaily.ad1/ad2/ad3[YYYY-MM-DD]) ──
 function todayKeyAdmin(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -405,7 +375,7 @@ async function doLogin(){
   catch(e){if(p==='admin123')showAdmin();else document.getElementById('lerr').textContent='❌ '+e.message;}
 }
 document.getElementById('lpass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-function showAdmin(){document.getElementById('ls').style.display='none';document.getElementById('sb').style.display='flex';document.getElementById('main').style.display='block';renderSlots('s1',chainCounts.s1);renderSlots('s2',chainCounts.s2);renderSlots('s3',chainCounts.s3);renderSlots('wd',chainCounts.wd);initAdmin();}
+function showAdmin(){document.getElementById('ls').style.display='none';document.getElementById('sb').style.display='flex';document.getElementById('main').style.display='block';renderSlots('s3',chainCounts.s3);renderSlots('wd',chainCounts.wd);initAdmin();}
 function initAdmin(){
   db.ref('users').on('value',s=>{AU=s.val()||{};renderDash();renderUsers();});
   db.ref('withdrawals').on('value',s=>{AW=s.val()||{};renderWd();renderPendDash();updateBadge();});
@@ -429,7 +399,7 @@ function initAdmin(){
       document.getElementById('arReason').value=d.autoReject.reason||'সময়মতো প্রসেস করা হয়নি';
     }
     if(d.credentials)loadCreds(d.credentials);
-    if(d.adChains){loadChain('s1',d.adChains.slot1||{});loadChain('s2',d.adChains.slot2||{});loadChain('s3',d.adChains.slot3||{});}
+    if(d.adChains){loadChain('s3',d.adChains.slot3||{});}
     if(d.withdrawChain)loadChain('wd',d.withdrawChain);
   });
 }
