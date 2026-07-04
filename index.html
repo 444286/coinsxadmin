@@ -530,7 +530,11 @@ async function bulkApprove(){
   const items=[...bulkSelected].map(s=>JSON.parse(s));
   showToast('⏳ Processing...');
   for(const w of items){
-    await db.ref('withdrawals/'+w.id).update({status:'approved'});
+    const tx=await db.ref('withdrawals/'+w.id).transaction(x=>{
+      if(x&&x.status==='pending'){x.status='approved';return x;}
+      return; // already processed elsewhere — abort, no double credit
+    });
+    if(!tx.committed)continue;
     const us=await db.ref('users/'+w.uid).get();
     if(us.exists()){const d=us.val();await db.ref('users/'+w.uid).update({totalWithdrawn:(d.totalWithdrawn||0)+w.amt});}
   }
@@ -550,7 +554,11 @@ async function confirmBulkReject(){
   const items=[...bulkSelected].map(s=>JSON.parse(s));
   showToast('⏳ Processing...');
   for(const w of items){
-    await db.ref('withdrawals/'+w.id).update({status:'rejected',reason:r});
+    const tx=await db.ref('withdrawals/'+w.id).transaction(x=>{
+      if(x&&x.status==='pending'){x.status='rejected';x.reason=r;return x;}
+      return; // already processed elsewhere — abort, no double credit
+    });
+    if(!tx.committed)continue;
     const snap=await db.ref('users/'+w.uid).get();
     if(snap.exists()){const d=snap.val();await db.ref('users/'+w.uid).update({balance:(d.balance||0)+w.amt});}
   }
@@ -560,9 +568,12 @@ async function confirmBulkReject(){
 
 function fw(f){wdf=f;renderWd();}
 async function apprWd(id){
-  const s=await db.ref('withdrawals/'+id).get();
-  const w=s.val()||{};
-  await db.ref('withdrawals/'+id).update({status:'approved'});
+  const tx=await db.ref('withdrawals/'+id).transaction(w=>{
+    if(w&&w.status==='pending'){w.status='approved';return w;}
+    return; // already processed elsewhere — abort, no double credit
+  });
+  if(!tx.committed){showToast('⚠️ ইতিমধ্যে প্রসেস হয়ে গেছে');return;}
+  const w=tx.snapshot.val()||{};
   if(w.uid){
     const us=await db.ref('users/'+w.uid).get();
     if(us.exists()){const d=us.val();await db.ref('users/'+w.uid).update({totalWithdrawn:(d.totalWithdrawn||0)+Number(w.amount||0)});}
@@ -570,7 +581,18 @@ async function apprWd(id){
   showToast('✅ অনুমোদিত হয়েছে!');
 }
 function openRej(id,uid,amt){document.getElementById('rwi').value=id;document.getElementById('rui').value=uid;document.getElementById('ram').value=amt;document.getElementById('rr').value='';document.getElementById('rejMod').classList.add('open');}
-async function confirmReject(){const id=document.getElementById('rwi').value,uid=document.getElementById('rui').value,amt=parseFloat(document.getElementById('ram').value),r=document.getElementById('rr').value.trim();if(!r)return showToast('⚠️ কারণ লিখুন');await db.ref('withdrawals/'+id).update({status:'rejected',reason:r});const s=await db.ref('users/'+uid).get();if(s.exists()){const d=s.val();await db.ref('users/'+uid).update({balance:(d.balance||0)+amt});}cm('rejMod');showToast('✗ প্রত্যাখ্যাত ও ব্যালেন্স ফেরত দেওয়া হয়েছে');}
+async function confirmReject(){
+  const id=document.getElementById('rwi').value,uid=document.getElementById('rui').value,amt=parseFloat(document.getElementById('ram').value),r=document.getElementById('rr').value.trim();
+  if(!r)return showToast('⚠️ কারণ লিখুন');
+  const tx=await db.ref('withdrawals/'+id).transaction(w=>{
+    if(w&&w.status==='pending'){w.status='rejected';w.reason=r;return w;}
+    return; // already processed elsewhere — abort, no double credit
+  });
+  if(!tx.committed){cm('rejMod');showToast('⚠️ ইতিমধ্যে প্রসেস হয়ে গেছে, ব্যালেন্স ফেরত দেওয়া হয়নি');return;}
+  const s=await db.ref('users/'+uid).get();
+  if(s.exists()){const d=s.val();await db.ref('users/'+uid).update({balance:(d.balance||0)+amt});}
+  cm('rejMod');showToast('✗ প্রত্যাখ্যাত ও ব্যালেন্স ফেরত দেওয়া হয়েছে');
+}
 
 // ── ADS (legacy list — not consumed by CoinsX app; kept for future use) ──
 function renderAdsT(ads){const t=document.getElementById('atbl');if(!ads.length){t.innerHTML=`<tr class="erow"><td colspan="7">কোনো ad নেই</td></tr>`;return;}t.innerHTML=ads.map((a,i)=>`<tr><td style="font-size:22px">${a.icon||'📺'}</td><td><strong>${a.name}</strong></td><td style="color:var(--muted)">${a.desc||''}</td><td style="color:var(--taka);font-weight:700">৳${Number(a.reward).toFixed(2)}</td><td>${a.duration}s</td><td><span class="bdg ${a.active!==false?'b-a':'b-r'}">${a.active!==false?'সক্রিয়':'বন্ধ'}</span></td><td><div style="display:flex;gap:6px"><button class="btn bgh bsm" onclick="editAd(${i})">✏️</button><button class="btn br bsm" onclick="delAd(${i})">🗑️</button></div></td></tr>`).join('');}
@@ -629,22 +651,28 @@ async function runAutoReject(){
     const cutoff=Date.now()-(hours*60*60*1000);
     const wSnap=await db.ref('withdrawals').get();
     if(!wSnap.exists())return;
-    const tasks=[];
+    const candidates=[];
     wSnap.forEach(child=>{
       const w=child.val();
       if(w.status==='pending'&&new Date(w.requestedAt).getTime()<cutoff){
-        tasks.push({id:child.key,uid:w.uid,amount:w.amount});
+        candidates.push({id:child.key,uid:w.uid,amount:w.amount});
       }
     });
-    for(const w of tasks){
-      await db.ref('withdrawals/'+w.id).update({status:'rejected',reason:reason});
+    let doneCount=0;
+    for(const w of candidates){
+      const tx=await db.ref('withdrawals/'+w.id).transaction(x=>{
+        if(x&&x.status==='pending'){x.status='rejected';x.reason=reason;return x;}
+        return; // already approved/rejected elsewhere — abort, no double credit
+      });
+      if(!tx.committed)continue;
       const uSnap=await db.ref('users/'+w.uid).get();
       if(uSnap.exists()){
         const d=uSnap.val();
         await db.ref('users/'+w.uid).update({balance:(d.balance||0)+w.amount});
       }
+      doneCount++;
     }
-    if(tasks.length>0)console.log(`Auto rejected ${tasks.length} withdrawals`);
+    if(doneCount>0)console.log(`Auto rejected ${doneCount} withdrawals`);
   }catch(e){console.error('Auto reject error:',e);}
 }
 
