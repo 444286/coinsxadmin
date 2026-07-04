@@ -426,15 +426,15 @@ function renderDash(){
   const rec=[...u].sort((a,b)=>new Date(b.joinedAt||0)-new Date(a.joinedAt||0)).slice(0,8);
   const t=document.getElementById('rut');
   if(!rec.length){t.innerHTML=`<tr class="erow"><td colspan="5">কোনো ইউজার নেই</td></tr>`;return;}
-  t.innerHTML=rec.map(u=>`<tr class="${u.blocked?'blocked-row':''}"><td><strong>${u.userName||'?'}</strong></td><td style="font-family:monospace;color:var(--muted);font-size:12px">${u.userId}</td><td style="color:var(--taka);font-weight:700">৳ ${Number(u.balance||0).toFixed(2)}</td><td>${ta(u.joinedAt)}</td><td>${adsBadge(getTodayAds(u))}</td></tr>`).join('');
+  t.innerHTML=rec.map(u=>`<tr class="${u.blocked?'blocked-row':''}"><td><strong>${u.name||'?'}</strong></td><td style="font-family:monospace;color:var(--muted);font-size:12px">${u.uid}</td><td style="color:var(--taka);font-weight:700">৳ ${Number(u.balance||0).toFixed(2)}</td><td>${ta(u.joinedAt)}</td><td>${adsBadge(getTodayAds(u))}</td></tr>`).join('');
 }
-function renderPendDash(){const pend=Object.entries(AW).filter(([,v])=>v.status==='pending').map(([k,v])=>({id:k,...v}));document.getElementById('st-w').textContent=pend.length;const t=document.getElementById('pwt');if(!pend.length){t.innerHTML=`<tr class="erow"><td colspan="6">কোনো অনুরোধ নেই</td></tr>`;return;}t.innerHTML=pend.slice(0,5).map(w=>`<tr><td><strong>${w.userName}</strong></td><td>${w.walletLabel||w.wallet}</td><td style="font-family:monospace;font-size:12px">${w.account}</td><td style="color:var(--taka);font-weight:700">৳ ${Number(w.amount).toFixed(2)}</td><td style="color:var(--muted);font-size:11px">${ta(w.createdAt)}</td><td><div style="display:flex;gap:6px"><button class="btn bg bsm" onclick="apprWd('${w.id}')">✓</button><button class="btn br bsm" onclick="openRej('${w.id}','${w.userId}',${w.amount})">✗</button></div></td></tr>`).join('');}
+function renderPendDash(){const pend=Object.entries(AW).filter(([,v])=>v.status==='pending').map(([k,v])=>({id:k,...v}));document.getElementById('st-w').textContent=pend.length;const t=document.getElementById('pwt');if(!pend.length){t.innerHTML=`<tr class="erow"><td colspan="6">কোনো অনুরোধ নেই</td></tr>`;return;}t.innerHTML=pend.slice(0,5).map(w=>`<tr><td><strong>${w.name}</strong></td><td>${(w.method||'').toUpperCase()}</td><td style="font-family:monospace;font-size:12px">${w.number}</td><td style="color:var(--taka);font-weight:700">৳ ${Number(w.amount).toFixed(2)}</td><td style="color:var(--muted);font-size:11px">${ta(w.requestedAt)}</td><td><div style="display:flex;gap:6px"><button class="btn bg bsm" onclick="apprWd('${w.id}')">✓</button><button class="btn br bsm" onclick="openRej('${w.id}','${w.uid}',${w.amount})">✗</button></div></td></tr>`).join('');}
 function updateBadge(){const c=Object.values(AW).filter(v=>v.status==='pending').length;const b=document.getElementById('pbadge');b.textContent=c;b.style.display=c>0?'inline':'none';}
 
 // ── USERS ──
 function renderUsers(f=''){
   let u=Object.values(AU);
-  if(f)u=u.filter(x=>(x.userName||'').toLowerCase().includes(f)||(x.userId||'').includes(f));
+  if(f)u=u.filter(x=>(x.name||'').toLowerCase().includes(f)||(x.uid||'').includes(f));
   u.sort((a,b)=>new Date(b.joinedAt||0)-new Date(a.joinedAt||0));
   const t=document.getElementById('utbl');
   if(!u.length){t.innerHTML=`<tr class="erow"><td colspan="12">কোনো ইউজার নেই</td></tr>`;return;}
@@ -443,24 +443,24 @@ function renderUsers(f=''){
   
     <td>
       <input type="checkbox" class="u-checkbox" 
-        data-id="${x.userId}" 
+        data-id="${x.uid}" 
         onchange="userSelectToggle(this)">
     </td>
 
-    <td><strong>${x.userName||'?'}</strong></td>
-       <td style="font-family:monospace;font-size:11px;color:var(--muted)">${x.userId}</td>
+    <td><strong>${x.name||'?'}</strong></td>
+       <td style="font-family:monospace;font-size:11px;color:var(--muted)">${x.uid}</td>
       <td style="color:var(--taka);font-weight:700">৳ ${Number(x.balance||0).toFixed(2)}</td>
       <td style="color:var(--green)">৳ ${Number(x.totalEarned||0).toFixed(2)}</td>
       <td style="color:var(--red)">৳ ${Number(x.totalWithdrawn||0).toFixed(2)}</td>
-  <td style="color:var(--accent);font-weight:600">${Object.values(AU).filter(u=>String(u.referredBy)===String(x.userId)).length}</td>
-      <td style="color:var(--accent);font-weight:600">${Object.values(AW).filter(w=>String(w.userId)===String(x.userId)).length}</td>
+  <td style="color:var(--accent);font-weight:600">${Object.values(AU).filter(u=>String(u.referredBy)===String(x.uid)).length}</td>
+      <td style="color:var(--accent);font-weight:600">${Object.values(AW).filter(w=>String(w.uid)===String(x.uid)).length}</td>
       <td style="color:var(--muted);font-size:11px">${fd(x.joinedAt)}</td>
       <td>${adsBadge(getTodayAds(x))}</td>
       <td><span class="bdg ${x.blocked?'b-blk':'b-ok'}">${x.blocked?'🚫 ব্লক':'✅ সক্রিয়'}</span></td>
       <td><div style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="btn bgh bsm" onclick="openBal('${x.userId}','${x.userName||'?'}')">💰</button>
-        ${x.blocked?`<button class="btn bg bsm" onclick="toggleBlock('${x.userId}',false)">✅ Unblock</button>`:`<button class="btn br bsm" onclick="toggleBlock('${x.userId}',true)">🚫 Block</button>`}
-        <button class="btn bsm" style="background:rgba(255,50,50,.15);color:#ff4444;border:1px solid rgba(255,50,50,.3)" onclick="deleteUser('${x.userId}','${x.userName||'?'}')">🗑️</button>
+        <button class="btn bgh bsm" onclick="openBal('${x.uid}','${x.name||'?'}')">💰</button>
+        ${x.blocked?`<button class="btn bg bsm" onclick="toggleBlock('${x.uid}',false)">✅ Unblock</button>`:`<button class="btn br bsm" onclick="toggleBlock('${x.uid}',true)">🚫 Block</button>`}
+        <button class="btn bsm" style="background:rgba(255,50,50,.15);color:#ff4444;border:1px solid rgba(255,50,50,.3)" onclick="deleteUser('${x.uid}','${x.name||'?'}')">🗑️</button>
       </div></td>
     </tr>`).join('');
 }
@@ -477,7 +477,7 @@ async function deleteUser(uid,name){
     const ws=await db.ref('withdrawals').get();
     if(ws.exists()){
       const dels=[];
-      ws.forEach(c=>{if(String(c.val().userId)===String(uid))dels.push(db.ref('withdrawals/'+c.key).remove());});
+      ws.forEach(c=>{if(String(c.val().uid)===String(uid))dels.push(db.ref('withdrawals/'+c.key).remove());});
       await Promise.all(dels);
     }
     showToast('🗑️ ইউজার ও সকল ডেটা মুছে ফেলা হয়েছে!');
@@ -485,7 +485,7 @@ async function deleteUser(uid,name){
 }
 
 // ── WITHDRAWALS ──
-function renderWd(){let it=Object.entries(AW).map(([k,v])=>({id:k,...v}));if(wdf!=='all')it=it.filter(w=>w.status===wdf);it.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));const sM={pending:'b-p',approved:'b-a',rejected:'b-r'};const sL={pending:'⏳ অপেক্ষমান',approved:'✓ অনুমোদিত',rejected:'✗ প্রত্যাখ্যাত'};const t=document.getElementById('wdt');if(!it.length){t.innerHTML=`<tr class="erow"><td colspan="11">কোনো উত্তোলন নেই</td></tr>`;return;}bulkSelected.clear();updateBulkBar();t.innerHTML=it.map(w=>{const uData=AU[w.userId]||{};const uBal=Number(uData.balance||0).toFixed(2);const isBlocked=uData.blocked||false;const isPending=w.status==='pending';return`<tr class="${isBlocked?'blocked-row':''}" id="wrow_${w.id}"><td>${isPending?`<input type="checkbox" class="wd-checkbox" data-id="${w.id}" data-uid="${w.userId}" data-amt="${w.amount}" onchange="bulkToggle(this)">`:'—'}</td><td><strong>${w.userName}</strong><br><span style="font-size:11px;color:var(--muted)">${w.userId}</span></td><td style="color:var(--accent);font-weight:600">${Object.values(AW).filter(v=>String(v.userId)===String(w.userId)).length}</td><td style="color:var(--taka);font-weight:700">৳ ${uBal}</td><td>${adsBadge(getTodayAds(uData))}</td><td>${w.walletLabel||w.wallet}</td><td style="font-family:monospace;font-size:12px">${w.account}</td><td style="color:var(--taka);font-weight:700">৳ ${Number(w.amount).toFixed(2)}</td><td><span class="bdg ${sM[w.status]||'b-p'}">${sL[w.status]||'অপেক্ষমান'}</span>${w.status==='rejected'&&w.reason?`<br><span style="font-size:11px;color:var(--red)">${w.reason}</span>`:''}</td><td style="color:var(--muted);font-size:12px">${fd(w.createdAt)}</td><td><div style="display:flex;gap:5px;flex-wrap:wrap">${isPending?`<button class="btn bg bsm" onclick="apprWd('${w.id}')">✓</button><button class="btn br bsm" onclick="openRej('${w.id}','${w.userId}',${w.amount})">✗</button>`:''}<br>${isBlocked?`<button class="btn bg bsm" onclick="toggleBlock('${w.userId}',false)">✅ Unblock</button>`:`<button class="btn br bsm" onclick="toggleBlock('${w.userId}',true)">🚫 Block</button>`}</div></td></tr>`}).join('');}
+function renderWd(){let it=Object.entries(AW).map(([k,v])=>({id:k,...v}));if(wdf!=='all')it=it.filter(w=>w.status===wdf);it.sort((a,b)=>new Date(b.requestedAt||0)-new Date(a.requestedAt||0));const sM={pending:'b-p',approved:'b-a',rejected:'b-r'};const sL={pending:'⏳ অপেক্ষমান',approved:'✓ অনুমোদিত',rejected:'✗ প্রত্যাখ্যাত'};const t=document.getElementById('wdt');if(!it.length){t.innerHTML=`<tr class="erow"><td colspan="11">কোনো উত্তোলন নেই</td></tr>`;return;}bulkSelected.clear();updateBulkBar();t.innerHTML=it.map(w=>{const uData=AU[w.uid]||{};const uBal=Number(uData.balance||0).toFixed(2);const isBlocked=uData.blocked||false;const isPending=w.status==='pending';return`<tr class="${isBlocked?'blocked-row':''}" id="wrow_${w.id}"><td>${isPending?`<input type="checkbox" class="wd-checkbox" data-id="${w.id}" data-uid="${w.uid}" data-amt="${w.amount}" onchange="bulkToggle(this)">`:'—'}</td><td><strong>${w.name}</strong><br><span style="font-size:11px;color:var(--muted)">${w.uid}</span></td><td style="color:var(--accent);font-weight:600">${Object.values(AW).filter(v=>String(v.uid)===String(w.uid)).length}</td><td style="color:var(--taka);font-weight:700">৳ ${uBal}</td><td>${adsBadge(getTodayAds(uData))}</td><td>${(w.method||'').toUpperCase()}</td><td style="font-family:monospace;font-size:12px">${w.number}</td><td style="color:var(--taka);font-weight:700">৳ ${Number(w.amount).toFixed(2)}</td><td><span class="bdg ${sM[w.status]||'b-p'}">${sL[w.status]||'অপেক্ষমান'}</span>${w.status==='rejected'&&w.reason?`<br><span style="font-size:11px;color:var(--red)">${w.reason}</span>`:''}</td><td style="color:var(--muted);font-size:12px">${fd(w.requestedAt)}</td><td><div style="display:flex;gap:5px;flex-wrap:wrap">${isPending?`<button class="btn bg bsm" onclick="apprWd('${w.id}')">✓</button><button class="btn br bsm" onclick="openRej('${w.id}','${w.uid}',${w.amount})">✗</button>`:''}<br>${isBlocked?`<button class="btn bg bsm" onclick="toggleBlock('${w.uid}',false)">✅ Unblock</button>`:`<button class="btn br bsm" onclick="toggleBlock('${w.uid}',true)">🚫 Block</button>`}</div></td></tr>`}).join('');}
 // ── BULK SELECTION ──
 let bulkSelected = new Set(); // Set of {id, userId, amount}
 
@@ -531,6 +531,8 @@ async function bulkApprove(){
   showToast('⏳ Processing...');
   for(const w of items){
     await db.ref('withdrawals/'+w.id).update({status:'approved'});
+    const us=await db.ref('users/'+w.uid).get();
+    if(us.exists()){const d=us.val();await db.ref('users/'+w.uid).update({totalWithdrawn:(d.totalWithdrawn||0)+w.amt});}
   }
   bulkSelected.clear();updateBulkBar();
   showToast('✅ '+items.length+'টি approved!');
@@ -550,16 +552,25 @@ async function confirmBulkReject(){
   for(const w of items){
     await db.ref('withdrawals/'+w.id).update({status:'rejected',reason:r});
     const snap=await db.ref('users/'+w.uid).get();
-    if(snap.exists()){const d=snap.val();await db.ref('users/'+w.uid).update({balance:(d.balance||0)+w.amt,totalWithdrawn:Math.max(0,(d.totalWithdrawn||0)-w.amt)});}
+    if(snap.exists()){const d=snap.val();await db.ref('users/'+w.uid).update({balance:(d.balance||0)+w.amt});}
   }
   bulkSelected.clear();updateBulkBar();
   cm('bulkRejMod');showToast('✗ '+items.length+'টি rejected ও balance ফেরত!');
 }
 
 function fw(f){wdf=f;renderWd();}
-async function apprWd(id){await db.ref('withdrawals/'+id).update({status:'approved'});showToast('✅ অনুমোদিত হয়েছে!');}
+async function apprWd(id){
+  const s=await db.ref('withdrawals/'+id).get();
+  const w=s.val()||{};
+  await db.ref('withdrawals/'+id).update({status:'approved'});
+  if(w.uid){
+    const us=await db.ref('users/'+w.uid).get();
+    if(us.exists()){const d=us.val();await db.ref('users/'+w.uid).update({totalWithdrawn:(d.totalWithdrawn||0)+Number(w.amount||0)});}
+  }
+  showToast('✅ অনুমোদিত হয়েছে!');
+}
 function openRej(id,uid,amt){document.getElementById('rwi').value=id;document.getElementById('rui').value=uid;document.getElementById('ram').value=amt;document.getElementById('rr').value='';document.getElementById('rejMod').classList.add('open');}
-async function confirmReject(){const id=document.getElementById('rwi').value,uid=document.getElementById('rui').value,amt=parseFloat(document.getElementById('ram').value),r=document.getElementById('rr').value.trim();if(!r)return showToast('⚠️ কারণ লিখুন');await db.ref('withdrawals/'+id).update({status:'rejected',reason:r});const s=await db.ref('users/'+uid).get();if(s.exists()){const d=s.val();await db.ref('users/'+uid).update({balance:(d.balance||0)+amt,totalWithdrawn:Math.max(0,(d.totalWithdrawn||0)-amt)});}cm('rejMod');showToast('✗ প্রত্যাখ্যাত ও ব্যালেন্স ফেরত দেওয়া হয়েছে');}
+async function confirmReject(){const id=document.getElementById('rwi').value,uid=document.getElementById('rui').value,amt=parseFloat(document.getElementById('ram').value),r=document.getElementById('rr').value.trim();if(!r)return showToast('⚠️ কারণ লিখুন');await db.ref('withdrawals/'+id).update({status:'rejected',reason:r});const s=await db.ref('users/'+uid).get();if(s.exists()){const d=s.val();await db.ref('users/'+uid).update({balance:(d.balance||0)+amt});}cm('rejMod');showToast('✗ প্রত্যাখ্যাত ও ব্যালেন্স ফেরত দেওয়া হয়েছে');}
 
 // ── ADS (legacy list — not consumed by CoinsX app; kept for future use) ──
 function renderAdsT(ads){const t=document.getElementById('atbl');if(!ads.length){t.innerHTML=`<tr class="erow"><td colspan="7">কোনো ad নেই</td></tr>`;return;}t.innerHTML=ads.map((a,i)=>`<tr><td style="font-size:22px">${a.icon||'📺'}</td><td><strong>${a.name}</strong></td><td style="color:var(--muted)">${a.desc||''}</td><td style="color:var(--taka);font-weight:700">৳${Number(a.reward).toFixed(2)}</td><td>${a.duration}s</td><td><span class="bdg ${a.active!==false?'b-a':'b-r'}">${a.active!==false?'সক্রিয়':'বন্ধ'}</span></td><td><div style="display:flex;gap:6px"><button class="btn bgh bsm" onclick="editAd(${i})">✏️</button><button class="btn br bsm" onclick="delAd(${i})">🗑️</button></div></td></tr>`).join('');}
@@ -621,16 +632,16 @@ async function runAutoReject(){
     const tasks=[];
     wSnap.forEach(child=>{
       const w=child.val();
-      if(w.status==='pending'&&new Date(w.createdAt).getTime()<cutoff){
-        tasks.push({id:child.key,userId:w.userId,amount:w.amount});
+      if(w.status==='pending'&&new Date(w.requestedAt).getTime()<cutoff){
+        tasks.push({id:child.key,uid:w.uid,amount:w.amount});
       }
     });
     for(const w of tasks){
       await db.ref('withdrawals/'+w.id).update({status:'rejected',reason:reason});
-      const uSnap=await db.ref('users/'+w.userId).get();
+      const uSnap=await db.ref('users/'+w.uid).get();
       if(uSnap.exists()){
         const d=uSnap.val();
-        await db.ref('users/'+w.userId).update({balance:(d.balance||0)+w.amount,totalWithdrawn:Math.max(0,(d.totalWithdrawn||0)-w.amount)});
+        await db.ref('users/'+w.uid).update({balance:(d.balance||0)+w.amount});
       }
     }
     if(tasks.length>0)console.log(`Auto rejected ${tasks.length} withdrawals`);
@@ -719,7 +730,7 @@ async function bulkDeleteUsers(){
         const tasks = [];
 
         wSnap.forEach(c=>{
-          if(String(c.val().userId) === String(uid)){
+          if(String(c.val().uid) === String(uid)){
             tasks.push(db.ref('withdrawals/' + c.key).remove());
           }
         });
