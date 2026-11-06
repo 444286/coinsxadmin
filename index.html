@@ -216,6 +216,12 @@ tr:hover td{background:rgba(255,255,255,.02);}
           <div style="font-size:11px;color:var(--text2);margin-top:7px;line-height:1.6;">এখানে যে URL সেভ করবেন, CoinsX-এর Copy Button প্রতিবার সেই সর্বশেষ URL-এ নতুন Shortlink তৈরি করবে। Shortlink সাইটের কোড পরিবর্তন করা হবে না।</div>
         </div>
 
+
+        <div class="panel-title" style="margin-top:22px;">👥 Facebook Group Join লিংক</div>
+        <div style="font-size:11px;color:var(--text2);margin:-6px 0 12px;line-height:1.6;">প্রয়োজন অনুযায়ী যত খুশি Facebook Group যোগ করতে পারবেন। প্রতিটি গ্রুপের নাম ও URL দিন। ফাঁকা গ্রুপ Main App-এ দেখাবে না।</div>
+        <div id="fbGroupFields"></div>
+        <button type="button" class="btn" style="margin:8px 0 16px;background:var(--card2);" onclick="addFacebookGroupField()">＋ আরও গ্রুপ যোগ করুন</button>
+
         <button class="btn btn-success" onclick="savePostSettings()">💾 পোস্ট সেটিং সেভ করুন</button>
       </div>
 
@@ -473,6 +479,24 @@ async function loadDashboard(){
 /* ══════════════════════════════════════════
    POST SETTINGS
 ══════════════════════════════════════════ */
+let fbGroupFieldCount = 0;
+
+function addFacebookGroupField(group = {}){
+  const container = document.getElementById('fbGroupFields');
+  if(!container) return;
+  const id = ++fbGroupFieldCount;
+  const row = document.createElement('div');
+  row.className = 'form-row';
+  row.style.cssText = 'align-items:end;margin-bottom:10px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;';
+  row.innerHTML = `
+    <div class="form-group"><label class="lbl">Group ${id} নাম</label><input class="inp fb-group-name" placeholder="যেমন: CoinsX Community"></div>
+    <div class="form-group"><label class="lbl">Group ${id} URL</label><input class="inp fb-group-url" type="url" placeholder="https://www.facebook.com/groups/..." inputmode="url"></div>
+    <button type="button" class="btn" style="background:rgba(255,77,109,.15);color:var(--red);height:42px;" aria-label="গ্রুপ সরান" title="গ্রুপ সরান" onclick="this.closest('.form-row').remove()">✕</button>`;
+  row.querySelector('.fb-group-name').value = group.name || '';
+  row.querySelector('.fb-group-url').value = group.url || '';
+  container.appendChild(row);
+}
+
 async function loadPostSettings(){
   try {
     const snap = await dbGet('config');
@@ -480,6 +504,12 @@ async function loadPostSettings(){
     document.getElementById('postEarnAmount').value  = cfg.postEarnAmount  ?? 2;
     document.getElementById('postDailyLimit').value  = cfg.postDailyLimit  ?? 10;
     document.getElementById('postTargetUrl').value   = cfg.postTargetUrl   ?? '';
+    const container = document.getElementById('fbGroupFields');
+    container.innerHTML = '';
+    fbGroupFieldCount = 0;
+    const groups = Array.isArray(cfg.fbGroups) ? cfg.fbGroups : Object.values(cfg.fbGroups || {});
+    groups.forEach(g => addFacebookGroupField(g));
+    if(!groups.length) addFacebookGroupField();
   } catch(err) {
     console.error('loadPostSettings:', err);
     toast('পোস্ট সেটিং লোড হয়নি। Firebase সংযোগ পরীক্ষা করুন।','err');
@@ -490,6 +520,19 @@ async function savePostSettings(){
   const earn  = parseFloat(document.getElementById('postEarnAmount').value);
   const limit = parseInt(document.getElementById('postDailyLimit').value, 10);
   const url   = document.getElementById('postTargetUrl').value.trim();
+  const fbGroups = [];
+  const rows = [...document.querySelectorAll('#fbGroupFields .form-row')];
+  for(let i=0;i<rows.length;i++){
+    const name = rows[i].querySelector('.fb-group-name').value.trim();
+    const groupUrl = rows[i].querySelector('.fb-group-url').value.trim();
+    if(!name && !groupUrl) continue;
+    if(!name || !groupUrl){ toast(`Group ${i+1}: নাম ও URL দুটোই দিন`,'err'); return; }
+    let parsedGroup;
+    try { parsedGroup = new URL(groupUrl); } catch(_){ toast(`Group ${i+1}: সঠিক URL দিন`,'err'); return; }
+    if(!['http:','https:'].includes(parsedGroup.protocol)){ toast(`Group ${i+1}: সঠিক URL দিন`,'err'); return; }
+    fbGroups.push({ name, url: parsedGroup.href });
+  }
+
   if(!Number.isFinite(earn) || earn < 0){ toast('সঠিক আয়ের পরিমাণ দিন','err'); return; }
   if(!Number.isInteger(limit) || limit < 1){ toast('সঠিক লিমিট দিন (কমপক্ষে ১)','err'); return; }
   let parsed;
@@ -502,11 +545,11 @@ async function savePostSettings(){
   if(button) button.disabled = true;
   try {
     // একই Firebase project-এর root config-এ save হয়; CoinsX এখান থেকেই সর্বশেষ URL পড়ে।
-    await dbUpdate('config', { postEarnAmount: earn, postDailyLimit: limit, postTargetUrl: parsed.href });
+    await dbUpdate('config', { postEarnAmount: earn, postDailyLimit: limit, postTargetUrl: parsed.href, fbGroups });
     const verify = await dbGet('config/postTargetUrl');
     if(!verify.exists() || verify.val() !== parsed.href) throw new Error('Target URL verify failed');
     document.getElementById('postTargetUrl').value = parsed.href;
-    toast('✅ Target URL ও পোস্ট সেটিং সেভ হয়েছে!');
+    toast('✅ পোস্ট সেটিং ও Facebook Group লিংক সেভ হয়েছে!');
   } catch(err) {
     console.error('savePostSettings:', err);
     toast('সেভ হয়নি। Firebase Database Rules/connection পরীক্ষা করুন।','err');
