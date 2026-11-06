@@ -212,7 +212,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
         <div class="form-group" style="margin-bottom:16px;">
           <label class="lbl">পোস্টের টার্গেট লিংক (শর্টলিংক এই URL-এ redirect হবে)</label>
-          <input class="inp" type="url" id="postTargetUrl" placeholder="https://t.me/YourBotUsername">
+          <input class="inp" type="url" id="postTargetUrl" placeholder="https://t.me/YourBotUsername" inputmode="url" autocomplete="url">
+          <div style="font-size:11px;color:var(--text2);margin-top:7px;line-height:1.6;">এখানে যে URL সেভ করবেন, CoinsX-এর Copy Button প্রতিবার সেই সর্বশেষ URL-এ নতুন Shortlink তৈরি করবে। Shortlink সাইটের কোড পরিবর্তন করা হবে না।</div>
         </div>
 
         <button class="btn btn-success" onclick="savePostSettings()">💾 পোস্ট সেটিং সেভ করুন</button>
@@ -473,21 +474,45 @@ async function loadDashboard(){
    POST SETTINGS
 ══════════════════════════════════════════ */
 async function loadPostSettings(){
-  const snap = await dbGet('config');
-  const cfg  = snap.exists() ? snap.val() : {};
-  document.getElementById('postEarnAmount').value  = cfg.postEarnAmount  ?? 2;
-  document.getElementById('postDailyLimit').value  = cfg.postDailyLimit  ?? 10;
-  document.getElementById('postTargetUrl').value   = cfg.postTargetUrl   ?? '';
+  try {
+    const snap = await dbGet('config');
+    const cfg  = snap.exists() ? snap.val() : {};
+    document.getElementById('postEarnAmount').value  = cfg.postEarnAmount  ?? 2;
+    document.getElementById('postDailyLimit').value  = cfg.postDailyLimit  ?? 10;
+    document.getElementById('postTargetUrl').value   = cfg.postTargetUrl   ?? '';
+  } catch(err) {
+    console.error('loadPostSettings:', err);
+    toast('পোস্ট সেটিং লোড হয়নি। Firebase সংযোগ পরীক্ষা করুন।','err');
+  }
 }
 
 async function savePostSettings(){
   const earn  = parseFloat(document.getElementById('postEarnAmount').value);
-  const limit = parseInt(document.getElementById('postDailyLimit').value);
+  const limit = parseInt(document.getElementById('postDailyLimit').value, 10);
   const url   = document.getElementById('postTargetUrl').value.trim();
-  if(isNaN(earn) || earn < 0){ toast('সঠিক আয়ের পরিমাণ দিন','err'); return; }
-  if(isNaN(limit)|| limit < 1){ toast('সঠিক লিমিট দিন (কমপক্ষে ১)','err'); return; }
-  await dbUpdate('config', { postEarnAmount: earn, postDailyLimit: limit, postTargetUrl: url });
-  toast('✅ পোস্ট সেটিং সেভ হয়েছে!');
+  if(!Number.isFinite(earn) || earn < 0){ toast('সঠিক আয়ের পরিমাণ দিন','err'); return; }
+  if(!Number.isInteger(limit) || limit < 1){ toast('সঠিক লিমিট দিন (কমপক্ষে ১)','err'); return; }
+  let parsed;
+  try { parsed = new URL(url); }
+  catch (_) { toast('সঠিক Target URL দিন (যেমন https://t.me/yourbot)','err'); return; }
+  if(!['http:', 'https:'].includes(parsed.protocol)){
+    toast('Target URL অবশ্যই https:// অথবা http:// হতে হবে','err'); return;
+  }
+  const button = document.querySelector('#tab-post button[onclick="savePostSettings()"]');
+  if(button) button.disabled = true;
+  try {
+    // একই Firebase project-এর root config-এ save হয়; CoinsX এখান থেকেই সর্বশেষ URL পড়ে।
+    await dbUpdate('config', { postEarnAmount: earn, postDailyLimit: limit, postTargetUrl: parsed.href });
+    const verify = await dbGet('config/postTargetUrl');
+    if(!verify.exists() || verify.val() !== parsed.href) throw new Error('Target URL verify failed');
+    document.getElementById('postTargetUrl').value = parsed.href;
+    toast('✅ Target URL ও পোস্ট সেটিং সেভ হয়েছে!');
+  } catch(err) {
+    console.error('savePostSettings:', err);
+    toast('সেভ হয়নি। Firebase Database Rules/connection পরীক্ষা করুন।','err');
+  } finally {
+    if(button) button.disabled = false;
+  }
 }
 
 /* ══════════════════════════════════════════
