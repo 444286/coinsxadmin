@@ -631,20 +631,39 @@ async function updateWithdrawal(key,status){
         ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false}:{approvedAt:now})};
     });
     if(!result.committed){
-      // Client-side/Admin auto-reject may win the race. Read the latest record
-      // and show its real state instead of displaying a misleading error.
-      const latestSnap=await dbGet(`withdrawals/${key}`);
-      const latestCurrent=latestSnap.val();
-      if(latestCurrent && latestCurrent.status==='rejected'){
-        toast(latestCurrent.autoRejected
-          ? 'এই Withdraw Auto Reject হয়েছে। History আপডেট করা হয়েছে।'
-          : 'এই Withdraw আগেই Reject করা হয়েছে।','');
-      }else if(latestCurrent && latestCurrent.status==='approved'){
-        toast('এই Withdraw ইতিমধ্যে Approved হয়েছে।','');
-      }else{
-        toast('স্ট্যাটাস পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।','err');
+      // If the transaction was aborted but the record is still pending,
+      // retry with one atomic multi-field update. The manualProcessed flag
+      // makes both client-side and admin-side auto-reject skip this request.
+      let latestSnap=await dbGet(`withdrawals/${key}`);
+      let latestCurrent=latestSnap.val();
+      if(latestCurrent && latestCurrent.status==='pending'){
+        await dbUpdate(`withdrawals/${key}`,{
+          status,
+          processedAt:now,
+          processedBy:'admin',
+          manualProcessed:true,
+          manualProcessedAt:now,
+          ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false}:{approvedAt:now})
+        });
+        latestSnap=await dbGet(`withdrawals/${key}`);
+        latestCurrent=latestSnap.val();
+        if(latestCurrent && latestCurrent.status===status && latestCurrent.manualProcessed===true){
+          result.committed=true;
+          result.snapshot=latestSnap;
+        }
       }
-      await loadWithdrawals(activeWithdrawalFilter()); return;
+      if(!result.committed){
+        if(latestCurrent && latestCurrent.status==='rejected'){
+          toast(latestCurrent.autoRejected
+            ? 'এই Withdraw Auto Reject হয়েছে।'
+            : 'এই Withdraw আগেই Reject করা হয়েছে।','');
+        }else if(latestCurrent && latestCurrent.status==='approved'){
+          toast('এই Withdraw ইতিমধ্যে Approved হয়েছে।','');
+        }else{
+          toast('স্ট্যাটাস পরিবর্তন হয়নি। Firebase Rules/ডেটাবেস পারমিশন যাচাই করুন।','err');
+        }
+        await loadWithdrawals(activeWithdrawalFilter()); return;
+      }
     }
     // Keep the same withdrawal ID and record in the shared withdrawals tree,
     // which the user's withdrawal-history view can read.
