@@ -627,11 +627,23 @@ async function updateWithdrawal(key,status){
     const now=Date.now();
     const result=await dbTransaction(`withdrawals/${key}`,current=>{
       if(!current || current.status!=='pending') return;
-      return {...current,status,processedAt:now,processedBy:'admin',
+      return {...current,status,processedAt:now,processedBy:'admin',manualProcessed:true,manualProcessedAt:now,
         ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false}:{approvedAt:now})};
     });
     if(!result.committed){
-      toast('স্ট্যাটাস পরিবর্তন হয়নি—অন্য প্রসেস আগে আপডেট করেছে।','err');
+      // Client-side/Admin auto-reject may win the race. Read the latest record
+      // and show its real state instead of displaying a misleading error.
+      const latestSnap=await dbGet(`withdrawals/${key}`);
+      const latestCurrent=latestSnap.val();
+      if(latestCurrent && latestCurrent.status==='rejected'){
+        toast(latestCurrent.autoRejected
+          ? 'এই Withdraw Auto Reject হয়েছে। History আপডেট করা হয়েছে।'
+          : 'এই Withdraw আগেই Reject করা হয়েছে।','');
+      }else if(latestCurrent && latestCurrent.status==='approved'){
+        toast('এই Withdraw ইতিমধ্যে Approved হয়েছে।','');
+      }else{
+        toast('স্ট্যাটাস পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।','err');
+      }
       await loadWithdrawals(activeWithdrawalFilter()); return;
     }
     // Keep the same withdrawal ID and record in the shared withdrawals tree,
@@ -695,7 +707,7 @@ async function runAdminAutoReject(){
     for(const [id,w] of Object.entries(ws.val()||{})){
       const requestedAt=Number(w.requestedAt||(w.createdAt?new Date(w.createdAt).getTime():0));
       if(!requestedAt||requestedAt>cutoff) continue;
-      const claim=await dbTransaction(`withdrawals/${id}`,current=>{ if(!current||current.status!=='pending') return; return{...current,status:'rejected',reason:'[Auto] '+reason,autoRejected:true,rejectedAt:Date.now()}; });
+      const claim=await dbTransaction(`withdrawals/${id}`,current=>{ if(!current||current.status!=='pending'||current.manualProcessed===true) return; return{...current,status:'rejected',reason:'[Auto] '+reason,autoRejected:true,rejectedAt:Date.now()}; });
       const latest=claim.snapshot&&claim.snapshot.val();
       if(latest&&latest.status==='rejected'&&latest.autoRejected&&latest.userRefunded!==true){
         const uid=String(latest.uid||latest.userId||'');
