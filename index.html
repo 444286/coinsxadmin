@@ -175,6 +175,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
     <!-- TABS -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('dashboard')">📊 ড্যাশবোর্ড</div>
+      <div class="tab" onclick="switchTab('users')">👥 All Users</div>
       <div class="tab" onclick="switchTab('post')">📋 পোস্ট সেটিং</div>
       <div class="tab" onclick="switchTab('tasks')">🎯 টাস্ক</div>
       <div class="tab" onclick="switchTab('withdrawals')">💸 উইথড্র</div>
@@ -284,10 +285,22 @@ tr:hover td{background:rgba(255,255,255,.02);}
         </div>
         <div class="tbl-wrap">
           <table id="withdrawTable">
-            <thead><tr><th>নাম</th><th>মেথড</th><th>নম্বর</th><th>পরিমাণ</th><th>তারিখ</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
-            <tbody id="withdrawTbody"><tr><td colspan="7" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody>
+            <thead><tr><th>নাম</th><th>Registration ID</th><th>TG UID</th><th>Withdraw Amount</th><th>Wallet</th><th>Wallet Number</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Join Date</th><th>তারিখ</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
+            <tbody id="withdrawTbody"><tr><td colspan="12" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- ══════════ ALL USERS ══════════ -->
+    <div class="section" id="tab-users">
+      <div class="panel">
+        <div class="panel-title">👥 সকল ইউজারের বিস্তারিত</div>
+        <input class="inp" id="userSearch" placeholder="নাম / UID / Telegram ID দিয়ে খুঁজুন..." oninput="renderAllUsers()" style="margin-bottom:14px;">
+        <div class="stats-grid" id="userStats"></div>
+        <div class="tbl-wrap"><table><thead><tr>
+          <th>নাম</th><th>Registration ID</th><th>TG UID</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw Req.</th><th>Join Date</th><th>Total Balance</th>
+        </tr></thead><tbody id="allUsersTbody"><tr><td colspan="8" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody></table></div>
       </div>
     </div>
 
@@ -420,6 +433,7 @@ function switchTab(name){
   document.getElementById(`tab-${name}`).classList.add('active');
   event.target.classList.add('active');
   if(name==='dashboard')  loadDashboard();
+  if(name==='users')      loadAllUsers();
   if(name==='tasks')      loadTasksAdmin();
   if(name==='withdrawals'){ allWithdrawals = null; loadWithdrawals('pending'); }
   if(name==='general')    loadGeneral();
@@ -474,6 +488,38 @@ async function loadDashboard(){
         </tr>`).join('')}
       </tbody>
     </table></div>`;
+}
+
+/* ══════════════════════════════════════════
+   ALL USERS — full user statistics
+══════════════════════════════════════════ */
+let cachedUsers = {}, cachedUserWithdrawals = {};
+function adminTodayKey(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function safeText(v){ return String(v ?? '-').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function dateText(v){ return v ? new Date(Number(v)).toLocaleString('bn-BD') : '-'; }
+async function loadAllUsers(){
+  const [us,ws] = await Promise.all([dbGet('users'),dbGet('withdrawals')]);
+  cachedUsers = us.exists() ? us.val() : {};
+  cachedUserWithdrawals = ws.exists() ? ws.val() : {};
+  renderAllUsers();
+}
+function renderAllUsers(){
+  const rows = Object.entries(cachedUsers||{}).map(([key,u])=>{
+    const uid = String(u.uid || key);
+    const userWs = Object.values(cachedUserWithdrawals||{}).filter(w=>String(w.uid)===uid);
+    return {key,u,uid,today:Number((u.dailyPost||{})[adminTodayKey()]||0),total:Number(u.postCopyCount||0),withdraws:userWs.length};
+  }).sort((a,b)=>(Number(b.u.joinedAt)||0)-(Number(a.u.joinedAt)||0));
+  const q=(document.getElementById('userSearch')?.value||'').trim().toLowerCase();
+  const filtered=rows.filter(x=>`${x.u.name||''} ${x.uid} ${x.u.username||''}`.toLowerCase().includes(q));
+  const totalBalance=rows.reduce((n,x)=>n+Number(x.u.balance||0),0);
+  document.getElementById('userStats').innerHTML=`<div class="stat-card"><div class="stat-val">${rows.length}</div><div class="stat-lbl">মোট ইউজার</div></div><div class="stat-card"><div class="stat-val">৳${totalBalance.toFixed(2)}</div><div class="stat-lbl">সবার মোট ব্যালেন্স</div></div><div class="stat-card"><div class="stat-val">${rows.reduce((n,x)=>n+x.today,0)}</div><div class="stat-lbl">আজকের মোট পোস্ট</div></div>`;
+  document.getElementById('allUsersTbody').innerHTML=filtered.length?filtered.map(x=>`<tr>
+    <td>${safeText(x.u.name)}</td><td style="font-family:monospace">${safeText(x.uid)}</td><td style="font-family:monospace">${safeText(x.u.uid||x.uid)}</td>
+    <td>${x.today}</td><td>${x.total}</td><td>${x.withdraws}</td><td>${dateText(x.u.joinedAt)}</td><td style="color:var(--gold);font-weight:700">৳${Number(x.u.balance||0).toFixed(2)}</td>
+  </tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
 }
 
 /* ══════════════════════════════════════════
@@ -620,31 +666,38 @@ function filterWithdrawals(filter, el){
   else renderWithdrawTable(filter);
 }
 
-function renderWithdrawTable(filter){
+async function renderWithdrawTable(filter){
   const entries = Object.entries(allWithdrawals || {})
     .filter(([,v]) => filter === 'all' || v.status === filter)
     .sort(([,a],[,b]) => (b.requestedAt||0) - (a.requestedAt||0));
   const mi = { bkash:'📱', nagad:'🟠', rocket:'🚀' };
   const tBody = document.getElementById('withdrawTbody');
   if(entries.length === 0){
-    tBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text2);">কোনো এন্ট্রি নেই</td></tr>`;
+    tBody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text2);">কোনো এন্ট্রি নেই</td></tr>`;
     return;
   }
-  tBody.innerHTML = entries.map(([key,v]) => `
-    <tr>
-      <td>${v.name||'-'}</td>
-      <td>${mi[v.method]||''} ${v.method?.toUpperCase()}</td>
-      <td style="font-family:monospace;">${v.number}</td>
-      <td style="color:var(--gold);font-weight:700;">৳${Number(v.amount).toFixed(2)}</td>
-      <td>${v.requestedAt ? new Date(v.requestedAt).toLocaleString('bn-BD') : '-'}</td>
+  const usersSnap = await dbGet('users');
+  const userMap = usersSnap.exists() ? usersSnap.val() : {};
+  const today = adminTodayKey();
+  tBody.innerHTML = entries.map(([key,v]) => {
+    const u = userMap[String(v.uid)] || {};
+    const totalPosts = Number(u.postCopyCount || 0);
+    const todayPosts = Number((u.dailyPost || {})[today] || 0);
+    return `<tr>
+      <td>${safeText(v.name || u.name || '-')}</td>
+      <td style="font-family:monospace">${safeText(v.uid || '-')}</td>
+      <td style="font-family:monospace">${safeText(u.uid || v.uid || '-')}</td>
+      <td style="color:var(--gold);font-weight:700;">৳${Number(v.amount||0).toFixed(2)}</td>
+      <td>${mi[v.method]||''} ${safeText((v.method||'-').toUpperCase())}</td>
+      <td style="font-family:monospace">${safeText(v.number||'-')}</td>
+      <td>${todayPosts}</td><td>${totalPosts}</td><td>${dateText(u.joinedAt)}</td>
+      <td>${dateText(v.requestedAt)}</td>
       <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span></td>
       <td style="display:flex;gap:6px;">
-        ${v.status==='pending'
-          ? `<button class="btn btn-success btn-sm" onclick="updateWithdrawal('${key}','approved')">✅</button>
-             <button class="btn btn-danger btn-sm" onclick="updateWithdrawal('${key}','rejected')">❌</button>`
-          : '<span style="font-size:11px;color:var(--text2);">সম্পন্ন</span>'}
+        ${v.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="updateWithdrawal('${key}','approved')">✅</button><button class="btn btn-danger btn-sm" onclick="updateWithdrawal('${key}','rejected')">❌</button>` : '<span style="font-size:11px;color:var(--text2);">সম্পন্ন</span>'}
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 async function updateWithdrawal(key, status){
