@@ -56,19 +56,8 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fn);min-heigh
 .top-bar .logo{font-family:var(--fe);font-weight:900;font-size:22px;color:#fff;}
 .top-bar .badge{background:rgba(255,255,255,.18);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;color:#fff;}
 
-/* ── Password lock ── */
-#lockScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;}
-.lock-box{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:36px 32px;text-align:center;max-width:320px;width:90%;}
-.lock-icon{font-size:48px;margin-bottom:12px;}
-.lock-title{font-family:var(--fe);font-weight:800;font-size:20px;margin-bottom:4px;}
-.lock-sub{font-size:12px;color:var(--text2);margin-bottom:20px;}
-.lock-inp{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:13px;color:var(--text);font-size:16px;text-align:center;letter-spacing:4px;outline:none;margin-bottom:12px;transition:border-color .2s;}
-.lock-inp:focus{border-color:var(--accent);}
-.lock-btn{width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--fn);}
-.lock-err{color:var(--red);font-size:12px;margin-top:8px;display:none;}
-
 /* ── Main layout ── */
-#adminMain{display:none;}
+#adminMain{display:block;}
 .container{max-width:900px;margin:0 auto;padding:24px 16px;}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
 .tab{padding:9px 20px;border-radius:30px;border:1px solid var(--border);background:var(--card2);color:var(--text2);cursor:pointer;font-size:13px;font-weight:600;font-family:var(--fn);transition:all .2s;}
@@ -150,18 +139,6 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </style>
 </head>
 <body>
-
-<!-- PASSWORD LOCK -->
-<div id="lockScreen">
-  <div class="lock-box">
-    <div class="lock-icon">🔐</div>
-    <div class="lock-title">Admin Panel</div>
-    <div class="lock-sub">প্রবেশের জন্য পাসওয়ার্ড দিন</div>
-    <input class="lock-inp" type="password" id="lockPwd" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPwd()">
-    <button class="lock-btn" onclick="checkPwd()">প্রবেশ করুন</button>
-    <div class="lock-err" id="lockErr">❌ ভুল পাসওয়ার্ড</div>
-  </div>
-</div>
 
 <!-- ADMIN MAIN -->
 <div id="adminMain">
@@ -384,28 +361,6 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div class="toast" id="toast"></div>
 
 <script>
-/* ══════════════════════════════════════════
-   PASSWORD CHECK  — change ADMIN_PASSWORD below
-══════════════════════════════════════════ */
-const ADMIN_PASSWORD = "jun"; // ← এখানে নিজের পাসওয়ার্ড দিন
-
-function checkPwd(){
-  const v = document.getElementById('lockPwd').value;
-  if(v === ADMIN_PASSWORD){
-    document.getElementById('lockScreen').style.display = 'none';
-    document.getElementById('adminMain').style.display  = 'block';
-    initAdmin();
-  } else {
-    const err = document.getElementById('lockErr');
-    err.style.display = 'block';
-    setTimeout(()=> err.style.display='none', 2500);
-    document.getElementById('lockPwd').value = '';
-  }
-}
-document.getElementById('lockPwd').addEventListener('keydown', e => {
-  if(e.key === 'Enter') checkPwd();
-});
-
 /* ══════════════════════════════════════════
    HELPERS
 ══════════════════════════════════════════ */
@@ -794,6 +749,9 @@ async function deleteFaq(key){
   toast('FAQ মুছা হয়েছে');
   loadFaqAdmin();
 }
+
+// Open admin directly without a login screen.
+initAdmin();
 </script>
 </body>
 </html>
