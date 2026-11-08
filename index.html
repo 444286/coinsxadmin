@@ -189,6 +189,19 @@ tr:hover td{background:rgba(255,255,255,.02);}
           </div>
         </div>
 
+        <div class="panel-title" style="margin-top:20px;">⏱️ নির্দিষ্ট সময়ের পোস্ট লিমিট</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="lbl">সময়সীমা (ঘণ্টা) <span class="hint">যেমন ৩ ঘণ্টা</span></label>
+            <input class="inp" type="number" id="postWindowHours" placeholder="3" min="1" max="24" step="1">
+          </div>
+          <div class="form-group">
+            <label class="lbl">এই সময়ে সর্বোচ্চ কমেন্ট <span class="hint">লিমিট পূর্ণ হলে কাউন্টডাউন হবে</span></label>
+            <input class="inp" type="number" id="postWindowLimit" placeholder="5" min="1" step="1">
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin:-5px 0 14px;line-height:1.6;">এই দুই ঘরেই ১ বা তার বেশি সংখ্যা দিলে নির্দিষ্ট সময়ের লিমিট চালু হবে। যেকোনো একটি ০ রাখলে এই লিমিট বন্ধ থাকবে। দৈনিক লিমিট পূর্ণ হলে রাত ১২টা পর্যন্ত কাউন্টডাউন দেখাবে।</div>
+
         <div class="form-group" style="margin-bottom:16px;">
           <label class="lbl">পোস্টের টার্গেট লিংক (শর্টলিংক এই URL-এ redirect হবে)</label>
           <input class="inp" type="url" id="postTargetUrl" placeholder="https://t.me/YourBotUsername" inputmode="url" autocomplete="url">
@@ -527,6 +540,8 @@ async function loadPostSettings(){
     const cfg  = snap.exists() ? snap.val() : {};
     document.getElementById('postEarnAmount').value  = cfg.postEarnAmount  ?? 2;
     document.getElementById('postDailyLimit').value  = cfg.postDailyLimit  ?? 10;
+    document.getElementById('postWindowHours').value = cfg.postWindowHours ?? 0;
+    document.getElementById('postWindowLimit').value = cfg.postWindowLimit ?? 0;
     document.getElementById('postTargetUrl').value   = cfg.postTargetUrl   ?? '';
     const container = document.getElementById('fbGroupFields');
     container.innerHTML = '';
@@ -543,6 +558,8 @@ async function loadPostSettings(){
 async function savePostSettings(){
   const earn  = parseFloat(document.getElementById('postEarnAmount').value);
   const limit = parseInt(document.getElementById('postDailyLimit').value, 10);
+  const windowHours = parseInt(document.getElementById('postWindowHours').value || '0', 10);
+  const windowLimit = parseInt(document.getElementById('postWindowLimit').value || '0', 10);
   const url   = document.getElementById('postTargetUrl').value.trim();
   const fbGroups = [];
   const rows = [...document.querySelectorAll('#fbGroupFields .form-row')];
@@ -558,7 +575,9 @@ async function savePostSettings(){
   }
 
   if(!Number.isFinite(earn) || earn < 0){ toast('সঠিক আয়ের পরিমাণ দিন','err'); return; }
-  if(!Number.isInteger(limit) || limit < 1){ toast('সঠিক লিমিট দিন (কমপক্ষে ১)','err'); return; }
+  if(!Number.isInteger(limit) || limit < 1){ toast('সঠিক দৈনিক লিমিট দিন (কমপক্ষে ১)','err'); return; }
+  if(!Number.isInteger(windowHours) || windowHours < 0 || windowHours > 24 || !Number.isInteger(windowLimit) || windowLimit < 0){ toast('সময়সীমা ও কমেন্ট লিমিট ০ অথবা সঠিক পূর্ণসংখ্যা দিন','err'); return; }
+  if((windowHours === 0) !== (windowLimit === 0)){ toast('নির্দিষ্ট সময়ের লিমিট চালু করতে ঘণ্টা ও কমেন্ট লিমিট—দুটিই দিন; বন্ধ করতে দুটিই ০ রাখুন','err'); return; }
   let parsed;
   try { parsed = new URL(url); }
   catch (_) { toast('সঠিক Target URL দিন (যেমন https://t.me/yourbot)','err'); return; }
@@ -569,7 +588,7 @@ async function savePostSettings(){
   if(button) button.disabled = true;
   try {
     // একই Firebase project-এর root config-এ save হয়; CoinsX এখান থেকেই সর্বশেষ URL পড়ে।
-    await dbUpdate('config', { postEarnAmount: earn, postDailyLimit: limit, postTargetUrl: parsed.href, fbGroups });
+    await dbUpdate('config', { postEarnAmount: earn, postDailyLimit: limit, postWindowHours:windowHours, postWindowLimit:windowLimit, postTargetUrl: parsed.href, fbGroups });
     const verify = await dbGet('config/postTargetUrl');
     if(!verify.exists() || verify.val() !== parsed.href) throw new Error('Target URL verify failed');
     document.getElementById('postTargetUrl').value = parsed.href;
