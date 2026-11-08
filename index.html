@@ -253,7 +253,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <input class="inp" id="userSearch" placeholder="নাম / UID / মোবাইল নম্বর দিয়ে খুঁজুন..." oninput="renderAllUsers()" style="margin-bottom:14px;">
       <div class="stats-grid" id="userStats"></div>
       <div class="tbl-wrap"><table><thead><tr>
-        <th>নাম</th><th>UID</th><th>মোবাইল নম্বর</th><th>পাসওয়ার্ড</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw</th><th>Join Date</th><th>Balance</th><th>অ্যাকশন</th>
+        <th>নাম</th><th>UID</th><th>মোবাইল নম্বর</th><th>পাসওয়ার্ড</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw</th><th>Join Date</th><th>Balance</th>
       </tr></thead><tbody id="allUsersTbody"><tr><td colspan="9" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody></table></div>
     </div>
   </div>
@@ -407,31 +407,6 @@ async function loadAllUsers(){
   cachedUserWithdrawals=ws.exists()?ws.val():{};
   renderAllUsers();
 }
-async function editUserBalance(userKey,userName,currentBalance){
-  if(!userKey){ toast('ইউজার শনাক্ত করা যায়নি','err'); return; }
-  const entered=prompt(
-    `${userName} এর নতুন ব্যালেন্স লিখুন (৳):`,
-    Number(currentBalance||0).toFixed(2)
-  );
-  if(entered===null) return;
-  const newBalance=Number(String(entered).trim());
-  if(!String(entered).trim() || !Number.isFinite(newBalance) || newBalance<0){
-    toast('সঠিক ব্যালেন্স লিখুন (০ বা তার বেশি)','err');
-    return;
-  }
-  if(!confirm(`এই ইউজারের ব্যালেন্স ৳${Number(currentBalance||0).toFixed(2)} থেকে ৳${newBalance.toFixed(2)} করবেন?`)) return;
-  try{
-    await dbUpdate(`users/${userKey}`,{balance:newBalance});
-    if(cachedUsers[userKey]) cachedUsers[userKey].balance=newBalance;
-    renderAllUsers();
-    toast('✅ ইউজারের ব্যালেন্স আপডেট হয়েছে');
-    loadDashboard();
-  }catch(err){
-    console.error('Balance update failed:',err);
-    toast('ব্যালেন্স আপডেট হয়নি। Firebase সংযোগ পরীক্ষা করুন।','err');
-  }
-}
-
 function renderAllUsers(){
   const rows=Object.entries(cachedUsers||{}).map(([key,u])=>{
     const uid=String(u.uid||key);
@@ -456,8 +431,7 @@ function renderAllUsers(){
     <td>${x.today}</td><td>${x.total}</td><td>${x.withdraws}</td>
     <td>${dateText(x.u.joinedAt)}</td>
     <td style="color:var(--gold);font-weight:700">৳${Number(x.u.balance||0).toFixed(2)}</td>
-    <td><button class="btn btn-primary btn-sm" onclick="editUserBalance('${safeText(x.key)}','${safeText(x.u.name||'User')}','${Number(x.u.balance||0)}')">✏️ Edit Balance</button></td>
-  </tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
+  </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
 }
 
 /* POST SETTINGS */
@@ -594,13 +568,12 @@ async function renderWithdrawTable(filter){
       <td style="font-family:monospace">${safeText(v.number||'-')}</td>
       <td>${todayPosts}</td><td>${totalPosts}</td>
       <td>${dateText(u.joinedAt)}</td><td>${dateText(v.requestedAt)}</td>
-      <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span>${v.processedAt?`<div style="font-size:10px;color:var(--text2);margin-top:4px;">${dateText(v.processedAt)}</div>`:''}${v.status==='rejected'&&v.reason?`<div style="font-size:11px;color:var(--red);margin-top:5px;max-width:180px;white-space:normal;">${safeText(v.reason)}</div>`:''}</td>
+      <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span>${v.status==='rejected'&&v.reason?`<div style="font-size:11px;color:var(--red);margin-top:5px;max-width:180px;white-space:normal;">${safeText(v.reason)}</div>`:''}</td>
       <td style="display:flex;gap:6px;">
         ${v.status==='pending'?`<button class="btn btn-success btn-sm" onclick="updateWithdrawal('${key}','approved')">✅</button><button class="btn btn-danger btn-sm" onclick="updateWithdrawal('${key}','rejected')">❌</button>`:'<span style="font-size:11px;color:var(--text2);">সম্পন্ন</span>'}
       </td></tr>`;
   }).join('');
 }
-let withdrawalBusy=new Set();
 async function updateWithdrawal(key,status){
   if(withdrawalBusy.has(key)) return;
   const item=allWithdrawals?.[key];
@@ -700,11 +673,6 @@ async function updateWithdrawal(key,status){
     await loadWithdrawals(activeWithdrawalFilter()).catch(console.error);
   }finally{withdrawalBusy.delete(key);}
 }
-function activeWithdrawalFilter(){
-  const tabs=[...document.querySelectorAll('#tab-withdrawals .tabs .tab')];
-  const index=tabs.findIndex(t=>t.classList.contains('active'));
-  return ['pending','approved','rejected','all'][index]||'pending';
-}
 
 /* GENERAL */
 async function loadGeneral(){ const snap=await dbGet('config'); const cfg=snap.exists()?snap.val():{}; document.getElementById('cfgMinWithdraw').value=cfg.minWithdraw??50; document.getElementById('cfgReferEarn').value=cfg.referEarn??5; document.getElementById('cfgSupportLink').value=cfg.supportLink??''; }
@@ -732,8 +700,8 @@ async function runAdminAutoReject(){
         const uid=String(latest.uid||latest.userId||'');
         if(!uid) continue;
         const amount=Math.max(0,Number(latest.amount)||0);
-        const refund=await dbTransaction(`users/${uid}`,user=>{ if(!user) return; const refunds=user.autoRejectRefunds||{}; if(refunds[id] || (user.withdrawRefunds||{})[id]) return; return{...user,balance:(Number(user.balance)||0)+amount,autoRejectRefunds:{...refunds,[id]:true}}; });
-        if(refund.committed||(refund.snapshot&&(refund.snapshot.child(`autoRejectRefunds/${id}`).exists()||refund.snapshot.child(`withdrawRefunds/${id}`).exists()))) await dbUpdate(`withdrawals/${id}`,{userRefunded:true});
+        const refund=await dbTransaction(`users/${uid}`,user=>{ if(!user) return; const refunds=user.autoRejectRefunds||{}; if(refunds[id]) return user; return{...user,balance:(Number(user.balance)||0)+amount,autoRejectRefunds:{...refunds,[id]:true}}; });
+        if(refund.committed||(refund.snapshot&&refund.snapshot.child(`autoRejectRefunds/${id}`).exists())) await dbUpdate(`withdrawals/${id}`,{userRefunded:true});
       }
     }
   }catch(e){ console.warn('Admin auto reject failed:',e); }
