@@ -594,18 +594,85 @@ async function renderWithdrawTable(filter){
       <td style="font-family:monospace">${safeText(v.number||'-')}</td>
       <td>${todayPosts}</td><td>${totalPosts}</td>
       <td>${dateText(u.joinedAt)}</td><td>${dateText(v.requestedAt)}</td>
-      <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span>${v.status==='rejected'&&v.reason?`<div style="font-size:11px;color:var(--red);margin-top:5px;max-width:180px;white-space:normal;">${safeText(v.reason)}</div>`:''}</td>
+      <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span>${v.processedAt?`<div style="font-size:10px;color:var(--text2);margin-top:4px;">${dateText(v.processedAt)}</div>`:''}${v.status==='rejected'&&v.reason?`<div style="font-size:11px;color:var(--red);margin-top:5px;max-width:180px;white-space:normal;">${safeText(v.reason)}</div>`:''}</td>
       <td style="display:flex;gap:6px;">
         ${v.status==='pending'?`<button class="btn btn-success btn-sm" onclick="updateWithdrawal('${key}','approved')">✅</button><button class="btn btn-danger btn-sm" onclick="updateWithdrawal('${key}','rejected')">❌</button>`:'<span style="font-size:11px;color:var(--text2);">সম্পন্ন</span>'}
       </td></tr>`;
   }).join('');
 }
+let withdrawalBusy=new Set();
 async function updateWithdrawal(key,status){
-  const result=await dbTransaction(`withdrawals/${key}`,current=>{ if(!current||current.status!=='pending') return; return{...current,status,...(status==='rejected'?{rejectedAt:Date.now(),reason:current.reason||'Admin দ্বারা বাতিল করা হয়েছে।'}:{approvedAt:Date.now()})}; });
-  if(!result.committed){ toast('ইতিমধ্যে প্রসেস হয়েছে','err'); await loadWithdrawals('pending'); return; }
-  if(allWithdrawals&&allWithdrawals[key]) Object.assign(allWithdrawals[key],result.snapshot.val());
-  toast(status==='approved'?'✅ অনুমোদিত হয়েছে':'❌ বাতিল হয়েছে');
-  renderWithdrawTable(document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অপেক্ষমান')?'pending':document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অনুমোদিত')?'approved':document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('বাতিল')?'rejected':'all');
+  if(withdrawalBusy.has(key)) return;
+  const item=allWithdrawals?.[key];
+  if(!item || item.status!=='pending'){
+    toast('এই রিকোয়েস্ট আর Pending নেই। রিফ্রেশ হচ্ছে।','err');
+    await loadWithdrawals(activeWithdrawalFilter()); return;
+  }
+  let reason='';
+  if(status==='rejected'){
+    const response=prompt('❌ Reject করার কারণ লিখুন (ইউজারও দেখতে পারবে):','');
+    if(response===null) return;
+    reason=response.trim();
+    if(!reason){ toast('Reject Reason লেখা আবশ্যক','err'); return; }
+  }else if(!confirm('এই উইথড্র রিকোয়েস্ট Approved করবেন?')) return;
+  withdrawalBusy.add(key);
+  try{
+    // Read the live record first, then claim the status atomically to prevent double processing.
+    const liveSnap=await dbGet(`withdrawals/${key}`);
+    const live=liveSnap.val();
+    if(!live || live.status!=='pending'){
+      toast('এই রিকোয়েস্ট ইতিমধ্যে প্রসেস হয়েছে।','err');
+      await loadWithdrawals(activeWithdrawalFilter()); return;
+    }
+    const now=Date.now();
+    const result=await dbTransaction(`withdrawals/${key}`,current=>{
+      if(!current || current.status!=='pending') return;
+      return {...current,status,processedAt:now,processedBy:'admin',
+        ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false}:{approvedAt:now})};
+    });
+    if(!result.committed){
+      toast('স্ট্যাটাস পরিবর্তন হয়নি—অন্য প্রসেস আগে আপডেট করেছে।','err');
+      await loadWithdrawals(activeWithdrawalFilter()); return;
+    }
+    // Keep the same withdrawal ID and record in the shared withdrawals tree,
+    // which the user's withdrawal-history view can read.
+    const latest=result.snapshot.val();
+    if(status==='rejected'){
+      const uid=String(latest.uid||latest.userId||'');
+      const amount=Number(latest.amount);
+      if(uid && Number.isFinite(amount) && amount>=0){
+        try{
+          const refund=await dbTransaction(`users/${uid}`,user=>{
+            if(!user) return;
+            const refunds=user.withdrawRefunds||{};
+            const autoRefunds=user.autoRejectRefunds||{};
+            if(refunds[key] || autoRefunds[key]) return;
+            return {...user,balance:Number(user.balance||0)+amount,
+              withdrawRefunds:{...refunds,[key]:true}};
+          });
+          if(refund.committed || refund.snapshot?.child(`withdrawRefunds/${key}`).exists() || refund.snapshot?.child(`autoRejectRefunds/${key}`).exists()){
+            await dbUpdate(`withdrawals/${key}`,{userRefunded:true});
+          }else{
+            toast('Reject হয়েছে, কিন্তু Refund নিশ্চিত হয়নি—যাচাই করুন।','err');
+          }
+        }catch(refundError){
+          console.error('Manual refund failed:',refundError);
+          toast('Reject হয়েছে, কিন্তু Refund ব্যর্থ—যাচাই করুন।','err');
+        }
+      }
+    }
+    toast(status==='approved'?'✅ Approved হয়েছে, History সেভ আছে':'✅ Reject হয়েছে, Reason সেভ আছে');
+    await loadWithdrawals(activeWithdrawalFilter());
+  }catch(err){
+    console.error('Withdrawal update failed:',err);
+    toast(`আপডেট ব্যর্থ: ${err.code||err.message||'Firebase error'}`,'err');
+    await loadWithdrawals(activeWithdrawalFilter()).catch(console.error);
+  }finally{withdrawalBusy.delete(key);}
+}
+function activeWithdrawalFilter(){
+  const tabs=[...document.querySelectorAll('#tab-withdrawals .tabs .tab')];
+  const index=tabs.findIndex(t=>t.classList.contains('active'));
+  return ['pending','approved','rejected','all'][index]||'pending';
 }
 
 /* GENERAL */
@@ -634,8 +701,8 @@ async function runAdminAutoReject(){
         const uid=String(latest.uid||latest.userId||'');
         if(!uid) continue;
         const amount=Math.max(0,Number(latest.amount)||0);
-        const refund=await dbTransaction(`users/${uid}`,user=>{ if(!user) return; const refunds=user.autoRejectRefunds||{}; if(refunds[id]) return user; return{...user,balance:(Number(user.balance)||0)+amount,autoRejectRefunds:{...refunds,[id]:true}}; });
-        if(refund.committed||(refund.snapshot&&refund.snapshot.child(`autoRejectRefunds/${id}`).exists())) await dbUpdate(`withdrawals/${id}`,{userRefunded:true});
+        const refund=await dbTransaction(`users/${uid}`,user=>{ if(!user) return; const refunds=user.autoRejectRefunds||{}; if(refunds[id] || (user.withdrawRefunds||{})[id]) return; return{...user,balance:(Number(user.balance)||0)+amount,autoRejectRefunds:{...refunds,[id]:true}}; });
+        if(refund.committed||(refund.snapshot&&(refund.snapshot.child(`autoRejectRefunds/${id}`).exists()||refund.snapshot.child(`withdrawRefunds/${id}`).exists()))) await dbUpdate(`withdrawals/${id}`,{userRefunded:true});
       }
     }
   }catch(e){ console.warn('Admin auto reject failed:',e); }
