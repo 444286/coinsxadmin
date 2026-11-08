@@ -536,12 +536,17 @@ async function deleteTask(key){
 
 /* WITHDRAWALS */
 let allWithdrawals=null;
+let currentWithdrawalFilter='pending';
+const withdrawalBusy=new Set();
+function activeWithdrawalFilter(){ return currentWithdrawalFilter || 'pending'; }
 async function loadWithdrawals(filter='pending'){
+  currentWithdrawalFilter=filter;
   const snap=await dbGet('withdrawals');
   allWithdrawals=snap.exists()?snap.val():{};
   renderWithdrawTable(filter);
 }
 function filterWithdrawals(filter,el){
+  currentWithdrawalFilter=filter;
   document.querySelectorAll('#tab-withdrawals .tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   if(!allWithdrawals) loadWithdrawals(filter);
