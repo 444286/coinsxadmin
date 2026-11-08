@@ -579,6 +579,37 @@ async function renderWithdrawTable(filter){
       </td></tr>`;
   }).join('');
 }
+
+async function refundRejectedWithdrawal(withdrawalId, withdrawal, source){
+  const w = withdrawal || {};
+  const uid = String(w.uid || w.userId || w.telegramId || '');
+  const amount = Number(w.amount);
+  if(!uid || !Number.isFinite(amount) || amount <= 0){
+    await dbUpdate(`withdrawals/${withdrawalId}`, {refundError: !uid ? 'missing_uid' : 'invalid_amount'});
+    throw new Error(!uid ? 'Withdraw record-এ uid/userId নেই' : 'Withdraw amount সঠিক নয়');
+  }
+  const tx = await dbTransaction(`users/${uid}`, user => {
+    if(!user) return;
+    const oldWithdraw = user.withdrawRefunds || {};
+    const oldAuto = user.autoRejectRefunds || {};
+    if(oldWithdraw[withdrawalId] || oldAuto[withdrawalId]) return user;
+    const next = {...user};
+    next.balance = Number(user.balance || 0) + amount;
+    next.withdrawRefunds = {...oldWithdraw, [withdrawalId]: {
+      amount, refundedAt: Date.now(), source
+    }};
+    return next;
+  });
+  const snapUser = tx.snapshot && tx.snapshot.val ? tx.snapshot.val() : null;
+  const already = !!(snapUser && (
+    (snapUser.withdrawRefunds && snapUser.withdrawRefunds[withdrawalId]) ||
+    (snapUser.autoRejectRefunds && snapUser.autoRejectRefunds[withdrawalId])
+  ));
+  if(!already) throw new Error('User balance refund transaction commit হয়নি');
+  await dbUpdate(`withdrawals/${withdrawalId}`, {userRefunded:true, refundedAt:Date.now(), refundSource:source});
+  return true;
+}
+
 async function updateWithdrawal(key,status){
   if(withdrawalBusy.has(key)) return;
   const item=allWithdrawals?.[key];
@@ -647,27 +678,11 @@ async function updateWithdrawal(key,status){
     // which the user's withdrawal-history view can read.
     const latest=result.snapshot.val();
     if(status==='rejected'){
-      const uid=String(latest.uid||latest.userId||'');
-      const amount=Number(latest.amount);
-      if(uid && Number.isFinite(amount) && amount>=0){
-        try{
-          const refund=await dbTransaction(`users/${uid}`,user=>{
-            if(!user) return;
-            const refunds=user.withdrawRefunds||{};
-            const autoRefunds=user.autoRejectRefunds||{};
-            if(refunds[key] || autoRefunds[key]) return;
-            return {...user,balance:Number(user.balance||0)+amount,
-              withdrawRefunds:{...refunds,[key]:true}};
-          });
-          if(refund.committed || refund.snapshot?.child(`withdrawRefunds/${key}`).exists() || refund.snapshot?.child(`autoRejectRefunds/${key}`).exists()){
-            await dbUpdate(`withdrawals/${key}`,{userRefunded:true});
-          }else{
-            toast('Reject হয়েছে, কিন্তু Refund নিশ্চিত হয়নি—যাচাই করুন।','err');
-          }
-        }catch(refundError){
-          console.error('Manual refund failed:',refundError);
-          toast('Reject হয়েছে, কিন্তু Refund ব্যর্থ—যাচাই করুন।','err');
-        }
+      try{
+        await refundRejectedWithdrawal(key, latest, 'manual');
+      }catch(refundError){
+        console.error('Manual refund failed:',refundError);
+        toast('Reject হয়েছে, কিন্তু Refund ব্যর্থ: '+(refundError.message||'Firebase error'),'err');
       }
     }
     toast(status==='approved'?'✅ Approved হয়েছে, History সেভ আছে':'✅ Reject হয়েছে, Reason সেভ আছে');
@@ -702,11 +717,8 @@ async function runAdminAutoReject(){
       const claim=await dbTransaction(`withdrawals/${id}`,current=>{ if(!current||current.status!=='pending'||current.manualProcessed===true) return; return{...current,status:'rejected',reason:'[Auto] '+reason,autoRejected:true,rejectedAt:Date.now()}; });
       const latest=claim.snapshot&&claim.snapshot.val();
       if(latest&&latest.status==='rejected'&&latest.autoRejected&&latest.userRefunded!==true){
-        const uid=String(latest.uid||latest.userId||'');
-        if(!uid) continue;
-        const amount=Math.max(0,Number(latest.amount)||0);
-        const refund=await dbTransaction(`users/${uid}`,user=>{ if(!user) return; const refunds=user.autoRejectRefunds||{}; if(refunds[id]) return user; return{...user,balance:(Number(user.balance)||0)+amount,autoRejectRefunds:{...refunds,[id]:true}}; });
-        if(refund.committed||(refund.snapshot&&refund.snapshot.child(`autoRejectRefunds/${id}`).exists())) await dbUpdate(`withdrawals/${id}`,{userRefunded:true});
+        try { await refundRejectedWithdrawal(id, latest, 'auto'); }
+        catch(refundErr){ console.error('Admin auto refund failed:', id, refundErr); }
       }
     }
   }catch(e){ console.warn('Admin auto reject failed:',e); }
