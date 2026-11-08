@@ -7,7 +7,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, get, set, update, push, remove, onValue }
+  import { getDatabase, ref, get, set, update, push, remove, onValue, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
   const firebaseConfig = {
     apiKey         : "AIzaSyCmP_6ZPNGdN-yfYZI6wS4RND060GvU5X8",
@@ -28,6 +28,7 @@
   window._dbPush   = push;
   window._dbRemove = remove;
   window._dbOnValue= onValue;
+  window._dbTransaction = runTransaction;
   window._firebaseReady = true;
   setTimeout(()=> document.dispatchEvent(new Event("firebaseReady")), 0);
 </script>
@@ -262,7 +263,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
         </div>
         <div class="tbl-wrap">
           <table id="withdrawTable">
-            <thead><tr><th>নাম</th><th>Registration ID</th><th>TG UID</th><th>Withdraw Amount</th><th>Wallet</th><th>Wallet Number</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Join Date</th><th>তারিখ</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
+            <thead><tr><th>নাম</th><th>Registration ID</th><th>TG UID</th><th>Withdraw Amount</th><th>Wallet</th><th>Wallet Number</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Join Date</th><th>Withdraw Date &amp; Time</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
             <tbody id="withdrawTbody"><tr><td colspan="12" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody>
           </table>
         </div>
@@ -300,6 +301,25 @@ tr:hover td{background:rgba(255,255,255,.02);}
           </div>
         </div>
         <button class="btn btn-primary" onclick="saveGeneral()">💾 সেভ করুন</button>
+      </div>
+      <div class="panel">
+        <div class="panel-title">⏱️ অটো উইথড্র রিজেক্ট সেটিংস</div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" id="autoRejectEnabled"><span class="toggle-slider"></span></label>
+            <label class="lbl">Auto Reject চালু করুন</label>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="lbl">কত ঘণ্টা পর Pending Withdraw Reject হবে?</label>
+          <input class="inp" type="number" id="autoRejectHours" min="1" step="1" value="24" placeholder="যেমন: ২৪">
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="lbl">Reject Reason (User দেখতে পাবে)</label>
+          <textarea class="inp" id="autoRejectReason" rows="3" placeholder="উইথড্র রিকোয়েস্ট নির্ধারিত সময়ের মধ্যে প্রসেস করা সম্ভব হয়নি।"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="saveAutoRejectSettings()">💾 Auto Reject Settings সেভ করুন</button>
+        <p style="font-size:12px;color:var(--text2);margin-top:10px;line-height:1.6;">নোট: User App বা Admin Panel খোলা হলে এবং App চালু থাকা অবস্থায় পর্যায়ক্রমে Pending Request চেক হবে। কোনো App-ই না খুললে নির্ধারিত সময়ে সঙ্গে সঙ্গে Reject হবে না; পরেরবার App খুললে চেক হবে।</p>
       </div>
     </div>
 
@@ -370,6 +390,7 @@ function dbSet(p,v)    { return window._dbSet(dbRef(p), v); }
 function dbUpdate(p,v) { return window._dbUpdate(dbRef(p), v); }
 function dbPush(p,v)   { return window._dbPush(dbRef(p), v); }
 function dbRemove(p)   { return window._dbRemove(dbRef(p)); }
+function dbTransaction(p, updater) { return window._dbTransaction(dbRef(p), updater); }
 
 function toast(msg, type='ok'){
   const el = document.getElementById('toast');
@@ -391,7 +412,7 @@ function switchTab(name){
   if(name==='users')      loadAllUsers();
   if(name==='tasks')      loadTasksAdmin();
   if(name==='withdrawals'){ allWithdrawals = null; loadWithdrawals('pending'); }
-  if(name==='general')    loadGeneral();
+  if(name==='general'){ loadGeneral(); loadAutoRejectSettings(); }
   if(name==='popup')      loadPopup();
   if(name==='faq')        loadFaqAdmin();
   if(name==='post')       loadPostSettings();
@@ -401,9 +422,11 @@ function switchTab(name){
    INIT
 ══════════════════════════════════════════ */
 function initAdmin(){
-  if(window._firebaseReady) loadDashboard();
-  else document.addEventListener('firebaseReady', loadDashboard, { once:true });
+  const start = async () => { loadDashboard(); await runAdminAutoReject(); if(!window._coinsxAdminAutoRejectTimer) window._coinsxAdminAutoRejectTimer = setInterval(() => { if(!document.hidden) runAdminAutoReject(); }, 5 * 60 * 1000); };
+  if(window._firebaseReady) start();
+  else document.addEventListener('firebaseReady', start, { once:true });
 }
+document.addEventListener('visibilitychange', () => { if(!document.hidden && window._firebaseReady) runAdminAutoReject(); });
 
 /* ══════════════════════════════════════════
    DASHBOARD
@@ -454,7 +477,7 @@ function adminTodayKey(){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 function safeText(v){ return String(v ?? '-').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function dateText(v){ return v ? new Date(Number(v)).toLocaleString('bn-BD') : '-'; }
+function dateText(v){ if(!v) return '-'; const d = typeof v === 'number' || /^\d+$/.test(String(v)) ? new Date(Number(v)) : new Date(v); return Number.isNaN(d.getTime()) ? '-' : d.toLocaleString('bn-BD'); }
 async function loadAllUsers(){
   const [us,ws] = await Promise.all([dbGet('users'),dbGet('withdrawals')]);
   cachedUsers = us.exists() ? us.val() : {};
@@ -647,7 +670,7 @@ async function renderWithdrawTable(filter){
       <td style="font-family:monospace">${safeText(v.number||'-')}</td>
       <td>${todayPosts}</td><td>${totalPosts}</td><td>${dateText(u.joinedAt)}</td>
       <td>${dateText(v.requestedAt)}</td>
-      <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span></td>
+      <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span>${v.status==='rejected' && v.reason ? `<div style="font-size:11px;color:var(--red);margin-top:5px;max-width:180px;white-space:normal;">${safeText(v.reason)}</div>` : ''}</td>
       <td style="display:flex;gap:6px;">
         ${v.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="updateWithdrawal('${key}','approved')">✅</button><button class="btn btn-danger btn-sm" onclick="updateWithdrawal('${key}','rejected')">❌</button>` : '<span style="font-size:11px;color:var(--text2);">সম্পন্ন</span>'}
       </td>
@@ -656,15 +679,18 @@ async function renderWithdrawTable(filter){
 }
 
 async function updateWithdrawal(key, status){
-  await dbUpdate(`withdrawals/${key}`, { status });
-  if(allWithdrawals && allWithdrawals[key]) allWithdrawals[key].status = status;
+  const result = await dbTransaction(`withdrawals/${key}`, current => {
+    if(!current || current.status !== 'pending') return;
+    return { ...current, status, ...(status === 'rejected' ? { rejectedAt:Date.now(), reason:current.reason || 'Admin দ্বারা বাতিল করা হয়েছে।' } : { approvedAt:Date.now() }) };
+  });
+  if(!result.committed){ toast('এই Withdraw Request ইতিমধ্যে প্রসেস করা হয়েছে','err'); await loadWithdrawals(document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অপেক্ষমান') ? 'pending' : 'all'); return; }
+  if(allWithdrawals && allWithdrawals[key]) Object.assign(allWithdrawals[key], result.snapshot.val());
   toast(status === 'approved' ? '✅ অনুমোদিত হয়েছে' : '❌ বাতিল হয়েছে');
   renderWithdrawTable(document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অপেক্ষমান')
     ? 'pending' : document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অনুমোদিত')
     ? 'approved' : document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('বাতিল')
     ? 'rejected' : 'all');
 }
-
 /* ══════════════════════════════════════════
    GENERAL
 ══════════════════════════════════════════ */
@@ -682,6 +708,60 @@ async function saveGeneral(){
   if(isNaN(min)||isNaN(ref)){ toast('সংখ্যা সঠিকভাবে দিন','err'); return; }
   await dbUpdate('config', { minWithdraw:min, referEarn:ref, supportLink:link });
   toast('✅ সেটিং সেভ হয়েছে!');
+}
+
+async function loadAutoRejectSettings(){
+  const snap = await dbGet('settings/autoReject');
+  const cfg = snap.exists() ? snap.val() : {};
+  document.getElementById('autoRejectEnabled').checked = !!cfg.enabled;
+  document.getElementById('autoRejectHours').value = Math.max(1, Number(cfg.hours) || 24);
+  document.getElementById('autoRejectReason').value = cfg.reason || 'উইথড্র রিকোয়েস্ট নির্ধারিত সময়ের মধ্যে প্রসেস করা সম্ভব হয়নি।';
+}
+async function saveAutoRejectSettings(){
+  const hours = Number(document.getElementById('autoRejectHours').value);
+  const reason = document.getElementById('autoRejectReason').value.trim();
+  if(!Number.isInteger(hours) || hours < 1){ toast('কমপক্ষে ১ ঘণ্টা সেট করুন','err'); return; }
+  if(!reason){ toast('Reject Reason লিখুন','err'); return; }
+  await dbSet('settings/autoReject', { enabled:document.getElementById('autoRejectEnabled').checked, hours, reason, updatedAt:Date.now() });
+  toast('✅ Auto Reject Settings সেভ হয়েছে!');
+}
+
+// Same client-side model as the reference site: admin checks on startup and while open.
+let adminAutoRejectRunning = false;
+async function runAdminAutoReject(){
+  if(adminAutoRejectRunning) return;
+  adminAutoRejectRunning = true;
+  try{
+    const cfgSnap = await dbGet('settings/autoReject');
+    const cfg = cfgSnap.exists() ? cfgSnap.val() : null;
+    if(!cfg || !cfg.enabled) return;
+    const cutoff = Date.now() - Math.max(1, Number(cfg.hours) || 1) * 3600000;
+    const reason = String(cfg.reason || 'নির্ধারিত সময়ের মধ্যে Withdraw প্রসেস করা হয়নি।').trim();
+    const ws = await dbGet('withdrawals');
+    if(!ws.exists()) return;
+    for(const [id,w] of Object.entries(ws.val() || {})){
+      const requestedAt = Number(w.requestedAt || (w.createdAt ? new Date(w.createdAt).getTime() : 0));
+      if(!requestedAt || requestedAt > cutoff) continue;
+      const claim = await dbTransaction(`withdrawals/${id}`, current => {
+        if(!current || current.status !== 'pending') return;
+        return { ...current, status:'rejected', reason:'[Auto] ' + reason, autoRejected:true, rejectedAt:Date.now() };
+      });
+      const latest = claim.snapshot && claim.snapshot.val();
+      if(latest && latest.status === 'rejected' && latest.autoRejected && latest.userRefunded !== true){
+        const uid = String(latest.uid || latest.userId || '');
+        if(!uid) continue;
+        const amount = Math.max(0, Number(latest.amount) || 0);
+        const refund = await dbTransaction(`users/${uid}`, user => {
+          if(!user) return;
+          const refunds = user.autoRejectRefunds || {};
+          if(refunds[id]) return user;
+          return { ...user, balance:(Number(user.balance)||0)+amount, autoRejectRefunds:{...refunds,[id]:true} };
+        });
+        if(refund.committed || (refund.snapshot && refund.snapshot.child(`autoRejectRefunds/${id}`).exists())) await dbUpdate(`withdrawals/${id}`, { userRefunded:true });
+      }
+    }
+  }catch(e){ console.warn('Admin auto reject failed:',e); }
+  finally{ adminAutoRejectRunning = false; }
 }
 
 /* ══════════════════════════════════════════
