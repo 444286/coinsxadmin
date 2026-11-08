@@ -253,7 +253,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <input class="inp" id="userSearch" placeholder="নাম / UID / মোবাইল নম্বর দিয়ে খুঁজুন..." oninput="renderAllUsers()" style="margin-bottom:14px;">
       <div class="stats-grid" id="userStats"></div>
       <div class="tbl-wrap"><table><thead><tr>
-        <th>নাম</th><th>UID</th><th>মোবাইল নম্বর</th><th>পাসওয়ার্ড</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw</th><th>Join Date</th><th>Balance</th>
+        <th>নাম</th><th>UID</th><th>মোবাইল নম্বর</th><th>পাসওয়ার্ড</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw</th><th>Join Date</th><th>Balance</th><th>অ্যাকশন</th>
       </tr></thead><tbody id="allUsersTbody"><tr><td colspan="9" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody></table></div>
     </div>
   </div>
@@ -407,6 +407,31 @@ async function loadAllUsers(){
   cachedUserWithdrawals=ws.exists()?ws.val():{};
   renderAllUsers();
 }
+async function editUserBalance(userKey,userName,currentBalance){
+  if(!userKey){ toast('ইউজার শনাক্ত করা যায়নি','err'); return; }
+  const entered=prompt(
+    `${userName} এর নতুন ব্যালেন্স লিখুন (৳):`,
+    Number(currentBalance||0).toFixed(2)
+  );
+  if(entered===null) return;
+  const newBalance=Number(String(entered).trim());
+  if(!String(entered).trim() || !Number.isFinite(newBalance) || newBalance<0){
+    toast('সঠিক ব্যালেন্স লিখুন (০ বা তার বেশি)','err');
+    return;
+  }
+  if(!confirm(`এই ইউজারের ব্যালেন্স ৳${Number(currentBalance||0).toFixed(2)} থেকে ৳${newBalance.toFixed(2)} করবেন?`)) return;
+  try{
+    await dbUpdate(`users/${userKey}`,{balance:newBalance});
+    if(cachedUsers[userKey]) cachedUsers[userKey].balance=newBalance;
+    renderAllUsers();
+    toast('✅ ইউজারের ব্যালেন্স আপডেট হয়েছে');
+    loadDashboard();
+  }catch(err){
+    console.error('Balance update failed:',err);
+    toast('ব্যালেন্স আপডেট হয়নি। Firebase সংযোগ পরীক্ষা করুন।','err');
+  }
+}
+
 function renderAllUsers(){
   const rows=Object.entries(cachedUsers||{}).map(([key,u])=>{
     const uid=String(u.uid||key);
@@ -431,7 +456,8 @@ function renderAllUsers(){
     <td>${x.today}</td><td>${x.total}</td><td>${x.withdraws}</td>
     <td>${dateText(x.u.joinedAt)}</td>
     <td style="color:var(--gold);font-weight:700">৳${Number(x.u.balance||0).toFixed(2)}</td>
-  </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
+    <td><button class="btn btn-primary btn-sm" onclick="editUserBalance('${safeText(x.key)}','${safeText(x.u.name||'User')}','${Number(x.u.balance||0)}')">✏️ Edit Balance</button></td>
+  </tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
 }
 
 /* POST SETTINGS */
