@@ -57,9 +57,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fn);min-heigh
 .top-bar .logo{font-family:var(--fe);font-weight:900;font-size:22px;color:#fff;}
 .top-bar .badge{background:rgba(255,255,255,.18);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;color:#fff;}
 
-/* ── Main layout ── */
-#adminMain{display:block;}
-.container{max-width:900px;margin:0 auto;padding:24px 16px;}
+.container{max-width:1100px;margin:0 auto;padding:24px 16px;}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
 .tab{padding:9px 20px;border-radius:30px;border:1px solid var(--border);background:var(--card2);color:var(--text2);cursor:pointer;font-size:13px;font-weight:600;font-family:var(--fn);transition:all .2s;}
 .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
@@ -67,15 +65,11 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fn);min-heigh
 .section{display:none;}
 .section.active{display:block;}
 
-/* ── Cards ── */
 .panel{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;box-shadow:var(--shadow);}
 .panel-title{font-family:var(--fe);font-weight:800;font-size:14px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .panel-title .pill{background:rgba(61,107,255,.18);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:11px;}
-
-/* ── Highlight panel for post settings ── */
 .panel.highlight{border-color:rgba(34,216,122,.25);background:linear-gradient(145deg,var(--card2),rgba(34,216,122,.04));}
 
-/* ── Form elements ── */
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
 @media(max-width:500px){.form-row{grid-template-columns:1fr;}}
 .form-group{display:flex;flex-direction:column;gap:6px;}
@@ -85,9 +79,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fn);min-heigh
 .inp{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px;outline:none;font-family:var(--fn);transition:border-color .2s;width:100%;}
 .inp:focus{border-color:var(--accent);}
 textarea.inp{resize:vertical;min-height:80px;line-height:1.6;}
-.select-inp{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892b0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
 
-/* ── Buttons ── */
 .btn{padding:11px 22px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fn);transition:filter .18s,transform .15s;}
 .btn:active{transform:scale(.97);}
 .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;}
@@ -96,13 +88,11 @@ textarea.inp{resize:vertical;min-height:80px;line-height:1.6;}
 .btn-danger{background:var(--red);color:#fff;}
 .btn-sm{padding:7px 14px;font-size:12px;}
 
-/* ── Stats grid ── */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px;}
 .stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
 .stat-val{font-family:var(--fe);font-weight:900;font-size:26px;color:var(--gold);}
 .stat-lbl{font-size:11px;color:var(--text2);margin-top:4px;}
 
-/* ── Table ── */
 .tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
 table{width:100%;border-collapse:collapse;}
 th,td{padding:11px 14px;text-align:left;font-size:12px;border-bottom:1px solid var(--border);white-space:nowrap;}
@@ -114,12 +104,17 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .status-badge.approved{background:rgba(34,216,122,.15);color:var(--green);}
 .status-badge.rejected{background:rgba(255,77,109,.15);color:var(--red);}
 
-/* ── Task editor ── */
+/* Password reveal cell */
+.pass-cell{position:relative;min-width:100px;}
+.pass-hidden{font-family:var(--fe);letter-spacing:2px;color:var(--text2);}
+.pass-reveal{font-family:monospace;color:var(--gold);font-size:12px;display:none;}
+.pass-cell:hover .pass-hidden{display:none;}
+.pass-cell:hover .pass-reveal{display:inline;}
+
 .task-row{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
 .task-row .tr-name{flex:1;min-width:140px;font-size:13px;font-weight:600;}
 .task-row .tr-reward{font-family:var(--fe);font-weight:800;color:var(--gold);font-size:14px;min-width:60px;}
 
-/* ── Toggle ── */
 .toggle-wrap{display:flex;align-items:center;gap:10px;}
 .toggle{position:relative;width:44px;height:24px;cursor:pointer;}
 .toggle input{opacity:0;width:0;height:0;}
@@ -128,523 +123,410 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .toggle input:checked + .toggle-slider{background:var(--green);border-color:var(--green);}
 .toggle input:checked + .toggle-slider::before{transform:translateX(20px);background:#fff;}
 
-/* ── Toast ── */
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:12px 22px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 .toast.ok{border-color:var(--green);color:var(--green);}
 .toast.err{border-color:var(--red);color:var(--red);}
-
-/* ── Spinner ── */
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:30px auto;}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
-<!-- ADMIN MAIN -->
-<div id="adminMain">
-  <div class="top-bar">
-    <div class="logo">🪙 CoinsX</div>
-    <div class="badge">Admin Panel</div>
+<div class="top-bar">
+  <div class="logo">🪙 CoinsX</div>
+  <div class="badge">Admin Panel</div>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('dashboard')">📊 ড্যাশবোর্ড</div>
+    <div class="tab" onclick="switchTab('users')">👥 All Users</div>
+    <div class="tab" onclick="switchTab('post')">📋 পোস্ট সেটিং</div>
+    <div class="tab" onclick="switchTab('tasks')">🎯 টাস্ক</div>
+    <div class="tab" onclick="switchTab('withdrawals')">💸 উইথড্র</div>
+    <div class="tab" onclick="switchTab('general')">⚙️ সাধারণ</div>
+    <div class="tab" onclick="switchTab('popup')">📢 পপআপ</div>
+    <div class="tab" onclick="switchTab('faq')">❓ FAQ</div>
   </div>
 
-  <div class="container">
-
-    <!-- TABS -->
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('dashboard')">📊 ড্যাশবোর্ড</div>
-      <div class="tab" onclick="switchTab('users')">👥 All Users</div>
-      <div class="tab" onclick="switchTab('post')">📋 পোস্ট সেটিং</div>
-      <div class="tab" onclick="switchTab('tasks')">🎯 টাস্ক</div>
-      <div class="tab" onclick="switchTab('withdrawals')">💸 উইথড্র</div>
-      <div class="tab" onclick="switchTab('general')">⚙️ সাধারণ</div>
-      <div class="tab" onclick="switchTab('popup')">📢 পপআপ</div>
-      <div class="tab" onclick="switchTab('faq')">❓ FAQ</div>
+  <!-- DASHBOARD -->
+  <div class="section active" id="tab-dashboard">
+    <div class="stats-grid" id="statsGrid"><div class="spinner"></div></div>
+    <div class="panel">
+      <div class="panel-title">👥 সাম্প্রতিক ইউজার</div>
+      <div id="recentUsers"><div class="spinner"></div></div>
     </div>
+  </div>
 
-    <!-- ══════════ DASHBOARD ══════════ -->
-    <div class="section active" id="tab-dashboard">
-      <div class="stats-grid" id="statsGrid">
-        <div class="spinner"></div>
+  <!-- POST SETTINGS -->
+  <div class="section" id="tab-post">
+    <div class="panel highlight">
+      <div class="panel-title">📋 পোস্ট কপি সেটিং <span class="pill">নতুন</span></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="lbl">প্রতি পোস্টে আয় (৳)</label>
+          <input class="inp" type="number" id="postEarnAmount" placeholder="2" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label class="lbl">দৈনিক সর্বোচ্চ পোস্ট</label>
+          <input class="inp" type="number" id="postDailyLimit" placeholder="10" min="1" step="1">
+        </div>
       </div>
-      <div class="panel">
-        <div class="panel-title">👥 সাম্প্রতিক ইউজার</div>
-        <div id="recentUsers"><div class="spinner"></div></div>
+      <div class="panel-title" style="margin-top:20px;">⏱️ নির্দিষ্ট সময়ের পোস্ট লিমিট</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="lbl">সময়সীমা (ঘণ্টা)</label>
+          <input class="inp" type="number" id="postWindowHours" placeholder="2" min="0" max="24" step="1">
+        </div>
+        <div class="form-group">
+          <label class="lbl">সময়সীমা (মিনিট)</label>
+          <input class="inp" type="number" id="postWindowMinutes" placeholder="30" min="0" max="59" step="1">
+        </div>
+        <div class="form-group">
+          <label class="lbl">এই সময়ে সর্বোচ্চ কমেন্ট</label>
+          <input class="inp" type="number" id="postWindowLimit" placeholder="5" min="0" step="1">
+        </div>
       </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="lbl">পোস্টের টার্গেট লিংক</label>
+        <input class="inp" type="url" id="postTargetUrl" placeholder="https://t.me/YourBotUsername">
+      </div>
+      <div class="panel-title" style="margin-top:22px;">👥 Facebook Group Join লিংক</div>
+      <div id="fbGroupFields"></div>
+      <button type="button" class="btn" style="margin:8px 0 16px;background:var(--card2);" onclick="addFacebookGroupField()">＋ আরও গ্রুপ যোগ করুন</button>
+      <button class="btn btn-success" onclick="savePostSettings()">💾 পোস্ট সেটিং সেভ করুন</button>
     </div>
-
-    <!-- ══════════ POST SETTINGS ══════════ -->
-    <div class="section" id="tab-post">
-      <div class="panel highlight">
-        <div class="panel-title">📋 পোস্ট কপি সেটিং <span class="pill">নতুন</span></div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="lbl">প্রতি পোস্টে আয় (৳) <span class="hint">Complete করলে এই টাকা যোগ হবে</span></label>
-            <input class="inp" type="number" id="postEarnAmount" placeholder="2" min="0" step="0.5">
-          </div>
-          <div class="form-group">
-            <label class="lbl">দৈনিক সর্বোচ্চ পোস্ট <span class="hint">প্রতিদিন সর্বোচ্চ কতটি পোস্ট করা যাবে</span></label>
-            <input class="inp" type="number" id="postDailyLimit" placeholder="10" min="1" step="1">
-          </div>
-        </div>
-
-        <div class="panel-title" style="margin-top:20px;">⏱️ নির্দিষ্ট সময়ের পোস্ট লিমিট</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="lbl">সময়সীমা (ঘণ্টা) <span class="hint">যেমন ২ ঘণ্টা</span></label>
-            <input class="inp" type="number" id="postWindowHours" placeholder="2" min="0" max="24" step="1">
-          </div>
-          <div class="form-group">
-            <label class="lbl">সময়সীমা (মিনিট) <span class="hint">যেমন ৩০ মিনিট</span></label>
-            <input class="inp" type="number" id="postWindowMinutes" placeholder="30" min="0" max="59" step="1">
-          </div>
-          <div class="form-group">
-            <label class="lbl">এই সময়ে সর্বোচ্চ কমেন্ট <span class="hint">লিমিট পূর্ণ হলে কাউন্টডাউন হবে</span></label>
-            <input class="inp" type="number" id="postWindowLimit" placeholder="5" min="0" step="1">
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text2);margin:-5px 0 14px;line-height:1.6;">ঘণ্টা ও মিনিট মিলিয়ে সময় নির্ধারণ করুন। সময় এবং কমেন্ট লিমিট—দুটিই ০ রাখলে এই লিমিট বন্ধ থাকবে। দৈনিক লিমিট পূর্ণ হলে রাত ১২টা পর্যন্ত কাউন্টডাউন দেখাবে।</div>
-
-        <div class="form-group" style="margin-bottom:16px;">
-          <label class="lbl">পোস্টের টার্গেট লিংক (শর্টলিংক এই URL-এ redirect হবে)</label>
-          <input class="inp" type="url" id="postTargetUrl" placeholder="https://t.me/YourBotUsername" inputmode="url" autocomplete="url">
-          <div style="font-size:11px;color:var(--text2);margin-top:7px;line-height:1.6;">এখানে যে URL সেভ করবেন, CoinsX-এর Copy Button প্রতিবার সেই সর্বশেষ URL-এ নতুন Shortlink তৈরি করবে। Shortlink সাইটের কোড পরিবর্তন করা হবে না।</div>
-        </div>
-
-
-        <div class="panel-title" style="margin-top:22px;">👥 Facebook Group Join লিংক</div>
-        <div style="font-size:11px;color:var(--text2);margin:-6px 0 12px;line-height:1.6;">প্রয়োজন অনুযায়ী যত খুশি Facebook Group যোগ করতে পারবেন। প্রতিটি গ্রুপের নাম ও URL দিন। ফাঁকা গ্রুপ Main App-এ দেখাবে না।</div>
-        <div id="fbGroupFields"></div>
-        <button type="button" class="btn" style="margin:8px 0 16px;background:var(--card2);" onclick="addFacebookGroupField()">＋ আরও গ্রুপ যোগ করুন</button>
-
-        <button class="btn btn-success" onclick="savePostSettings()">💾 পোস্ট সেটিং সেভ করুন</button>
-      </div>
-
-      <!-- Post template preview -->
-      <div class="panel">
-        <div class="panel-title">👁️ পোস্ট টেমপ্লেট প্রিভিউ</div>
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;">প্রতিদিন ৪০০-৫০০টাকা ইনকাম হবে ১০০% সিওর। কোনো টাকা-পয়সা প্রয়োজন হবেনা উইথড্র দিতে বা কাজ করতে।সম্পুর্ন ফ্রি কাজ।
+    <div class="panel">
+      <div class="panel-title">👁️ পোস্ট টেমপ্লেট প্রিভিউ</div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;">প্রতিদিন ৪০০-৫০০টাকা ইনকাম হবে ১০০% সিওর। কোনো টাকা-পয়সা প্রয়োজন হবেনা উইথড্র দিতে বা কাজ করতে।সম্পুর্ন ফ্রি কাজ।
 🖇️🔗 সাইট লিংকঃ👇👇👇👇👇
 
 [ইউজারের ইউনিক শর্টলিংক]
 
 👆👆👆👆👆👆👆👆</div>
-        <div style="font-size:11px;color:var(--text2);margin-top:10px;">💡 প্রতিটি ইউজার কপি করলে তাদের ইউনিক শর্টলিংক সহ পোস্ট তৈরি হবে।</div>
+    </div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="section" id="tab-tasks">
+    <div class="panel">
+      <div class="panel-title">🎯 বর্তমান টাস্কসমূহ</div>
+      <div id="taskListAdmin"><div class="spinner"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">➕ নতুন টাস্ক যোগ করুন</div>
+      <div class="form-row">
+        <div class="form-group"><label class="lbl">টাস্কের নাম</label><input class="inp" id="newTaskName" placeholder="চ্যানেল জয়েন করুন"></div>
+        <div class="form-group"><label class="lbl">বিবরণ</label><input class="inp" id="newTaskDesc" placeholder="সংক্ষিপ্ত বিবরণ"></div>
+        <div class="form-group"><label class="lbl">পুরস্কার (৳)</label><input class="inp" type="number" id="newTaskReward" placeholder="10" min="0"></div>
+        <div class="form-group"><label class="lbl">লিংক</label><input class="inp" type="url" id="newTaskLink" placeholder="https://t.me/..."></div>
+        <div class="form-group"><label class="lbl">আইকন (ইমোজি)</label><input class="inp" id="newTaskIcon" placeholder="📢" maxlength="4"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addTask()">➕ টাস্ক যোগ করুন</button>
+    </div>
+  </div>
+
+  <!-- WITHDRAWALS -->
+  <div class="section" id="tab-withdrawals">
+    <div class="panel">
+      <div class="panel-title">💸 উইথড্র রিকোয়েস্ট</div>
+      <div class="tabs" style="margin-bottom:16px;">
+        <div class="tab active" onclick="filterWithdrawals('pending',this)">⏳ অপেক্ষমান</div>
+        <div class="tab" onclick="filterWithdrawals('approved',this)">✅ অনুমোদিত</div>
+        <div class="tab" onclick="filterWithdrawals('rejected',this)">❌ বাতিল</div>
+        <div class="tab" onclick="filterWithdrawals('all',this)">📋 সব</div>
+      </div>
+      <div class="tbl-wrap">
+        <table id="withdrawTable">
+          <thead><tr><th>নাম</th><th>মোবাইল</th><th>UID</th><th>Amount</th><th>Wallet</th><th>Wallet Number</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Join Date</th><th>Withdraw Date</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
+          <tbody id="withdrawTbody"><tr><td colspan="12" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody>
+        </table>
       </div>
     </div>
+  </div>
 
-    <!-- ══════════ TASKS ══════════ -->
-    <div class="section" id="tab-tasks">
-      <div class="panel">
-        <div class="panel-title">🎯 বর্তমান টাস্কসমূহ</div>
-        <div id="taskListAdmin"><div class="spinner"></div></div>
-      </div>
-      <div class="panel">
-        <div class="panel-title">➕ নতুন টাস্ক যোগ করুন</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="lbl">টাস্কের নাম</label>
-            <input class="inp" id="newTaskName" placeholder="চ্যানেল জয়েন করুন">
-          </div>
-          <div class="form-group">
-            <label class="lbl">বিবরণ</label>
-            <input class="inp" id="newTaskDesc" placeholder="সংক্ষিপ্ত বিবরণ">
-          </div>
-          <div class="form-group">
-            <label class="lbl">পুরস্কার (৳)</label>
-            <input class="inp" type="number" id="newTaskReward" placeholder="10" min="0">
-          </div>
-          <div class="form-group">
-            <label class="lbl">লিংক</label>
-            <input class="inp" type="url" id="newTaskLink" placeholder="https://t.me/...">
-          </div>
-          <div class="form-group">
-            <label class="lbl">আইকন (ইমোজি)</label>
-            <input class="inp" id="newTaskIcon" placeholder="📢" maxlength="4">
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="addTask()">➕ টাস্ক যোগ করুন</button>
-      </div>
+  <!-- ALL USERS -->
+  <div class="section" id="tab-users">
+    <div class="panel">
+      <div class="panel-title">👥 সকল ইউজারের বিস্তারিত (পাসওয়ার্ড দেখতে Password cell-এ hover করুন)</div>
+      <input class="inp" id="userSearch" placeholder="নাম / UID / মোবাইল নম্বর দিয়ে খুঁজুন..." oninput="renderAllUsers()" style="margin-bottom:14px;">
+      <div class="stats-grid" id="userStats"></div>
+      <div class="tbl-wrap"><table><thead><tr>
+        <th>নাম</th><th>UID</th><th>মোবাইল নম্বর</th><th>পাসওয়ার্ড</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw</th><th>Join Date</th><th>Balance</th>
+      </tr></thead><tbody id="allUsersTbody"><tr><td colspan="9" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody></table></div>
     </div>
+  </div>
 
-    <!-- ══════════ WITHDRAWALS ══════════ -->
-    <div class="section" id="tab-withdrawals">
-      <div class="panel">
-        <div class="panel-title">💸 উইথড্র রিকোয়েস্ট</div>
-        <div class="tabs" style="margin-bottom:16px;">
-          <div class="tab active" onclick="filterWithdrawals('pending',this)">⏳ অপেক্ষমান</div>
-          <div class="tab" onclick="filterWithdrawals('approved',this)">✅ অনুমোদিত</div>
-          <div class="tab" onclick="filterWithdrawals('rejected',this)">❌ বাতিল</div>
-          <div class="tab" onclick="filterWithdrawals('all',this)">📋 সব</div>
-        </div>
-        <div class="tbl-wrap">
-          <table id="withdrawTable">
-            <thead><tr><th>নাম</th><th>Registration ID</th><th>TG UID</th><th>Withdraw Amount</th><th>Wallet</th><th>Wallet Number</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Join Date</th><th>Withdraw Date &amp; Time</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
-            <tbody id="withdrawTbody"><tr><td colspan="12" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody>
-          </table>
-        </div>
+  <!-- GENERAL -->
+  <div class="section" id="tab-general">
+    <div class="panel">
+      <div class="panel-title">⚙️ সাধারণ সেটিং</div>
+      <div class="form-row">
+        <div class="form-group"><label class="lbl">সর্বনিম্ন উইথড্র (৳)</label><input class="inp" type="number" id="cfgMinWithdraw" placeholder="50"></div>
+        <div class="form-group"><label class="lbl">রেফার আয় (৳)</label><input class="inp" type="number" id="cfgReferEarn" placeholder="5"></div>
+        <div class="form-group full"><label class="lbl">সাপোর্ট টেলিগ্রাম লিংক</label><input class="inp" type="url" id="cfgSupportLink" placeholder="https://t.me/..."></div>
       </div>
+      <button class="btn btn-primary" onclick="saveGeneral()">💾 সেভ করুন</button>
     </div>
-
-    <!-- ══════════ ALL USERS ══════════ -->
-    <div class="section" id="tab-users">
-      <div class="panel">
-        <div class="panel-title">👥 সকল ইউজারের বিস্তারিত</div>
-        <input class="inp" id="userSearch" placeholder="নাম / UID / Telegram ID দিয়ে খুঁজুন..." oninput="renderAllUsers()" style="margin-bottom:14px;">
-        <div class="stats-grid" id="userStats"></div>
-        <div class="tbl-wrap"><table><thead><tr>
-          <th>নাম</th><th>Registration ID</th><th>TG UID</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw Req.</th><th>Join Date</th><th>Total Balance</th>
-        </tr></thead><tbody id="allUsersTbody"><tr><td colspan="8" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody></table></div>
+    <div class="panel">
+      <div class="panel-title">⏱️ অটো উইথড্র রিজেক্ট</div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <div class="toggle-wrap">
+          <label class="toggle"><input type="checkbox" id="autoRejectEnabled"><span class="toggle-slider"></span></label>
+          <label class="lbl">Auto Reject চালু করুন</label>
+        </div>
       </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="lbl">কত ঘণ্টা পর Reject হবে?</label>
+        <input class="inp" type="number" id="autoRejectHours" min="1" step="1" value="24" placeholder="যেমন: ২৪">
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="lbl">Reject Reason</label>
+        <textarea class="inp" id="autoRejectReason" rows="3" placeholder="উইথড্র রিকোয়েস্ট নির্ধারিত সময়ের মধ্যে প্রসেস করা সম্ভব হয়নি।"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="saveAutoRejectSettings()">💾 সেভ করুন</button>
     </div>
+  </div>
 
-    <!-- ══════════ GENERAL ══════════ -->
-    <div class="section" id="tab-general">
-      <div class="panel">
-        <div class="panel-title">⚙️ সাধারণ সেটিং</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="lbl">সর্বনিম্ন উইথড্র (৳)</label>
-            <input class="inp" type="number" id="cfgMinWithdraw" placeholder="50">
-          </div>
-          <div class="form-group">
-            <label class="lbl">রেফার আয় (৳)</label>
-            <input class="inp" type="number" id="cfgReferEarn" placeholder="5">
-          </div>
-          <div class="form-group full">
-            <label class="lbl">সাপোর্ট টেলিগ্রাম লিংক</label>
-            <input class="inp" type="url" id="cfgSupportLink" placeholder="https://t.me/...">
-          </div>
+  <!-- POPUP -->
+  <div class="section" id="tab-popup">
+    <div class="panel">
+      <div class="panel-title">📢 স্টার্টআপ পপআপ</div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <div class="toggle-wrap">
+          <label class="toggle"><input type="checkbox" id="popupEnabled"><span class="toggle-slider"></span></label>
+          <label class="lbl">পপআপ চালু করুন</label>
         </div>
-        <button class="btn btn-primary" onclick="saveGeneral()">💾 সেভ করুন</button>
       </div>
-      <div class="panel">
-        <div class="panel-title">⏱️ অটো উইথড্র রিজেক্ট সেটিংস</div>
-        <div class="form-group" style="margin-bottom:14px;">
-          <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" id="autoRejectEnabled"><span class="toggle-slider"></span></label>
-            <label class="lbl">Auto Reject চালু করুন</label>
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom:14px;">
-          <label class="lbl">কত ঘণ্টা পর Pending Withdraw Reject হবে?</label>
-          <input class="inp" type="number" id="autoRejectHours" min="1" step="1" value="24" placeholder="যেমন: ২৪">
-        </div>
-        <div class="form-group" style="margin-bottom:14px;">
-          <label class="lbl">Reject Reason (User দেখতে পাবে)</label>
-          <textarea class="inp" id="autoRejectReason" rows="3" placeholder="উইথড্র রিকোয়েস্ট নির্ধারিত সময়ের মধ্যে প্রসেস করা সম্ভব হয়নি।"></textarea>
-        </div>
-        <button class="btn btn-primary" onclick="saveAutoRejectSettings()">💾 Auto Reject Settings সেভ করুন</button>
-        <p style="font-size:12px;color:var(--text2);margin-top:10px;line-height:1.6;">নোট: User App বা Admin Panel খোলা হলে এবং App চালু থাকা অবস্থায় পর্যায়ক্রমে Pending Request চেক হবে। কোনো App-ই না খুললে নির্ধারিত সময়ে সঙ্গে সঙ্গে Reject হবে না; পরেরবার App খুললে চেক হবে।</p>
+      <div class="form-row">
+        <div class="form-group"><label class="lbl">আইকন</label><input class="inp" id="popupIcon" placeholder="🤩" maxlength="4"></div>
+        <div class="form-group"><label class="lbl">শিরোনাম</label><input class="inp" id="popupTitle" placeholder="Welcome"></div>
+        <div class="form-group"><label class="lbl">বাটন লেখা</label><input class="inp" id="popupBtnText" placeholder="Continue"></div>
       </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="lbl">বার্তা</label>
+        <textarea class="inp" id="popupMessage" rows="5" placeholder="আপনার বার্তা এখানে লিখুন..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="savePopup()">💾 পপআপ সেভ করুন</button>
     </div>
+  </div>
 
-    <!-- ══════════ POPUP ══════════ -->
-    <div class="section" id="tab-popup">
-      <div class="panel">
-        <div class="panel-title">📢 স্টার্টআপ পপআপ</div>
-        <div class="form-group" style="margin-bottom:14px;">
-          <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" id="popupEnabled"><span class="toggle-slider"></span></label>
-            <label class="lbl">পপআপ চালু করুন</label>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="lbl">আইকন (ইমোজি)</label>
-            <input class="inp" id="popupIcon" placeholder="🤩" maxlength="4">
-          </div>
-          <div class="form-group">
-            <label class="lbl">শিরোনাম</label>
-            <input class="inp" id="popupTitle" placeholder="Welcome">
-          </div>
-          <div class="form-group">
-            <label class="lbl">বাটন লেখা</label>
-            <input class="inp" id="popupBtnText" placeholder="Continue">
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom:14px;">
-          <label class="lbl">বার্তা (নতুন লাইনের জন্য Enter চাপুন)</label>
-          <textarea class="inp" id="popupMessage" rows="5" placeholder="আপনার বার্তা এখানে লিখুন..."></textarea>
-        </div>
-        <button class="btn btn-primary" onclick="savePopup()">💾 পপআপ সেভ করুন</button>
-      </div>
+  <!-- FAQ -->
+  <div class="section" id="tab-faq">
+    <div class="panel">
+      <div class="panel-title">❓ বর্তমান FAQ</div>
+      <div id="faqListAdmin"><div class="spinner"></div></div>
     </div>
-
-    <!-- ══════════ FAQ ══════════ -->
-    <div class="section" id="tab-faq">
-      <div class="panel">
-        <div class="panel-title">❓ বর্তমান FAQ</div>
-        <div id="faqListAdmin"><div class="spinner"></div></div>
-      </div>
-      <div class="panel">
-        <div class="panel-title">➕ নতুন FAQ যোগ করুন</div>
-        <div class="form-group" style="margin-bottom:12px;">
-          <label class="lbl">প্রশ্ন</label>
-          <input class="inp" id="newFaqQ" placeholder="কীভাবে টাকা তুলবো?">
-        </div>
-        <div class="form-group" style="margin-bottom:16px;">
-          <label class="lbl">উত্তর</label>
-          <textarea class="inp" id="newFaqA" rows="3" placeholder="উইথড্র পেজে গিয়ে..."></textarea>
-        </div>
-        <button class="btn btn-primary" onclick="addFaq()">➕ FAQ যোগ করুন</button>
-      </div>
+    <div class="panel">
+      <div class="panel-title">➕ নতুন FAQ যোগ করুন</div>
+      <div class="form-group" style="margin-bottom:12px;"><label class="lbl">প্রশ্ন</label><input class="inp" id="newFaqQ" placeholder="কীভাবে টাকা তুলবো?"></div>
+      <div class="form-group" style="margin-bottom:16px;"><label class="lbl">উত্তর</label><textarea class="inp" id="newFaqA" rows="3" placeholder="উইথড্র পেজে গিয়ে..."></textarea></div>
+      <button class="btn btn-primary" onclick="addFaq()">➕ FAQ যোগ করুন</button>
     </div>
+  </div>
 
-  </div><!-- /container -->
-</div>
+</div><!-- /container -->
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* ══════════════════════════════════════════
-   HELPERS
-══════════════════════════════════════════ */
 function dbRef(p)      { return window._dbRef(window._db, p); }
 function dbGet(p)      { return window._dbGet(dbRef(p)); }
 function dbSet(p,v)    { return window._dbSet(dbRef(p), v); }
 function dbUpdate(p,v) { return window._dbUpdate(dbRef(p), v); }
 function dbPush(p,v)   { return window._dbPush(dbRef(p), v); }
 function dbRemove(p)   { return window._dbRemove(dbRef(p)); }
-function dbTransaction(p, updater) { return window._dbTransaction(dbRef(p), updater); }
+function dbTransaction(p,updater){ return window._dbTransaction(dbRef(p),updater); }
 
-function toast(msg, type='ok'){
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className   = `toast ${type}`;
-  el.classList.add('show');
-  setTimeout(()=> el.classList.remove('show'), 3000);
+function toast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className=`toast ${type}`; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
 }
+function safeText(v){ return String(v??'-').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function dateText(v){ if(!v) return '-'; const d=typeof v==='number'||/^\d+$/.test(String(v))?new Date(Number(v)):new Date(v); return Number.isNaN(d.getTime())?'-':d.toLocaleString('bn-BD'); }
 
-/* ══════════════════════════════════════════
-   TABS
-══════════════════════════════════════════ */
 function switchTab(name){
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tabs > .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tabs > .tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(`tab-${name}`).classList.add('active');
   event.target.classList.add('active');
   if(name==='dashboard')  loadDashboard();
   if(name==='users')      loadAllUsers();
   if(name==='tasks')      loadTasksAdmin();
-  if(name==='withdrawals'){ allWithdrawals = null; loadWithdrawals('pending'); }
-  if(name==='general'){ loadGeneral(); loadAutoRejectSettings(); }
+  if(name==='withdrawals'){ allWithdrawals=null; loadWithdrawals('pending'); }
+  if(name==='general'){   loadGeneral(); loadAutoRejectSettings(); }
   if(name==='popup')      loadPopup();
   if(name==='faq')        loadFaqAdmin();
   if(name==='post')       loadPostSettings();
 }
 
-/* ══════════════════════════════════════════
-   INIT
-══════════════════════════════════════════ */
 function initAdmin(){
-  const start = async () => { loadDashboard(); await runAdminAutoReject(); if(!window._coinsxAdminAutoRejectTimer) window._coinsxAdminAutoRejectTimer = setInterval(() => { if(!document.hidden) runAdminAutoReject(); }, 5 * 60 * 1000); };
+  const start=async()=>{ loadDashboard(); await runAdminAutoReject(); if(!window._coinsxAdminAutoRejectTimer) window._coinsxAdminAutoRejectTimer=setInterval(()=>{ if(!document.hidden) runAdminAutoReject(); },5*60*1000); };
   if(window._firebaseReady) start();
-  else document.addEventListener('firebaseReady', start, { once:true });
+  else document.addEventListener('firebaseReady',start,{once:true});
 }
-document.addEventListener('visibilitychange', () => { if(!document.hidden && window._firebaseReady) runAdminAutoReject(); });
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&window._firebaseReady) runAdminAutoReject(); });
 
-/* ══════════════════════════════════════════
-   DASHBOARD
-══════════════════════════════════════════ */
+/* DASHBOARD */
 async function loadDashboard(){
-  const [userSnap, wSnap] = await Promise.all([dbGet('users'), dbGet('withdrawals')]);
-  const users = userSnap.exists() ? Object.values(userSnap.val()) : [];
-  const ws    = wSnap.exists()    ? Object.values(wSnap.val())    : [];
-
-  const totalBal      = users.reduce((a,u)=>(a + (u.balance||0)), 0);
-  const totalEarned   = users.reduce((a,u)=>(a + (u.totalEarned||0)), 0);
-  const pendingAmount = ws.filter(w=>w.status==='pending').reduce((a,w)=>(a + (w.amount||0)),0);
-  const totalPostCopy = users.reduce((a,u)=>(a + (u.postCopyCount||0)), 0);
-
-  document.getElementById('statsGrid').innerHTML = `
+  const [userSnap,wSnap]=await Promise.all([dbGet('users'),dbGet('withdrawals')]);
+  const users=userSnap.exists()?Object.values(userSnap.val()):[];
+  const ws=wSnap.exists()?Object.values(wSnap.val()):[];
+  const totalBal=users.reduce((a,u)=>a+(u.balance||0),0);
+  const totalEarned=users.reduce((a,u)=>a+(u.totalEarned||0),0);
+  const pendingAmount=ws.filter(w=>w.status==='pending').reduce((a,w)=>a+(w.amount||0),0);
+  const totalPostCopy=users.reduce((a,u)=>a+(u.postCopyCount||0),0);
+  document.getElementById('statsGrid').innerHTML=`
     <div class="stat-card"><div class="stat-val">${users.length}</div><div class="stat-lbl">মোট ইউজার</div></div>
     <div class="stat-card"><div class="stat-val">৳${totalBal.toFixed(0)}</div><div class="stat-lbl">মোট ব্যালেন্স</div></div>
     <div class="stat-card"><div class="stat-val">৳${totalEarned.toFixed(0)}</div><div class="stat-lbl">মোট আয়</div></div>
     <div class="stat-card"><div class="stat-val">${ws.filter(w=>w.status==='pending').length}</div><div class="stat-lbl">পেন্ডিং উইথড্র</div></div>
     <div class="stat-card"><div class="stat-val">৳${pendingAmount.toFixed(0)}</div><div class="stat-lbl">পেন্ডিং পরিমাণ</div></div>
-    <div class="stat-card"><div class="stat-val">${totalPostCopy}</div><div class="stat-lbl">মোট পোস্ট কপি</div></div>
-  `;
-
-  const sorted  = [...users].sort((a,b)=>(b.joinedAt||0)-(a.joinedAt||0)).slice(0,10);
-  document.getElementById('recentUsers').innerHTML = `
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>নাম</th><th>UID</th><th>ব্যালেন্স</th><th>মোট আয়</th><th>পোস্ট</th><th>রেফার</th><th>যোগদান</th></tr></thead>
-      <tbody>${sorted.map(u=>`
-        <tr>
-          <td>${u.name||'-'}</td>
-          <td style="font-family:monospace;font-size:11px;">${u.uid}</td>
-          <td style="color:var(--gold);font-weight:700;">৳${(u.balance||0).toFixed(2)}</td>
-          <td>৳${(u.totalEarned||0).toFixed(2)}</td>
-          <td>${u.postCopyCount||0}</td>
-          <td>${u.referCount||0}</td>
-          <td>${u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('bn-BD') : '-'}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table></div>`;
+    <div class="stat-card"><div class="stat-val">${totalPostCopy}</div><div class="stat-lbl">মোট পোস্ট</div></div>`;
+  const sorted=[...users].sort((a,b)=>(b.joinedAt||0)-(a.joinedAt||0)).slice(0,10);
+  document.getElementById('recentUsers').innerHTML=`<div class="tbl-wrap"><table>
+    <thead><tr><th>নাম</th><th>মোবাইল</th><th>ব্যালেন্স</th><th>মোট আয়</th><th>পোস্ট</th><th>যোগদান</th></tr></thead>
+    <tbody>${sorted.map(u=>`<tr>
+      <td>${safeText(u.name||'-')}</td>
+      <td style="font-family:monospace">${safeText(u.mobile||'-')}</td>
+      <td style="color:var(--gold);font-weight:700">৳${(u.balance||0).toFixed(2)}</td>
+      <td>৳${(u.totalEarned||0).toFixed(2)}</td>
+      <td>${u.postCopyCount||0}</td>
+      <td>${u.joinedAt?new Date(u.joinedAt).toLocaleDateString('bn-BD'):'-'}</td>
+    </tr>`).join('')}</tbody></table></div>`;
 }
 
-/* ══════════════════════════════════════════
-   ALL USERS — full user statistics
-══════════════════════════════════════════ */
-let cachedUsers = {}, cachedUserWithdrawals = {};
-function adminTodayKey(){
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function safeText(v){ return String(v ?? '-').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function dateText(v){ if(!v) return '-'; const d = typeof v === 'number' || /^\d+$/.test(String(v)) ? new Date(Number(v)) : new Date(v); return Number.isNaN(d.getTime()) ? '-' : d.toLocaleString('bn-BD'); }
+/* ALL USERS */
+let cachedUsers={},cachedUserWithdrawals={};
+function adminTodayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 async function loadAllUsers(){
-  const [us,ws] = await Promise.all([dbGet('users'),dbGet('withdrawals')]);
-  cachedUsers = us.exists() ? us.val() : {};
-  cachedUserWithdrawals = ws.exists() ? ws.val() : {};
+  const [us,ws]=await Promise.all([dbGet('users'),dbGet('withdrawals')]);
+  cachedUsers=us.exists()?us.val():{};
+  cachedUserWithdrawals=ws.exists()?ws.val():{};
   renderAllUsers();
 }
 function renderAllUsers(){
-  const rows = Object.entries(cachedUsers||{}).map(([key,u])=>{
-    const uid = String(u.uid || key);
-    const userWs = Object.values(cachedUserWithdrawals||{}).filter(w=>String(w.uid)===uid);
+  const rows=Object.entries(cachedUsers||{}).map(([key,u])=>{
+    const uid=String(u.uid||key);
+    const userWs=Object.values(cachedUserWithdrawals||{}).filter(w=>String(w.uid)===uid);
     return {key,u,uid,today:Number((u.dailyPost||{})[adminTodayKey()]||0),total:Number(u.postCopyCount||0),withdraws:userWs.length};
   }).sort((a,b)=>(Number(b.u.joinedAt)||0)-(Number(a.u.joinedAt)||0));
   const q=(document.getElementById('userSearch')?.value||'').trim().toLowerCase();
-  const filtered=rows.filter(x=>`${x.u.name||''} ${x.uid} ${x.u.username||''}`.toLowerCase().includes(q));
+  const filtered=rows.filter(x=>`${x.u.name||''} ${x.uid} ${x.u.mobile||''}`.toLowerCase().includes(q));
   const totalBalance=rows.reduce((n,x)=>n+Number(x.u.balance||0),0);
-  document.getElementById('userStats').innerHTML=`<div class="stat-card"><div class="stat-val">${rows.length}</div><div class="stat-lbl">মোট ইউজার</div></div><div class="stat-card"><div class="stat-val">৳${totalBalance.toFixed(2)}</div><div class="stat-lbl">সবার মোট ব্যালেন্স</div></div><div class="stat-card"><div class="stat-val">${rows.reduce((n,x)=>n+x.today,0)}</div><div class="stat-lbl">আজকের মোট পোস্ট</div></div>`;
+  document.getElementById('userStats').innerHTML=`
+    <div class="stat-card"><div class="stat-val">${rows.length}</div><div class="stat-lbl">মোট ইউজার</div></div>
+    <div class="stat-card"><div class="stat-val">৳${totalBalance.toFixed(2)}</div><div class="stat-lbl">সবার ব্যালেন্স</div></div>
+    <div class="stat-card"><div class="stat-val">${rows.reduce((n,x)=>n+x.today,0)}</div><div class="stat-lbl">আজকের পোস্ট</div></div>`;
   document.getElementById('allUsersTbody').innerHTML=filtered.length?filtered.map(x=>`<tr>
-    <td>${safeText(x.u.name)}</td><td style="font-family:monospace">${safeText(x.uid)}</td><td style="font-family:monospace">${safeText(x.u.uid||x.uid)}</td>
-    <td>${x.today}</td><td>${x.total}</td><td>${x.withdraws}</td><td>${dateText(x.u.joinedAt)}</td><td style="color:var(--gold);font-weight:700">৳${Number(x.u.balance||0).toFixed(2)}</td>
-  </tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
+    <td>${safeText(x.u.name)}</td>
+    <td style="font-family:monospace">${safeText(x.u.mobile||'-')}</td>
+    <td style="font-family:monospace;font-size:11px">${safeText(x.uid)}</td>
+    <td class="pass-cell">
+      <span class="pass-hidden">••••••</span>
+      <span class="pass-reveal">${safeText(x.u.password||'-')}</span>
+    </td>
+    <td>${x.today}</td><td>${x.total}</td><td>${x.withdraws}</td>
+    <td>${dateText(x.u.joinedAt)}</td>
+    <td style="color:var(--gold);font-weight:700">৳${Number(x.u.balance||0).toFixed(2)}</td>
+  </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
 }
 
-/* ══════════════════════════════════════════
-   POST SETTINGS
-══════════════════════════════════════════ */
-let fbGroupFieldCount = 0;
-
-function addFacebookGroupField(group = {}){
-  const container = document.getElementById('fbGroupFields');
+/* POST SETTINGS */
+let fbGroupFieldCount=0;
+function addFacebookGroupField(group={}){
+  const container=document.getElementById('fbGroupFields');
   if(!container) return;
-  const id = ++fbGroupFieldCount;
-  const row = document.createElement('div');
-  row.className = 'form-row';
-  row.style.cssText = 'align-items:end;margin-bottom:10px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;';
-  row.innerHTML = `
-    <div class="form-group"><label class="lbl">Group ${id} নাম</label><input class="inp fb-group-name" placeholder="যেমন: CoinsX Community"></div>
-    <div class="form-group"><label class="lbl">Group ${id} URL</label><input class="inp fb-group-url" type="url" placeholder="https://www.facebook.com/groups/..." inputmode="url"></div>
-    <button type="button" class="btn" style="background:rgba(255,77,109,.15);color:var(--red);height:42px;" aria-label="গ্রুপ সরান" title="গ্রুপ সরান" onclick="this.closest('.form-row').remove()">✕</button>`;
-  row.querySelector('.fb-group-name').value = group.name || '';
-  row.querySelector('.fb-group-url').value = group.url || '';
+  const id=++fbGroupFieldCount;
+  const row=document.createElement('div');
+  row.className='form-row';
+  row.style.cssText='align-items:end;margin-bottom:10px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;';
+  row.innerHTML=`<div class="form-group"><label class="lbl">Group ${id} নাম</label><input class="inp fb-group-name" placeholder="যেমন: CoinsX Community"></div>
+    <div class="form-group"><label class="lbl">Group ${id} URL</label><input class="inp fb-group-url" type="url" placeholder="https://www.facebook.com/groups/..."></div>
+    <button type="button" class="btn" style="background:rgba(255,77,109,.15);color:var(--red);height:42px;" onclick="this.closest('.form-row').remove()">✕</button>`;
+  row.querySelector('.fb-group-name').value=group.name||'';
+  row.querySelector('.fb-group-url').value=group.url||'';
   container.appendChild(row);
 }
-
 async function loadPostSettings(){
-  try {
-    const snap = await dbGet('config');
-    const cfg  = snap.exists() ? snap.val() : {};
-    document.getElementById('postEarnAmount').value  = cfg.postEarnAmount  ?? 2;
-    document.getElementById('postDailyLimit').value  = cfg.postDailyLimit  ?? 10;
-    document.getElementById('postWindowHours').value = cfg.postWindowHours ?? 0;
-    document.getElementById('postWindowMinutes').value = cfg.postWindowMinutes ?? 0;
-    document.getElementById('postWindowLimit').value = cfg.postWindowLimit ?? 0;
-    document.getElementById('postTargetUrl').value   = cfg.postTargetUrl   ?? '';
-    const container = document.getElementById('fbGroupFields');
-    container.innerHTML = '';
-    fbGroupFieldCount = 0;
-    const groups = Array.isArray(cfg.fbGroups) ? cfg.fbGroups : Object.values(cfg.fbGroups || {});
-    groups.forEach(g => addFacebookGroupField(g));
+  try{
+    const snap=await dbGet('config');
+    const cfg=snap.exists()?snap.val():{};
+    document.getElementById('postEarnAmount').value=cfg.postEarnAmount??2;
+    document.getElementById('postDailyLimit').value=cfg.postDailyLimit??10;
+    document.getElementById('postWindowHours').value=cfg.postWindowHours??0;
+    document.getElementById('postWindowMinutes').value=cfg.postWindowMinutes??0;
+    document.getElementById('postWindowLimit').value=cfg.postWindowLimit??0;
+    document.getElementById('postTargetUrl').value=cfg.postTargetUrl??'';
+    const container=document.getElementById('fbGroupFields');
+    container.innerHTML=''; fbGroupFieldCount=0;
+    const groups=Array.isArray(cfg.fbGroups)?cfg.fbGroups:Object.values(cfg.fbGroups||{});
+    groups.forEach(g=>addFacebookGroupField(g));
     if(!groups.length) addFacebookGroupField();
-  } catch(err) {
-    console.error('loadPostSettings:', err);
-    toast('পোস্ট সেটিং লোড হয়নি। Firebase সংযোগ পরীক্ষা করুন।','err');
-  }
+  }catch(err){ console.error(err); toast('পোস্ট সেটিং লোড হয়নি','err'); }
 }
-
 async function savePostSettings(){
-  const earn  = parseFloat(document.getElementById('postEarnAmount').value);
-  const limit = parseInt(document.getElementById('postDailyLimit').value, 10);
-  const windowHours = parseInt(document.getElementById('postWindowHours').value || '0', 10);
-  const windowMinutes = parseInt(document.getElementById('postWindowMinutes').value || '0', 10);
-  const windowLimit = parseInt(document.getElementById('postWindowLimit').value || '0', 10);
-  const url   = document.getElementById('postTargetUrl').value.trim();
-  const fbGroups = [];
-  const rows = [...document.querySelectorAll('#fbGroupFields .form-row')];
+  const earn=parseFloat(document.getElementById('postEarnAmount').value);
+  const limit=parseInt(document.getElementById('postDailyLimit').value,10);
+  const windowHours=parseInt(document.getElementById('postWindowHours').value||'0',10);
+  const windowMinutes=parseInt(document.getElementById('postWindowMinutes').value||'0',10);
+  const windowLimit=parseInt(document.getElementById('postWindowLimit').value||'0',10);
+  const url=document.getElementById('postTargetUrl').value.trim();
+  const fbGroups=[];
+  const rows=[...document.querySelectorAll('#fbGroupFields .form-row')];
   for(let i=0;i<rows.length;i++){
-    const name = rows[i].querySelector('.fb-group-name').value.trim();
-    const groupUrl = rows[i].querySelector('.fb-group-url').value.trim();
-    if(!name && !groupUrl) continue;
-    if(!name || !groupUrl){ toast(`Group ${i+1}: নাম ও URL দুটোই দিন`,'err'); return; }
-    let parsedGroup;
-    try { parsedGroup = new URL(groupUrl); } catch(_){ toast(`Group ${i+1}: সঠিক URL দিন`,'err'); return; }
-    if(!['http:','https:'].includes(parsedGroup.protocol)){ toast(`Group ${i+1}: সঠিক URL দিন`,'err'); return; }
-    fbGroups.push({ name, url: parsedGroup.href });
+    const name=rows[i].querySelector('.fb-group-name').value.trim();
+    const groupUrl=rows[i].querySelector('.fb-group-url').value.trim();
+    if(!name&&!groupUrl) continue;
+    if(!name||!groupUrl){ toast(`Group ${i+1}: নাম ও URL দিন`,'err'); return; }
+    let p; try{ p=new URL(groupUrl); }catch(_){ toast(`Group ${i+1}: সঠিক URL দিন`,'err'); return; }
+    if(!['http:','https:'].includes(p.protocol)){ toast(`Group ${i+1}: সঠিক URL দিন`,'err'); return; }
+    fbGroups.push({name,url:p.href});
   }
-
-  if(!Number.isFinite(earn) || earn < 0){ toast('সঠিক আয়ের পরিমাণ দিন','err'); return; }
-  if(!Number.isInteger(limit) || limit < 1){ toast('সঠিক দৈনিক লিমিট দিন (কমপক্ষে ১)','err'); return; }
-  if(!Number.isInteger(windowHours) || windowHours < 0 || windowHours > 24 || !Number.isInteger(windowMinutes) || windowMinutes < 0 || windowMinutes > 59 || !Number.isInteger(windowLimit) || windowLimit < 0){ toast('ঘণ্টা ০–২৪, মিনিট ০–৫৯ এবং কমেন্ট লিমিট ০ বা সঠিক পূর্ণসংখ্যা দিন','err'); return; }
-  const windowDurationMs = (windowHours * 60 + windowMinutes) * 60000;
-  if((windowDurationMs === 0) !== (windowLimit === 0)){ toast('নির্দিষ্ট সময়ের লিমিট চালু করতে ঘণ্টা/মিনিটের সময় এবং কমেন্ট লিমিট দিন; বন্ধ করতে সময় ও লিমিট ০ রাখুন','err'); return; }
-  let parsed;
-  try { parsed = new URL(url); }
-  catch (_) { toast('সঠিক Target URL দিন (যেমন https://t.me/yourbot)','err'); return; }
-  if(!['http:', 'https:'].includes(parsed.protocol)){
-    toast('Target URL অবশ্যই https:// অথবা http:// হতে হবে','err'); return;
-  }
-  const button = document.querySelector('#tab-post button[onclick="savePostSettings()"]');
-  if(button) button.disabled = true;
-  try {
-    // একই Firebase project-এর root config-এ save হয়; CoinsX এখান থেকেই সর্বশেষ URL পড়ে।
-    await dbUpdate('config', { postEarnAmount: earn, postDailyLimit: limit, postWindowHours:windowHours, postWindowMinutes:windowMinutes, postWindowLimit:windowLimit, postTargetUrl: parsed.href, fbGroups });
-    const verify = await dbGet('config/postTargetUrl');
-    if(!verify.exists() || verify.val() !== parsed.href) throw new Error('Target URL verify failed');
-    document.getElementById('postTargetUrl').value = parsed.href;
-    toast('✅ পোস্ট সেটিং ও Facebook Group লিংক সেভ হয়েছে!');
-  } catch(err) {
-    console.error('savePostSettings:', err);
-    toast('সেভ হয়নি। Firebase Database Rules/connection পরীক্ষা করুন।','err');
-  } finally {
-    if(button) button.disabled = false;
-  }
+  if(!Number.isFinite(earn)||earn<0){ toast('সঠিক আয়ের পরিমাণ দিন','err'); return; }
+  if(!Number.isInteger(limit)||limit<1){ toast('সঠিক দৈনিক লিমিট দিন','err'); return; }
+  const windowDurationMs=(windowHours*60+windowMinutes)*60000;
+  if((windowDurationMs===0)!==(windowLimit===0)){ toast('সময় ও লিমিট একসাথে সেট করুন অথবা দুটোই ০ রাখুন','err'); return; }
+  let parsed; try{ parsed=new URL(url); }catch(_){ toast('সঠিক Target URL দিন','err'); return; }
+  if(!['http:','https:'].includes(parsed.protocol)){ toast('Target URL https:// হতে হবে','err'); return; }
+  const btn=document.querySelector('#tab-post button[onclick="savePostSettings()"]');
+  if(btn) btn.disabled=true;
+  try{
+    await dbUpdate('config',{ postEarnAmount:earn,postDailyLimit:limit,postWindowHours:windowHours,postWindowMinutes:windowMinutes,postWindowLimit:windowLimit,postTargetUrl:parsed.href,fbGroups });
+    document.getElementById('postTargetUrl').value=parsed.href;
+    toast('✅ পোস্ট সেটিং সেভ হয়েছে!');
+  }catch(err){ console.error(err); toast('সেভ হয়নি। Firebase সংযোগ পরীক্ষা করুন।','err'); }
+  finally{ if(btn) btn.disabled=false; }
 }
 
-/* ══════════════════════════════════════════
-   TASKS
-══════════════════════════════════════════ */
+/* TASKS */
 async function loadTasksAdmin(){
-  const snap  = await dbGet('config/tasks');
-  const tasks = snap.exists() ? snap.val() : {};
-  const keys  = Object.keys(tasks);
-  const el    = document.getElementById('taskListAdmin');
-  if(keys.length === 0){
-    el.innerHTML = '<p style="color:var(--text2);font-size:13px;">কোনো টাস্ক নেই।</p>';
-    return;
-  }
-  el.innerHTML = keys.map(k => {
-    const t = tasks[k];
-    return `<div class="task-row">
-      <div class="tr-name">${t.icon||''} ${t.name}</div>
-      <div class="tr-reward">৳${Number(t.reward).toFixed(0)}</div>
-      <div style="font-size:11px;color:var(--text2);flex:1;">${t.desc||''}</div>
-      <button class="btn btn-danger btn-sm" onclick="deleteTask('${k}')">🗑️ মুছুন</button>
-    </div>`;
-  }).join('');
+  const snap=await dbGet('config/tasks');
+  const tasks=snap.exists()?snap.val():{};
+  const keys=Object.keys(tasks);
+  const el=document.getElementById('taskListAdmin');
+  if(keys.length===0){ el.innerHTML='<p style="color:var(--text2);font-size:13px;">কোনো টাস্ক নেই।</p>'; return; }
+  el.innerHTML=keys.map(k=>`<div class="task-row">
+    <div class="tr-name">${tasks[k].icon||''} ${tasks[k].name}</div>
+    <div class="tr-reward">৳${Number(tasks[k].reward).toFixed(0)}</div>
+    <div style="font-size:11px;color:var(--text2);flex:1;">${tasks[k].desc||''}</div>
+    <button class="btn btn-danger btn-sm" onclick="deleteTask('${k}')">🗑️ মুছুন</button></div>`).join('');
 }
-
 async function addTask(){
-  const name   = document.getElementById('newTaskName').value.trim();
-  const desc   = document.getElementById('newTaskDesc').value.trim();
-  const reward = parseFloat(document.getElementById('newTaskReward').value);
-  const link   = document.getElementById('newTaskLink').value.trim();
-  const icon   = document.getElementById('newTaskIcon').value.trim() || '✅';
-  if(!name || isNaN(reward)){ toast('নাম ও পুরস্কার আবশ্যক','err'); return; }
-  const key = 't' + Date.now();
-  await dbSet(`config/tasks/${key}`, { name, desc, reward, link, icon });
+  const name=document.getElementById('newTaskName').value.trim();
+  const desc=document.getElementById('newTaskDesc').value.trim();
+  const reward=parseFloat(document.getElementById('newTaskReward').value);
+  const link=document.getElementById('newTaskLink').value.trim();
+  const icon=document.getElementById('newTaskIcon').value.trim()||'✅';
+  if(!name||isNaN(reward)){ toast('নাম ও পুরস্কার আবশ্যক','err'); return; }
+  const key='t'+Date.now();
+  await dbSet(`config/tasks/${key}`,{name,desc,reward,link,icon});
   toast('✅ টাস্ক যোগ হয়েছে!');
-  ['newTaskName','newTaskDesc','newTaskReward','newTaskLink','newTaskIcon'].forEach(id => document.getElementById(id).value='');
+  ['newTaskName','newTaskDesc','newTaskReward','newTaskLink','newTaskIcon'].forEach(id=>document.getElementById(id).value='');
   loadTasksAdmin();
 }
-
 async function deleteTask(key){
   if(!confirm('এই টাস্কটি মুছবেন?')) return;
   await dbRemove(`config/tasks/${key}`);
@@ -652,211 +534,97 @@ async function deleteTask(key){
   loadTasksAdmin();
 }
 
-/* ══════════════════════════════════════════
-   WITHDRAWALS
-══════════════════════════════════════════ */
-let allWithdrawals = null;
-
-async function loadWithdrawals(filter = 'pending'){
-  const snap = await dbGet('withdrawals');
-  allWithdrawals = snap.exists() ? snap.val() : {};
+/* WITHDRAWALS */
+let allWithdrawals=null;
+async function loadWithdrawals(filter='pending'){
+  const snap=await dbGet('withdrawals');
+  allWithdrawals=snap.exists()?snap.val():{};
   renderWithdrawTable(filter);
 }
-
-function filterWithdrawals(filter, el){
-  document.querySelectorAll('#tab-withdrawals .tab').forEach(t => t.classList.remove('active'));
+function filterWithdrawals(filter,el){
+  document.querySelectorAll('#tab-withdrawals .tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   if(!allWithdrawals) loadWithdrawals(filter);
   else renderWithdrawTable(filter);
 }
-
 async function renderWithdrawTable(filter){
-  const entries = Object.entries(allWithdrawals || {})
-    .filter(([,v]) => filter === 'all' || v.status === filter)
-    .sort(([,a],[,b]) => (b.requestedAt||0) - (a.requestedAt||0));
-  const mi = { bkash:'📱', nagad:'🟠', rocket:'🚀' };
-  const tBody = document.getElementById('withdrawTbody');
-  if(entries.length === 0){
-    tBody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text2);">কোনো এন্ট্রি নেই</td></tr>`;
-    return;
-  }
-  const usersSnap = await dbGet('users');
-  const userMap = usersSnap.exists() ? usersSnap.val() : {};
-  const today = adminTodayKey();
-  tBody.innerHTML = entries.map(([key,v]) => {
-    const u = userMap[String(v.uid)] || {};
-    const totalPosts = Number(u.postCopyCount || 0);
-    const todayPosts = Number((u.dailyPost || {})[today] || 0);
+  const entries=Object.entries(allWithdrawals||{}).filter(([,v])=>filter==='all'||v.status===filter).sort(([,a],[,b])=>(b.requestedAt||0)-(a.requestedAt||0));
+  const mi={bkash:'📱',nagad:'🟠',rocket:'🚀'};
+  const tBody=document.getElementById('withdrawTbody');
+  if(entries.length===0){ tBody.innerHTML=`<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text2);">কোনো এন্ট্রি নেই</td></tr>`; return; }
+  const usersSnap=await dbGet('users');
+  const userMap=usersSnap.exists()?usersSnap.val():{};
+  const today=adminTodayKey();
+  tBody.innerHTML=entries.map(([key,v])=>{
+    const u=userMap[String(v.uid)]||{};
+    const totalPosts=Number(u.postCopyCount||0);
+    const todayPosts=Number((u.dailyPost||{})[today]||0);
     return `<tr>
-      <td>${safeText(v.name || u.name || '-')}</td>
-      <td style="font-family:monospace">${safeText(v.uid || '-')}</td>
-      <td style="font-family:monospace">${safeText(u.uid || v.uid || '-')}</td>
-      <td style="color:var(--gold);font-weight:700;">৳${Number(v.amount||0).toFixed(2)}</td>
+      <td>${safeText(v.name||u.name||'-')}</td>
+      <td style="font-family:monospace">${safeText(v.mobile||u.mobile||'-')}</td>
+      <td style="font-family:monospace;font-size:11px">${safeText(v.uid||'-')}</td>
+      <td style="color:var(--gold);font-weight:700">৳${Number(v.amount||0).toFixed(2)}</td>
       <td>${mi[v.method]||''} ${safeText((v.method||'-').toUpperCase())}</td>
       <td style="font-family:monospace">${safeText(v.number||'-')}</td>
-      <td>${todayPosts}</td><td>${totalPosts}</td><td>${dateText(u.joinedAt)}</td>
-      <td>${dateText(v.requestedAt)}</td>
-      <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span>${v.status==='rejected' && v.reason ? `<div style="font-size:11px;color:var(--red);margin-top:5px;max-width:180px;white-space:normal;">${safeText(v.reason)}</div>` : ''}</td>
+      <td>${todayPosts}</td><td>${totalPosts}</td>
+      <td>${dateText(u.joinedAt)}</td><td>${dateText(v.requestedAt)}</td>
+      <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span>${v.status==='rejected'&&v.reason?`<div style="font-size:11px;color:var(--red);margin-top:5px;max-width:180px;white-space:normal;">${safeText(v.reason)}</div>`:''}</td>
       <td style="display:flex;gap:6px;">
-        ${v.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="updateWithdrawal('${key}','approved')">✅</button><button class="btn btn-danger btn-sm" onclick="updateWithdrawal('${key}','rejected')">❌</button>` : '<span style="font-size:11px;color:var(--text2);">সম্পন্ন</span>'}
-      </td>
-    </tr>`;
+        ${v.status==='pending'?`<button class="btn btn-success btn-sm" onclick="updateWithdrawal('${key}','approved')">✅</button><button class="btn btn-danger btn-sm" onclick="updateWithdrawal('${key}','rejected')">❌</button>`:'<span style="font-size:11px;color:var(--text2);">সম্পন্ন</span>'}
+      </td></tr>`;
   }).join('');
 }
-
-async function updateWithdrawal(key, status){
-  const result = await dbTransaction(`withdrawals/${key}`, current => {
-    if(!current || current.status !== 'pending') return;
-    return { ...current, status, ...(status === 'rejected' ? { rejectedAt:Date.now(), reason:current.reason || 'Admin দ্বারা বাতিল করা হয়েছে।' } : { approvedAt:Date.now() }) };
-  });
-  if(!result.committed){ toast('এই Withdraw Request ইতিমধ্যে প্রসেস করা হয়েছে','err'); await loadWithdrawals(document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অপেক্ষমান') ? 'pending' : 'all'); return; }
-  if(allWithdrawals && allWithdrawals[key]) Object.assign(allWithdrawals[key], result.snapshot.val());
-  toast(status === 'approved' ? '✅ অনুমোদিত হয়েছে' : '❌ বাতিল হয়েছে');
-  renderWithdrawTable(document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অপেক্ষমান')
-    ? 'pending' : document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অনুমোদিত')
-    ? 'approved' : document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('বাতিল')
-    ? 'rejected' : 'all');
-}
-/* ══════════════════════════════════════════
-   GENERAL
-══════════════════════════════════════════ */
-async function loadGeneral(){
-  const snap = await dbGet('config');
-  const cfg  = snap.exists() ? snap.val() : {};
-  document.getElementById('cfgMinWithdraw').value = cfg.minWithdraw  ?? 50;
-  document.getElementById('cfgReferEarn').value   = cfg.referEarn    ?? 5;
-  document.getElementById('cfgSupportLink').value = cfg.supportLink  ?? '';
-}
-async function saveGeneral(){
-  const min  = parseFloat(document.getElementById('cfgMinWithdraw').value);
-  const ref  = parseFloat(document.getElementById('cfgReferEarn').value);
-  const link = document.getElementById('cfgSupportLink').value.trim();
-  if(isNaN(min)||isNaN(ref)){ toast('সংখ্যা সঠিকভাবে দিন','err'); return; }
-  await dbUpdate('config', { minWithdraw:min, referEarn:ref, supportLink:link });
-  toast('✅ সেটিং সেভ হয়েছে!');
+async function updateWithdrawal(key,status){
+  const result=await dbTransaction(`withdrawals/${key}`,current=>{ if(!current||current.status!=='pending') return; return{...current,status,...(status==='rejected'?{rejectedAt:Date.now(),reason:current.reason||'Admin দ্বারা বাতিল করা হয়েছে।'}:{approvedAt:Date.now()})}; });
+  if(!result.committed){ toast('ইতিমধ্যে প্রসেস হয়েছে','err'); await loadWithdrawals('pending'); return; }
+  if(allWithdrawals&&allWithdrawals[key]) Object.assign(allWithdrawals[key],result.snapshot.val());
+  toast(status==='approved'?'✅ অনুমোদিত হয়েছে':'❌ বাতিল হয়েছে');
+  renderWithdrawTable(document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অপেক্ষমান')?'pending':document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('অনুমোদিত')?'approved':document.querySelector('#tab-withdrawals .tab.active')?.textContent?.includes('বাতিল')?'rejected':'all');
 }
 
-async function loadAutoRejectSettings(){
-  const snap = await dbGet('settings/autoReject');
-  const cfg = snap.exists() ? snap.val() : {};
-  document.getElementById('autoRejectEnabled').checked = !!cfg.enabled;
-  document.getElementById('autoRejectHours').value = Math.max(1, Number(cfg.hours) || 24);
-  document.getElementById('autoRejectReason').value = cfg.reason || 'উইথড্র রিকোয়েস্ট নির্ধারিত সময়ের মধ্যে প্রসেস করা সম্ভব হয়নি।';
-}
-async function saveAutoRejectSettings(){
-  const hours = Number(document.getElementById('autoRejectHours').value);
-  const reason = document.getElementById('autoRejectReason').value.trim();
-  if(!Number.isInteger(hours) || hours < 1){ toast('কমপক্ষে ১ ঘণ্টা সেট করুন','err'); return; }
-  if(!reason){ toast('Reject Reason লিখুন','err'); return; }
-  await dbSet('settings/autoReject', { enabled:document.getElementById('autoRejectEnabled').checked, hours, reason, updatedAt:Date.now() });
-  toast('✅ Auto Reject Settings সেভ হয়েছে!');
-}
+/* GENERAL */
+async function loadGeneral(){ const snap=await dbGet('config'); const cfg=snap.exists()?snap.val():{}; document.getElementById('cfgMinWithdraw').value=cfg.minWithdraw??50; document.getElementById('cfgReferEarn').value=cfg.referEarn??5; document.getElementById('cfgSupportLink').value=cfg.supportLink??''; }
+async function saveGeneral(){ const min=parseFloat(document.getElementById('cfgMinWithdraw').value); const ref=parseFloat(document.getElementById('cfgReferEarn').value); const link=document.getElementById('cfgSupportLink').value.trim(); if(isNaN(min)||isNaN(ref)){ toast('সংখ্যা সঠিকভাবে দিন','err'); return; } await dbUpdate('config',{minWithdraw:min,referEarn:ref,supportLink:link}); toast('✅ সেটিং সেভ হয়েছে!'); }
+async function loadAutoRejectSettings(){ const snap=await dbGet('settings/autoReject'); const cfg=snap.exists()?snap.val():{}; document.getElementById('autoRejectEnabled').checked=!!cfg.enabled; document.getElementById('autoRejectHours').value=Math.max(1,Number(cfg.hours)||24); document.getElementById('autoRejectReason').value=cfg.reason||'উইথড্র রিকোয়েস্ট নির্ধারিত সময়ের মধ্যে প্রসেস করা সম্ভব হয়নি।'; }
+async function saveAutoRejectSettings(){ const hours=Number(document.getElementById('autoRejectHours').value); const reason=document.getElementById('autoRejectReason').value.trim(); if(!Number.isInteger(hours)||hours<1){ toast('কমপক্ষে ১ ঘণ্টা সেট করুন','err'); return; } if(!reason){ toast('Reject Reason লিখুন','err'); return; } await dbSet('settings/autoReject',{enabled:document.getElementById('autoRejectEnabled').checked,hours,reason,updatedAt:Date.now()}); toast('✅ Auto Reject Settings সেভ হয়েছে!'); }
 
-// Same client-side model as the reference site: admin checks on startup and while open.
-let adminAutoRejectRunning = false;
+let adminAutoRejectRunning=false;
 async function runAdminAutoReject(){
-  if(adminAutoRejectRunning) return;
-  adminAutoRejectRunning = true;
+  if(adminAutoRejectRunning) return; adminAutoRejectRunning=true;
   try{
-    const cfgSnap = await dbGet('settings/autoReject');
-    const cfg = cfgSnap.exists() ? cfgSnap.val() : null;
-    if(!cfg || !cfg.enabled) return;
-    const cutoff = Date.now() - Math.max(1, Number(cfg.hours) || 1) * 3600000;
-    const reason = String(cfg.reason || 'নির্ধারিত সময়ের মধ্যে Withdraw প্রসেস করা হয়নি।').trim();
-    const ws = await dbGet('withdrawals');
+    const cfgSnap=await dbGet('settings/autoReject');
+    const cfg=cfgSnap.exists()?cfgSnap.val():null;
+    if(!cfg||!cfg.enabled) return;
+    const cutoff=Date.now()-Math.max(1,Number(cfg.hours)||1)*3600000;
+    const reason=String(cfg.reason||'নির্ধারিত সময়ের মধ্যে Withdraw প্রসেস করা হয়নি।').trim();
+    const ws=await dbGet('withdrawals');
     if(!ws.exists()) return;
-    for(const [id,w] of Object.entries(ws.val() || {})){
-      const requestedAt = Number(w.requestedAt || (w.createdAt ? new Date(w.createdAt).getTime() : 0));
-      if(!requestedAt || requestedAt > cutoff) continue;
-      const claim = await dbTransaction(`withdrawals/${id}`, current => {
-        if(!current || current.status !== 'pending') return;
-        return { ...current, status:'rejected', reason:'[Auto] ' + reason, autoRejected:true, rejectedAt:Date.now() };
-      });
-      const latest = claim.snapshot && claim.snapshot.val();
-      if(latest && latest.status === 'rejected' && latest.autoRejected && latest.userRefunded !== true){
-        const uid = String(latest.uid || latest.userId || '');
+    for(const [id,w] of Object.entries(ws.val()||{})){
+      const requestedAt=Number(w.requestedAt||(w.createdAt?new Date(w.createdAt).getTime():0));
+      if(!requestedAt||requestedAt>cutoff) continue;
+      const claim=await dbTransaction(`withdrawals/${id}`,current=>{ if(!current||current.status!=='pending') return; return{...current,status:'rejected',reason:'[Auto] '+reason,autoRejected:true,rejectedAt:Date.now()}; });
+      const latest=claim.snapshot&&claim.snapshot.val();
+      if(latest&&latest.status==='rejected'&&latest.autoRejected&&latest.userRefunded!==true){
+        const uid=String(latest.uid||latest.userId||'');
         if(!uid) continue;
-        const amount = Math.max(0, Number(latest.amount) || 0);
-        const refund = await dbTransaction(`users/${uid}`, user => {
-          if(!user) return;
-          const refunds = user.autoRejectRefunds || {};
-          if(refunds[id]) return user;
-          return { ...user, balance:(Number(user.balance)||0)+amount, autoRejectRefunds:{...refunds,[id]:true} };
-        });
-        if(refund.committed || (refund.snapshot && refund.snapshot.child(`autoRejectRefunds/${id}`).exists())) await dbUpdate(`withdrawals/${id}`, { userRefunded:true });
+        const amount=Math.max(0,Number(latest.amount)||0);
+        const refund=await dbTransaction(`users/${uid}`,user=>{ if(!user) return; const refunds=user.autoRejectRefunds||{}; if(refunds[id]) return user; return{...user,balance:(Number(user.balance)||0)+amount,autoRejectRefunds:{...refunds,[id]:true}}; });
+        if(refund.committed||(refund.snapshot&&refund.snapshot.child(`autoRejectRefunds/${id}`).exists())) await dbUpdate(`withdrawals/${id}`,{userRefunded:true});
       }
     }
   }catch(e){ console.warn('Admin auto reject failed:',e); }
-  finally{ adminAutoRejectRunning = false; }
+  finally{ adminAutoRejectRunning=false; }
 }
 
-/* ══════════════════════════════════════════
-   POPUP
-══════════════════════════════════════════ */
-async function loadPopup(){
-  const snap = await dbGet('config/popup');
-  const p    = snap.exists() ? snap.val() : {};
-  document.getElementById('popupEnabled').checked = !!p.enabled;
-  document.getElementById('popupIcon').value      = p.icon    || '';
-  document.getElementById('popupTitle').value     = p.title   || '';
-  document.getElementById('popupBtnText').value   = p.btnText || '';
-  document.getElementById('popupMessage').value   = p.message || '';
-}
-async function savePopup(){
-  const data = {
-    enabled: document.getElementById('popupEnabled').checked,
-    icon   : document.getElementById('popupIcon').value.trim(),
-    title  : document.getElementById('popupTitle').value.trim(),
-    btnText: document.getElementById('popupBtnText').value.trim(),
-    message: document.getElementById('popupMessage').value,
-  };
-  await dbSet('config/popup', data);
-  toast('✅ পপআপ সেভ হয়েছে!');
-}
+/* POPUP */
+async function loadPopup(){ const snap=await dbGet('config/popup'); const p=snap.exists()?snap.val():{}; document.getElementById('popupEnabled').checked=!!p.enabled; document.getElementById('popupIcon').value=p.icon||''; document.getElementById('popupTitle').value=p.title||''; document.getElementById('popupBtnText').value=p.btnText||''; document.getElementById('popupMessage').value=p.message||''; }
+async function savePopup(){ const data={enabled:document.getElementById('popupEnabled').checked,icon:document.getElementById('popupIcon').value.trim(),title:document.getElementById('popupTitle').value.trim(),btnText:document.getElementById('popupBtnText').value.trim(),message:document.getElementById('popupMessage').value}; await dbSet('config/popup',data); toast('✅ পপআপ সেভ হয়েছে!'); }
 
-/* ══════════════════════════════════════════
-   FAQ
-══════════════════════════════════════════ */
-async function loadFaqAdmin(){
-  const snap  = await dbGet('config/helpItems');
-  const items = snap.exists() ? snap.val() : {};
-  const keys  = Object.keys(items);
-  const el    = document.getElementById('faqListAdmin');
-  if(keys.length === 0){
-    el.innerHTML = '<p style="color:var(--text2);font-size:13px;">কোনো FAQ নেই।</p>';
-    return;
-  }
-  el.innerHTML = keys.map(k => {
-    const item = items[k];
-    return `<div class="task-row" style="flex-direction:column;align-items:flex-start;gap:6px;">
-      <div style="display:flex;width:100%;justify-content:space-between;align-items:center;">
-        <div style="font-size:13px;font-weight:600;">❓ ${item.q}</div>
-        <button class="btn btn-danger btn-sm" onclick="deleteFaq('${k}')">🗑️</button>
-      </div>
-      <div style="font-size:12px;color:var(--text2);">💬 ${item.a}</div>
-    </div>`;
-  }).join('');
-}
+/* FAQ */
+async function loadFaqAdmin(){ const snap=await dbGet('config/helpItems'); const items=snap.exists()?snap.val():{}; const keys=Object.keys(items); const el=document.getElementById('faqListAdmin'); if(keys.length===0){ el.innerHTML='<p style="color:var(--text2);font-size:13px;">কোনো FAQ নেই।</p>'; return; } el.innerHTML=keys.map(k=>`<div class="task-row" style="flex-direction:column;align-items:flex-start;gap:6px;"><div style="display:flex;width:100%;justify-content:space-between;align-items:center;"><div style="font-size:13px;font-weight:600;">❓ ${items[k].q}</div><button class="btn btn-danger btn-sm" onclick="deleteFaq('${k}')">🗑️</button></div><div style="font-size:12px;color:var(--text2);">💬 ${items[k].a}</div></div>`).join(''); }
+async function addFaq(){ const q=document.getElementById('newFaqQ').value.trim(); const a=document.getElementById('newFaqA').value.trim(); if(!q||!a){ toast('প্রশ্ন ও উত্তর আবশ্যক','err'); return; } const key='q'+Date.now(); await dbSet(`config/helpItems/${key}`,{q,a}); toast('✅ FAQ যোগ হয়েছে!'); document.getElementById('newFaqQ').value=''; document.getElementById('newFaqA').value=''; loadFaqAdmin(); }
+async function deleteFaq(key){ if(!confirm('এই FAQ মুছবেন?')) return; await dbRemove(`config/helpItems/${key}`); toast('FAQ মুছা হয়েছে'); loadFaqAdmin(); }
 
-async function addFaq(){
-  const q = document.getElementById('newFaqQ').value.trim();
-  const a = document.getElementById('newFaqA').value.trim();
-  if(!q || !a){ toast('প্রশ্ন ও উত্তর আবশ্যক','err'); return; }
-  const key = 'q' + Date.now();
-  await dbSet(`config/helpItems/${key}`, { q, a });
-  toast('✅ FAQ যোগ হয়েছে!');
-  document.getElementById('newFaqQ').value = '';
-  document.getElementById('newFaqA').value = '';
-  loadFaqAdmin();
-}
-async function deleteFaq(key){
-  if(!confirm('এই FAQ মুছবেন?')) return;
-  await dbRemove(`config/helpItems/${key}`);
-  toast('FAQ মুছা হয়েছে');
-  loadFaqAdmin();
-}
-
-// Open admin directly without a login screen.
 initAdmin();
 </script>
 </body>
