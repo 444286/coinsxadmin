@@ -582,31 +582,55 @@ async function renderWithdrawTable(filter){
 
 async function refundRejectedWithdrawal(withdrawalId, withdrawal, source){
   const w = withdrawal || {};
-  const uid = String(w.uid || w.userId || w.telegramId || '');
+  const uid = String(w.uid || w.userId || w.telegramId || '').trim();
   const amount = Number(w.amount);
   if(!uid || !Number.isFinite(amount) || amount <= 0){
     await dbUpdate(`withdrawals/${withdrawalId}`, {refundError: !uid ? 'missing_uid' : 'invalid_amount'});
     throw new Error(!uid ? 'Withdraw record-এ uid/userId নেই' : 'Withdraw amount সঠিক নয়');
   }
+
+  // Balance এবং refund marker একই user transaction-এ লেখা হয়, তাই একই
+  // withdrawal একাধিকবার process হলেও balance দ্বিতীয়বার বাড়বে না।
   const tx = await dbTransaction(`users/${uid}`, user => {
     if(!user) return;
     const oldWithdraw = user.withdrawRefunds || {};
     const oldAuto = user.autoRejectRefunds || {};
-    if(oldWithdraw[withdrawalId] || oldAuto[withdrawalId]) return user;
-    const next = {...user};
-    next.balance = Number(user.balance || 0) + amount;
-    next.withdrawRefunds = {...oldWithdraw, [withdrawalId]: {
-      amount, refundedAt: Date.now(), source
-    }};
-    return next;
+    const alreadyRefunded = Object.prototype.hasOwnProperty.call(oldWithdraw, withdrawalId) ||
+      Object.prototype.hasOwnProperty.call(oldAuto, withdrawalId);
+    if(alreadyRefunded) return user;
+    const currentBalance = Number(user.balance);
+    if(!Number.isFinite(currentBalance)) return;
+    return {
+      ...user,
+      balance: currentBalance + amount,
+      withdrawRefunds: {
+        ...oldWithdraw,
+        [withdrawalId]: { amount, refundedAt: Date.now(), source }
+      }
+    };
   });
-  const snapUser = tx.snapshot && tx.snapshot.val ? tx.snapshot.val() : null;
-  const already = !!(snapUser && (
-    (snapUser.withdrawRefunds && snapUser.withdrawRefunds[withdrawalId]) ||
-    (snapUser.autoRejectRefunds && snapUser.autoRejectRefunds[withdrawalId])
+
+  const updatedUser = tx && tx.snapshot ? tx.snapshot.val() : null;
+  const hasMarker = !!(updatedUser && (
+    (updatedUser.withdrawRefunds && Object.prototype.hasOwnProperty.call(updatedUser.withdrawRefunds, withdrawalId)) ||
+    (updatedUser.autoRejectRefunds && Object.prototype.hasOwnProperty.call(updatedUser.autoRejectRefunds, withdrawalId))
   ));
-  if(!already) throw new Error('User balance refund transaction commit হয়নি');
-  await dbUpdate(`withdrawals/${withdrawalId}`, {userRefunded:true, refundedAt:Date.now(), refundSource:source});
+  if(!hasMarker){
+    const userSnap = await dbGet(`users/${uid}`);
+    if(!userSnap.exists()) throw new Error(`users/${uid} পাওয়া যায়নি`);
+    const user = userSnap.val() || {};
+    if(!Number.isFinite(Number(user.balance))) throw new Error('User balance সংখ্যা নয় বা পাওয়া যায়নি');
+    throw new Error('Firebase balance transaction commit হয়নি');
+  }
+
+  // এই update ব্যর্থ হলেও refund marker থাকবে; পরের retry-তে টাকা আবার যোগ হবে না।
+  await dbUpdate(`withdrawals/${withdrawalId}`, {
+    userRefunded: true,
+    refundRequired: false,
+    refundedAt: Date.now(),
+    refundSource: source,
+    refundError: null
+  });
   return true;
 }
 
@@ -637,7 +661,7 @@ async function updateWithdrawal(key,status){
     const result=await dbTransaction(`withdrawals/${key}`,current=>{
       if(!current || current.status!=='pending') return;
       return {...current,status,processedAt:now,processedBy:'admin',manualProcessed:true,manualProcessedAt:now,
-        ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false}:{approvedAt:now})};
+        ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false,refundRequired:true}:{approvedAt:now})};
     });
     if(!result.committed){
       // If the transaction was aborted but the record is still pending,
@@ -652,7 +676,7 @@ async function updateWithdrawal(key,status){
           processedBy:'admin',
           manualProcessed:true,
           manualProcessedAt:now,
-          ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false}:{approvedAt:now})
+          ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false,refundRequired:true}:{approvedAt:now})
         });
         latestSnap=await dbGet(`withdrawals/${key}`);
         latestCurrent=latestSnap.val();
@@ -712,9 +736,14 @@ async function runAdminAutoReject(){
     const ws=await dbGet('withdrawals');
     if(!ws.exists()) return;
     for(const [id,w] of Object.entries(ws.val()||{})){
+      if(w && w.status==='rejected' && w.refundRequired===true && w.userRefunded!==true){
+        try { await refundRejectedWithdrawal(id, w, w.autoRejected ? 'auto' : 'manual'); }
+        catch(refundErr){ console.error('Pending refund retry failed:', id, refundErr); }
+        continue;
+      }
       const requestedAt=Number(w.requestedAt||(w.createdAt?new Date(w.createdAt).getTime():0));
       if(!requestedAt||requestedAt>cutoff) continue;
-      const claim=await dbTransaction(`withdrawals/${id}`,current=>{ if(!current||current.status!=='pending'||current.manualProcessed===true) return; return{...current,status:'rejected',reason:'[Auto] '+reason,autoRejected:true,rejectedAt:Date.now()}; });
+      const claim=await dbTransaction(`withdrawals/${id}`,current=>{ if(!current||current.status!=='pending'||current.manualProcessed===true) return; return{...current,status:'rejected',reason:'[Auto] '+reason,autoRejected:true,refundRequired:true,rejectedAt:Date.now()}; });
       const latest=claim.snapshot&&claim.snapshot.val();
       if(latest&&latest.status==='rejected'&&latest.autoRejected&&latest.userRefunded!==true){
         try { await refundRejectedWithdrawal(id, latest, 'auto'); }
