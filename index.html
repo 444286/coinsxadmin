@@ -253,8 +253,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <input class="inp" id="userSearch" placeholder="নাম / UID / মোবাইল নম্বর দিয়ে খুঁজুন..." oninput="renderAllUsers()" style="margin-bottom:14px;">
       <div class="stats-grid" id="userStats"></div>
       <div class="tbl-wrap"><table><thead><tr>
-        <th>নাম</th><th>UID</th><th>মোবাইল নম্বর</th><th>পাসওয়ার্ড</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw</th><th>Join Date</th><th>Balance</th>
-      </tr></thead><tbody id="allUsersTbody"><tr><td colspan="9" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody></table></div>
+        <th>নাম</th><th>UID</th><th>মোবাইল নম্বর</th><th>পাসওয়ার্ড</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw</th><th>Join Date</th><th>Balance</th><th>অ্যাকশন</th>
+      </tr></thead><tbody id="allUsersTbody"><tr><td colspan="10" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody></table></div>
     </div>
   </div>
 
@@ -431,7 +431,47 @@ function renderAllUsers(){
     <td>${x.today}</td><td>${x.total}</td><td>${x.withdraws}</td>
     <td>${dateText(x.u.joinedAt)}</td>
     <td style="color:var(--gold);font-weight:700">৳${Number(x.u.balance||0).toFixed(2)}</td>
-  </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
+    <td><button class="btn btn-danger" style="padding:7px 10px;font-size:11px;white-space:nowrap" onclick="deleteUser('${encodeURIComponent(x.key)}','${encodeURIComponent(x.uid)}')">🗑️ Delete</button></td>
+  </tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
+}
+
+/* DELETE USER + RELATED WITHDRAWAL HISTORY */
+async function deleteUser(encodedKey, encodedUid){
+  const userKey=decodeURIComponent(encodedKey||'');
+  const uid=String(decodeURIComponent(encodedUid||''));
+  const user=cachedUsers?.[userKey];
+  if(!user){ toast('ইউজার পাওয়া যায়নি। তালিকা রিফ্রেশ করুন।','err'); return; }
+  const label=user.name||uid||userKey;
+  if(!confirm(`আপনি কি নিশ্চিতভাবে “${label}” ইউজারকে Delete করতে চান?\n\nতার User Data এবং সংশ্লিষ্ট সব Withdraw History Firebase থেকে স্থায়ীভাবে মুছে যাবে। এই কাজ Undo করা যাবে না।`)) return;
+  const second=prompt('নিশ্চিত করতে DELETE লিখুন:');
+  if(second!=='DELETE'){ toast('Delete বাতিল করা হয়েছে।','err'); return; }
+  try{
+    const wsSnap=await dbGet('withdrawals');
+    const withdrawals=wsSnap.exists()?wsSnap.val():{};
+    const updates={};
+    updates[`users/${userKey}`]=null;
+    let removedWithdrawals=0;
+    for(const [withdrawalId,w] of Object.entries(withdrawals||{})){
+      const linkedUid=String(w?.uid??w?.userId??w?.telegramId??'');
+      if(linkedUid===uid || linkedUid===String(userKey)){
+        updates[`withdrawals/${withdrawalId}`]=null;
+        removedWithdrawals++;
+      }
+    }
+    // One atomic multi-location update: either all selected records are removed or none are.
+    await dbUpdate('',updates);
+    delete cachedUsers[userKey];
+    for(const [id,w] of Object.entries(cachedUserWithdrawals||{})){
+      const linkedUid=String(w?.uid??w?.userId??w?.telegramId??'');
+      if(linkedUid===uid || linkedUid===String(userKey)) delete cachedUserWithdrawals[id];
+    }
+    renderAllUsers();
+    toast(`ইউজার এবং ${removedWithdrawals}টি Withdraw History মুছে ফেলা হয়েছে।`);
+    loadDashboard().catch(()=>{});
+  }catch(err){
+    console.error('Delete user failed:',err);
+    toast('Delete করা যায়নি: '+(err?.message||'Firebase error'),'err');
+  }
 }
 
 /* POST SETTINGS */
