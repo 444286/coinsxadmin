@@ -618,7 +618,16 @@ async function deleteUser(uid,name){
 function renderWd(){
   let it=Object.entries(AW).map(([k,v])=>({id:k,...v}));
   if(wdf!=='all') it=it.filter(w=>w.status===wdf);
-  it.sort((a,b)=>Number(b.requestedAt||b.createdAt||0)-Number(a.requestedAt||a.createdAt||0));
+  // 'সব' ভিউতে আগে Pending, তারপর Rejected, সবশেষে Approved দেখাবে।
+  // একই status-এর মধ্যে নতুন withdrawal আগে থাকবে।
+  const statusOrder={pending:0,rejected:1,approved:2};
+  it.sort((a,b)=>{
+    if(wdf==='all'){
+      const priority=(statusOrder[a.status]??3)-(statusOrder[b.status]??3);
+      if(priority!==0)return priority;
+    }
+    return Number(b.requestedAt||b.createdAt||0)-Number(a.requestedAt||a.createdAt||0);
+  });
   const sM={pending:'b-p',approved:'b-a',rejected:'b-r'};
   const sL={pending:'⏳ অপেক্ষমান',approved:'✓ অনুমোদিত',rejected:'✗ প্রত্যাখ্যাত'};
   const t=document.getElementById('wdt');
@@ -702,7 +711,16 @@ async function confirmBulkReject(){
   showToast('✗ নির্বাচিত withdrawal reject ও balance refund সম্পন্ন!');
 }
 
-function fw(f){wdf=f;renderWd();}
+function fw(f){
+  wdf=f;
+  const tabs={all:'wdTabAll',pending:'wdTabPending',approved:'wdTabApproved',rejected:'wdTabRejected'};
+  Object.entries(tabs).forEach(([key,id])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.className=(key===f?'btn bp bsm':'btn bgh bsm');
+  });
+  renderWd();
+}
 async function apprWd(id){await db.ref('withdrawals/'+id).update({status:'approved',processedAt:Date.now(),manualProcessed:true});showToast('✅ অনুমোদিত হয়েছে!');}
 function openRej(id,uid,amt){
   document.getElementById('rwi').value=id;
@@ -1208,7 +1226,9 @@ function go(s,el){
   document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.si').forEach(x=>x.classList.remove('active'));
   document.getElementById('sec-'+s).classList.add('active');
-  el.classList.add('active');
+  if(el)el.classList.add('active');
+  // Withdraw section খুললেই All view: Pending আগে, তারপর Rejected, তারপর Approved.
+  if(s==='withdrawals')fw('all');
 }
 function cm(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.mov').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
