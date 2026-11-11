@@ -1,809 +1,1321 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CoinsX Admin Panel</title>
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>Zomato Platform Admin</title>  
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>  
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>  
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">  
+<style>  
+:root{--bg:#0c0e16;--bg2:#111420;--bg3:#181c2c;--card:#13172a;--border:rgba(255,255,255,0.08);--accent:#7c6ffd;--as:rgba(124,111,253,0.12);--green:#00e096;--gs:rgba(0,224,150,0.1);--yellow:#ffc84a;--ys:rgba(255,200,74,0.1);--red:#ff5f5f;--rs:rgba(255,95,95,0.1);--text:#e2e4ef;--muted:#5a6280;--sw:240px;--taka:#ffc84a}  
+*{margin:0;padding:0;box-sizing:border-box}  
+body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:14px}  
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}  
+#ls{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center}  
+.lbox{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:40px 32px;width:360px;text-align:center}  
+.llogo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}  
+.lsub{font-size:13px;color:var(--muted);margin-bottom:28px}  
+.linput{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:13px 16px;font-size:14px;color:#fff;font-family:'Hind Siliguri',sans-serif;outline:none;margin-bottom:12px;transition:border-color .2s}  
+.linput:focus{border-color:rgba(124,111,253,.5)}  
+.lbtn{width:100%;background:linear-gradient(135deg,var(--accent),#b06bff);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif}  
+.lerr{font-size:12px;color:var(--red);margin-top:8px;min-height:18px}  
+.sidebar{width:var(--sw);background:var(--bg2);border-right:1px solid var(--border);height:100vh;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:50;padding:24px 0;overflow-y:auto}  
+.sb-logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff;padding:0 20px;margin-bottom:4px;line-height:1.3}  
+.sb-sub{font-size:11px;color:var(--muted);padding:0 20px;margin-bottom:18px}  
+.sb-div{height:1px;background:var(--border);margin:8px 16px}  
+.si{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:all .18s;position:relative;font-size:13px;font-weight:500;color:var(--muted)}  
+.si:hover{background:rgba(255,255,255,.04);color:var(--text)}  
+.si.active{background:var(--as);color:var(--accent)}  
+.si.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);border-radius:0 3px 3px 0}  
+.sic{font-size:17px;width:22px;text-align:center}  
+.sbadge{background:var(--red);color:#fff;border-radius:20px;padding:2px 7px;font-size:10px;font-weight:700;margin-left:auto}  
+.sb-out{margin-top:auto;padding:12px 16px 0}  
+.outbtn{width:100%;background:var(--rs);color:var(--red);border:1px solid rgba(255,95,95,.2);border-radius:10px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Hind Siliguri',sans-serif}  
+.main{margin-left:var(--sw);flex:1;padding:28px;min-height:100vh;overflow-x:hidden}  
+.sec{display:none}.sec.active{display:block;animation:fi .25s ease}  
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}  
+.shd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px}  
+.stitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff}  
+.ssub{font-size:13px;color:var(--muted);margin-top:3px}  
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}  
+.scard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}  
+.sic2{font-size:24px;margin-bottom:10px}  
+.sval{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff}  
+.sval-taka{font-size:14px;color:var(--taka);font-weight:700}  
+.slbl{font-size:12px;color:var(--muted);margin-top:4px}  
+.tc{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px}  
+.thead{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}  
+.ttitle{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff}  
+table{width:100%;border-collapse:collapse}  
+th{text-align:left;padding:10px 18px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}  
+td{padding:12px 18px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}  
+tr:last-child td{border-bottom:none}  
+tr:hover td{background:rgba(255,255,255,.02)}  
+.erow td{text-align:center;padding:30px;color:var(--muted);font-size:13px}  
+.fc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}  
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px}  
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}  
+.fg{display:flex;flex-direction:column;gap:6px}  
+.fg.full{grid-column:span 2}  
+label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}  
+input[type=text],input[type=number],input[type=password],select,textarea{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:#fff;font-family:'Hind Siliguri',sans-serif;outline:none;transition:border-color .2s;width:100%}  
+input:focus,select:focus,textarea:focus{border-color:rgba(124,111,253,.5)}  
+select option{background:#1a1d26}  
+textarea{resize:vertical;min-height:70px}  
+.input-prefix{position:relative}  
+.input-prefix span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--taka);font-weight:700;font-size:15px;pointer-events:none}  
+.input-prefix input{padding-left:30px}  
+.cnt-sel{display:flex;gap:7px;margin-top:7px;flex-wrap:wrap}  
+.cnt-opt{width:38px;height:38px;border-radius:9px;border:2px solid var(--border);background:var(--bg3);color:var(--muted);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:'Syne',sans-serif;user-select:none}  
+.cnt-opt:hover{border-color:rgba(124,111,253,.4);color:var(--text)}  
+.cnt-opt.active{border-color:var(--accent)!important;background:var(--as)!important;color:var(--accent)!important}  
+.slot-queue{display:flex;flex-direction:column;gap:8px;margin:14px 0}  
+.slot-row{display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:12px;padding:10px 14px;border:1px solid var(--border)}  
+.slot-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Syne',sans-serif}  
+.slot-lbl{font-size:12px;color:var(--muted);flex:1}  
+.slot-select{flex:2;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;color:#fff;font-family:'Hind Siliguri',sans-serif;outline:none}  
+.slot-select:focus{border-color:rgba(124,111,253,.5)}  
+.net-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}  
+.net-card{background:var(--bg3);border:2px solid var(--border);border-radius:14px;padding:16px;transition:all .2s}  
+.net-card.on{border-color:rgba(0,224,150,.3);background:rgba(0,224,150,.03)}  
+.nc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}  
+.nc-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:7px}  
+.nc-fields{display:flex;flex-direction:column;gap:8px}  
+.nc-f{display:flex;flex-direction:column;gap:4px}  
+.nc-f label{font-size:10px}  
+.nc-f input,.nc-f select,.nc-f textarea{font-size:12px;padding:8px 10px;border-radius:8px}  
+.nc-f textarea{min-height:55px;font-family:monospace;font-size:11px}  
+.nc-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}  
+.nc-note a{color:var(--accent);text-decoration:none}  
+.chain-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px}  
+.chain-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:10px}  
+.chain-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}  
+.chain-sub{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6}  
+.chain-enabled{border-color:rgba(0,224,150,.3)!important}  
+.flow-prev{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:12px;background:var(--bg3);border-radius:10px;margin-top:10px;min-height:44px}  
+.fp-chip{border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px;white-space:nowrap}  
+.tog{position:relative;width:44px;height:24px;flex-shrink:0}  
+.tog input{opacity:0;width:0;height:0}  
+.sldr{position:absolute;inset:0;background:var(--bg3);border-radius:24px;cursor:pointer;transition:.3s;border:1px solid var(--border)}  
+.sldr:before{content:'';position:absolute;height:18px;width:18px;left:2px;top:2px;background:var(--muted);border-radius:50%;transition:.3s}  
+input:checked+.sldr{background:var(--green);border-color:var(--green)}  
+input:checked+.sldr:before{transform:translateX(20px);background:#fff}  
+.btn{border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;transition:all .18s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}  
+.btn:active{transform:scale(.96)}  
+.bp{background:var(--accent);color:#fff}  
+.bg{background:var(--green);color:#000}  
+.br{background:var(--rs);color:var(--red);border:1px solid rgba(255,95,95,.25)}  
+.bgh{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}  
+.bsm{padding:7px 12px;font-size:12px;border-radius:8px}  
+.bfu{width:100%;justify-content:center}  
+.bdg{border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700}  
+.b-p{background:var(--ys);color:var(--yellow);border:1px solid rgba(255,200,74,.25)}  
+.b-a{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.25)}  
+.b-r{background:var(--rs);color:var(--red);border:1px solid rgba(255,95,95,.25)}  
+.b-blk{background:rgba(255,95,95,.2);color:var(--red);border:1px solid rgba(255,95,95,.4)}  
+.b-ok{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.3)}  
+.ibox{background:rgba(124,111,253,.07);border:1px solid rgba(124,111,253,.2);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:rgba(255,255,255,.65);line-height:1.7}  
+.ibox strong{color:var(--accent)}  
+.warn-box{background:rgba(255,95,95,.07);border:1px solid rgba(255,95,95,.2);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:rgba(255,200,200,.8);line-height:1.7}  
+.warn-box strong{color:var(--red)}  
+.sec-lbl{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 10px;display:flex;align-items:center;gap:6px}  
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}  
+.mov.open{display:flex}  
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:28px;width:100%;max-width:480px;animation:su .28s ease;max-height:90vh;overflow-y:auto}  
+@keyframes su{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}  
+.mtitle{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:18px;display:flex;align-items:center;gap:10px}  
+.mrow{display:flex;gap:10px;margin-top:16px}  
+.toast{position:fixed;top:20px;right:20px;background:rgba(20,24,38,.97);border:1px solid rgba(124,111,253,.3);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;transition:all .3s;opacity:0;transform:translateX(20px)}  
+.toast.show{opacity:1;transform:translateX(0)}  
+.sdk-box{background:rgba(255,200,74,.06);border:1px solid rgba(255,200,74,.2);border-radius:12px;padding:14px;margin-bottom:14px}  
+.sdk-title{font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:8px;display:flex;align-items:center;gap:6px}  
+.sdk-item{font-size:12px;color:rgba(255,255,255,.7);line-height:1.8}  
+.sdk-item code{background:rgba(255,255,255,.08);padding:2px 7px;border-radius:5px;font-family:monospace;color:var(--accent);font-size:11px}  
+.blocked-row td{opacity:.6}  
+.bulk-bar{display:none;align-items:center;gap:10px;background:rgba(124,111,253,.1);border:1px solid rgba(124,111,253,.25);border-radius:12px;padding:10px 14px;margin-bottom:12px;flex-wrap:wrap}  
+.bulk-bar.show{display:flex}  
+.bulk-count{font-size:13px;font-weight:600;color:var(--accent);flex:1}  
+.wd-checkbox{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}  
+.sel-row{background:rgba(124,111,253,.06)!important}  
+.ads-count{display:inline-block;min-width:28px;text-align:center;border-radius:20px;padding:3px 8px;font-size:12px;font-weight:700}  
+.ads-0{background:rgba(255,255,255,.06);color:var(--muted)}  
+.ads-low{background:var(--ys);color:var(--yellow)}  
+.ads-high{background:var(--gs);color:var(--green)}  
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, get, set, update, push, remove, onValue, runTransaction }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  const firebaseConfig = {
-    apiKey         : "AIzaSyCmP_6ZPNGdN-yfYZI6wS4RND060GvU5X8",
-    authDomain     : "coinsx-37627.firebaseapp.com",
-    databaseURL    : "https://coinsx-37627-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId      : "coinsx-37627",
-    storageBucket  : "coinsx-37627.firebasestorage.app",
-    messagingSenderId: "350724225963",
-    appId          : "1:350724225963:web:06c0af919258dbd82c70ee"
-  };
-  const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
-  window._db       = db;
-  window._dbRef    = ref;
-  window._dbGet    = get;
-  window._dbSet    = set;
-  window._dbUpdate = update;
-  window._dbPush   = push;
-  window._dbRemove = remove;
-  window._dbOnValue= onValue;
-  window._dbTransaction = runTransaction;
-  window._firebaseReady = true;
-  setTimeout(()=> document.dispatchEvent(new Event("firebaseReady")), 0);
-</script>
+.date-filter-bar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:12px;flex-wrap:wrap;}
+.date-filter-bar .df-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;white-space:nowrap;flex-shrink:0;}
+.date-filter-bar input[type=date]{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:#fff;font-family:'Hind Siliguri',sans-serif;outline:none;transition:border-color .2s;width:160px;}
+.date-filter-bar input[type=date]:focus{border-color:rgba(124,111,253,.5)}
+.date-filter-bar input[type=date]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.55;cursor:pointer;}
+.df-sep{color:var(--muted);font-size:15px;flex-shrink:0}
+.df-result{font-size:12px;color:var(--accent);font-weight:700;margin-left:auto;background:var(--as);border-radius:20px;padding:4px 12px;white-space:nowrap;display:none;}
+.df-result.show{display:inline-block}
 
-<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800;900&family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+/* ── Reset Protection Banner ── */
+.reset-guard-banner{background:rgba(255,200,74,.06);border:1px solid rgba(255,200,74,.25);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:rgba(255,200,200,.8);display:flex;align-items:center;gap:8px}
+.reset-guard-banner.safe{background:rgba(0,224,150,.06);border-color:rgba(0,224,150,.25);color:rgba(200,255,230,.8)}
+</style>  
+</head>  
+<body>  
+<div id="ls">  
+  <div class="lbox">  
+    <div class="llogo">Zomato Platform</div>  
+    <div class="lsub">Admin Panel</div>  
+    <input class="linput" type="password" id="lpass" placeholder="পাসওয়ার্ড দিন..." onkeydown="if(event.key==='Enter')doLogin()">  
+    <button class="lbtn" onclick="doLogin()">লগইন →</button>  
+    <div class="lerr" id="lerr"></div>  
+  </div>  
+</div>  
+<aside class="sidebar" id="sb" style="display:none">  
+  <div class="sb-logo">Zomato Platform</div>  
+  <div class="sb-sub">Admin Panel</div>  
+  <div class="si active" onclick="go('dashboard',this)"><span class="sic">📊</span> ড্যাশবোর্ড</div>  
+  <div class="si" onclick="go('users',this)"><span class="sic">👥</span> ইউজার</div>  
+  <div class="si" onclick="go('withdrawals',this)"><span class="sic">💸</span> উত্তোলন <span class="sbadge" id="pbadge" style="display:none">0</span></div>  
+  <div class="sb-div"></div>  
+  <div class="si" onclick="go('adchain',this)"><span class="sic">📺</span> Ad Chains</div>  
+  <div class="si" onclick="go('ads',this)"><span class="sic">🎯</span> Ads List</div>  
+  <div class="si" onclick="go('tasks',this)"><span class="sic">⚡</span> টাস্ক</div>  
+  <div class="si" onclick="go('support',this)"><span class="sic">🛟</span> সাপোর্ট</div>  
+  <div class="si" onclick="go('video',this)"><span class="sic">🎬</span> ভিডিও</div>  
+  <div class="si" onclick="go('settings',this)"><span class="sic">⚙️</span> সেটিংস</div>  
+  <div class="sb-out"><button class="outbtn" onclick="location.reload()">🚪 লগআউট</button></div>  
+</aside>  
+<main class="main" id="main" style="display:none">  
 
-<style>
-:root{
-  --bg:#0a0c14;--bg2:#111624;--bg3:#1a2035;
-  --card:#151b2e;--card2:#1e2740;
-  --accent:#3d6bff;--accent2:#6b44ff;
-  --gold:#f5c842;--gold-dark:#c49a00;
-  --green:#22d87a;--red:#ff4d6d;--orange:#ff9d2e;
-  --text:#e8eaf6;--text2:#8892b0;
-  --border:rgba(255,255,255,0.08);
-  --radius:14px;--shadow:0 8px 32px rgba(0,0,0,.5);
-  --fn:'Noto Sans Bengali',sans-serif;
-  --fe:'Exo 2',sans-serif;
+<!-- DASHBOARD -->
+<div class="sec active" id="sec-dashboard">  
+  <div class="shd"><div><div class="stitle">ড্যাশবোর্ড</div><div class="ssub">রিয়েলটাইম তথ্য</div></div></div>  
+  <div class="sgrid">  
+    <div class="scard"><div class="sic2">👥</div><div class="sval" id="st-u">0</div><div class="slbl">মোট ইউজার</div></div>  
+    <div class="scard"><div class="sic2">💰</div><div class="sval" id="st-c">0</div><div class="sval-taka">৳ টাকা বিতরণ</div></div>  
+    <div class="scard"><div class="sic2">⏳</div><div class="sval" id="st-w">0</div><div class="slbl">অপেক্ষমান উত্তোলন</div></div>  
+    <div class="scard"><div class="sic2">📺</div><div class="sval" id="st-tada">0</div><div class="slbl">আজ মোট Ads দেখা হয়েছে</div></div>  
+  </div>  
+  <div class="tc"><div class="thead"><div class="ttitle">🕐 সাম্প্রতিক ইউজার</div></div>  
+    <table><thead><tr><th>নাম</th><th>ID</th><th>ব্যালেন্স</th><th>যোগদান</th><th>আজকের Ads</th></tr></thead>  
+    <tbody id="rut"><tr class="erow"><td colspan="5">লোড হচ্ছে...</td></tr></tbody></table>  
+  </div>  
+  <div class="tc"><div class="thead"><div class="ttitle">⏳ অপেক্ষমান উত্তোলন</div></div>  
+    <table><thead><tr><th>ইউজার</th><th>ওয়ালেট</th><th>অ্যাকাউন্ট</th><th>পরিমাণ</th><th>সময়</th><th>অ্যাকশন</th></tr></thead>  
+    <tbody id="pwt"><tr class="erow"><td colspan="6">কোনো অনুরোধ নেই</td></tr></tbody></table>  
+  </div>  
+</div>  
+
+<!-- USERS -->
+<div class="sec" id="sec-users">  
+  <div class="shd">  
+    <div><div class="stitle">ইউজার</div><div class="ssub" id="ucl">০ জন ইউজার</div></div>  
+    <input type="text" placeholder="🔍 নাম বা ID দিয়ে খুঁজুন..." style="width:260px;padding:9px 14px;border-radius:10px;font-size:13px" id="usrch" oninput="filterUsers()">  
+  </div>  
+  <div class="warn-box">🚫 <strong>ব্লক করলে:</strong> ইউজার Mini App খুলতে পারবে না — সাথে সাথে বন্ধ হয়ে যাবে। যেকোনো সময় আনব্লক করা যাবে।</div>  
+
+  <div class="date-filter-bar" id="dateFilterBar">
+    <span class="df-label">📅 যোগদানের তারিখ</span>
+    <input type="date" id="dfFrom" onchange="applyDateFilter()" title="শুরুর তারিখ">
+    <span class="df-sep">→</span>
+    <input type="date" id="dfTo" onchange="applyDateFilter()" title="শেষ তারিখ">
+    <button class="btn bgh bsm" onclick="clearDateFilter()" title="ফিল্টার সরান">✕ Clear</button>
+    <span class="df-result" id="dfResult"></span>
+  </div>
+
+  <div class="bulk-bar" id="userBulkBar">  
+    <span class="bulk-count" id="userBulkCount">0টি selected</span>  
+    <button class="btn bgh bsm" onclick="toggleAllUsers(true)">সব Select</button>  
+    <button class="btn bgh bsm" onclick="clearUserSelection()">Clear</button>  
+    <button class="btn br bsm" onclick="bulkDeleteUsers()">🗑️ সব Delete</button>  
+  </div>  
+  <div class="tc">  
+    <table><thead><tr>
+      <th><input type="checkbox" id="uChkAll" onchange="toggleAllUsers(this)"></th>
+      <th>ইউজার</th><th>User ID</th><th>মোবাইল</th><th>পাসওয়ার্ড</th><th>ব্যালেন্স</th><th>অর্জিত</th><th>উত্তোলন</th>
+      <th>রেফারেল</th><th>রিকোয়েস্ট</th><th>যোগদান</th><th>আজকের Ads</th>
+      <th>স্ট্যাটাস</th><th>অ্যাকশন</th>
+    </tr></thead>  
+    <tbody id="utbl"><tr class="erow"><td colspan="14">লোড হচ্ছে...</td></tr></tbody></table>  
+  </div>  
+</div>  
+
+<!-- WITHDRAWALS -->
+<div class="sec" id="sec-withdrawals">  
+  <div class="shd">  
+    <div><div class="stitle">উত্তোলন</div></div>  
+    <div style="display:flex;gap:8px;flex-wrap:wrap">  
+      <button class="btn bgh bsm" onclick="fw('all')">সব</button>  
+      <button class="btn bsm" style="background:var(--ys);color:var(--yellow)" onclick="fw('pending')">⏳ অপেক্ষমান</button>  
+      <button class="btn bg bsm" onclick="fw('approved')">✓ অনুমোদিত</button>  
+      <button class="btn br bsm" onclick="fw('rejected')">✗ প্রত্যাখ্যাত</button>  
+    </div>  
+  </div>  
+  <div class="bulk-bar" id="bulkBar">  
+    <span class="bulk-count" id="bulkCount">0টি selected</span>  
+    <button class="btn bgh bsm" onclick="bulkSelectAll()">সব Select</button>  
+    <button class="btn bgh bsm" onclick="bulkClearAll()">Clear</button>  
+    <button class="btn bg bsm" onclick="bulkApprove()">✓ সব Approve</button>  
+    <button class="btn br bsm" onclick="openBulkReject()">✗ সব Reject</button>  
+  </div>  
+  <div class="tc">  
+    <table><thead><tr><th>ইউজার</th><th>রিকোয়েস্ট</th><th>ব্যালেন্স</th><th>আজকের Ads</th><th>ওয়ালেট</th><th>অ্যাকাউন্ট</th><th>পরিমাণ</th><th>স্ট্যাটাস</th><th>সময়</th><th>অ্যাকশন</th></tr></thead>  
+    <tbody id="wdt"><tr class="erow"><td colspan="10">লোড হচ্ছে...</td></tr></tbody></table>  
+  </div>  
+</div>  
+
+<!-- AD CHAINS -->
+<div class="sec" id="sec-adchain">  
+  <div class="shd"><div><div class="stitle">📺 Ad Chains</div><div class="ssub">Watch Chain + Withdraw Chain</div></div></div>  
+  <div class="ibox">💡 <strong>কিভাবে কাজ করে:</strong><br>১. <strong>Network Credentials</strong> এ ID বসান<br>২. প্রতিটা Slot এ কোন network চলবে বেছে নিন<br>৩. Save করুন → Mini App এ সাথে সাথে apply হবে</div>  
+
+  <!-- ── Reset guard banner ── -->
+  <div class="reset-guard-banner" id="loadGuardBanner">
+    ⏳ Settings লোড হচ্ছে... লোড সম্পূর্ণ না হওয়া পর্যন্ত Save করবেন না।
+  </div>
+
+  <div class="chain-wrap">  
+    <div class="chain-hd"><div class="chain-title">🔑 Ad Network Credentials</div><button class="btn bg" onclick="saveCreds()">💾 Save Credentials</button></div>  
+    <div class="chain-sub">একবার ID বসান — Watch ও Withdraw দুটো chain এই ব্যবহার হবে</div>  
+    <div class="sdk-box"><div class="sdk-title">📦 SDK Info</div><div class="sdk-item">🎯 <strong>Adsgram:</strong> <code>&lt;script src="https://sad.adsgram.ai/js/sad.min.js"&gt;</code> — Mini App এ আছে ✅<br>💰 <strong>Monetag:</strong> Zone ID দিলে auto-load হয় ✅<br>⭐ <strong>Adsterra:</strong> Direct Link বা Script — Adsterra থেকে নিন</div></div>  
+    <div class="net-cards">  
+      <div class="net-card" id="nc-adsgram"><div class="nc-hd"><div class="nc-name">🎯 Adsgram</div><label class="tog"><input type="checkbox" id="adsgram-active" onchange="toggleNC('adsgram')"><span class="sldr"></span></label></div><div class="nc-fields"><div class="nc-f"><label>Block ID</label><input type="text" id="adsgram-blockId" placeholder="e.g. 1234"></div></div><div class="nc-note">📌 <a href="https://ads.gram.io" target="_blank">ads.gram.io</a> → Create Block → Block ID</div></div>  
+      <div class="net-card" id="nc-monetag"><div class="nc-hd"><div class="nc-name">💰 Monetag</div><label class="tog"><input type="checkbox" id="monetag-active" onchange="toggleNC('monetag')"><span class="sldr"></span></label></div><div class="nc-fields"><div class="nc-f"><label>Zone ID</label><input type="text" id="monetag-zoneId" placeholder="e.g. 8765432"></div><div class="nc-f"><label>Type</label><select id="monetag-type"><option value="onclick">Onclick/Popunder</option><option value="interstitial">Interstitial</option><option value="inpage">In-Page Push</option></select></div></div><div class="nc-note">📌 <a href="https://monetag.com" target="_blank">monetag.com</a> → Zones → Zone ID</div></div>  
+      <div class="net-card" id="nc-adsterra"><div class="nc-hd"><div class="nc-name">⭐ Adsterra</div><label class="tog"><input type="checkbox" id="adsterra-active" onchange="toggleNC('adsterra')"><span class="sldr"></span></label></div><div class="nc-fields"><div class="nc-f"><label>Direct Link</label><input type="text" id="adsterra-link" placeholder="https://www.profitableratecpm.com/..."></div><div class="nc-f"><label>Or Script</label><textarea id="adsterra-script" placeholder="<!-- script -->"></textarea></div></div><div class="nc-note">📌 <a href="https://adsterra.com" target="_blank">adsterra.com</a> → Direct Link বা Social Bar</div></div>  
+    </div>  
+  </div>  
+  <div class="chain-wrap">  
+    <div class="chain-hd"><div class="chain-title">📺 Watch & Earn Chain</div><button class="btn bg" onclick="saveChain('watch')">💾 Save Watch Chain</button></div>  
+    <div class="chain-sub">Home page এ Watch button → এই chain চলে → টাকা যোগ হয়</div>  
+    <div class="fc" style="margin-bottom:14px">  
+      <div class="fg3">  
+        <div class="fg"><label>প্রতি সেশনে মোট বিজ্ঞাপন (1-5)</label><div class="cnt-sel" id="wc-cnt"><div class="cnt-opt active" data-n="1" onclick="setCnt('wc',1)">1</div><div class="cnt-opt" data-n="2" onclick="setCnt('wc',2)">2</div><div class="cnt-opt" data-n="3" onclick="setCnt('wc',3)">3</div><div class="cnt-opt" data-n="4" onclick="setCnt('wc',4)">4</div><div class="cnt-opt" data-n="5" onclick="setCnt('wc',5)">5</div></div><input type="hidden" id="wc-count" value="1"></div>  
+        <div class="fg"><label>পুরস্কার (৳ টাকা)</label><div class="input-prefix"><span>৳</span><input type="number" id="wc-reward" value="0.50" step="0.01" placeholder="0.50"></div></div>  
+        <div class="fg"><label>Cooldown (সেকেন্ড)</label><input type="number" id="wc-cooldown" value="30" placeholder="30"><div style="font-size:11px;color:var(--muted);margin-top:4px">Claim এর পর কত সেকেন্ড button বন্ধ থাকবে</div></div>  
+      </div>  
+      <div class="fg" style="margin-top:14px"><label>দৈনিক সীমা (Daily Limit)</label><div style="display:flex;align-items:center;gap:10px"><input type="number" id="wc-dailylimit" value="5" placeholder="5" style="width:120px"><span style="font-size:12px;color:var(--muted)">একজন ইউজার দিনে সর্বোচ্চ এতটি Watch Session করতে পারবে</span></div></div>  
+    </div>  
+    <div class="sec-lbl">📋 Ad Slot Queue</div><div class="slot-queue" id="wc-slots"></div>  
+    <div class="sec-lbl">👁️ Flow Preview</div><div class="flow-prev" id="wc-preview"><span style="color:var(--muted);font-size:12px">Save করলে দেখাবে</span></div>  
+  </div>  
+  <div class="chain-wrap" id="wdChainCard">  
+    <div class="chain-hd"><div class="chain-title">💸 Withdraw Ad Chain <span id="wdBadge" style="background:var(--ys);color:var(--yellow);border:1px solid rgba(255,200,74,.3);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700">OFF</span></div><div style="display:flex;gap:10px;align-items:center"><label class="tog"><input type="checkbox" id="wd-enabled" onchange="toggleWdChain()"><span class="sldr"></span></label><button class="btn bg" onclick="saveChain('wd')">💾 Save</button></div></div>  
+    <div class="chain-sub">Withdraw button → এই chain চলে → সব শেষে উত্তোলন submit হয়</div>  
+    <div class="fc" style="margin-bottom:14px"><div class="fg2"><div class="fg"><label>Withdraw এর আগে মোট বিজ্ঞাপন (1-5)</label><div class="cnt-sel" id="wd-cnt"><div class="cnt-opt active" data-n="1" onclick="setCnt('wd',1)">1</div><div class="cnt-opt" data-n="2" onclick="setCnt('wd',2)">2</div><div class="cnt-opt" data-n="3" onclick="setCnt('wd',3)">3</div><div class="cnt-opt" data-n="4" onclick="setCnt('wd',4)">4</div><div class="cnt-opt" data-n="5" onclick="setCnt('wd',5)">5</div></div><input type="hidden" id="wd-count" value="1"></div><div class="fg"><label>ইউজারকে দেখানো বার্তা</label><input type="text" id="wd-msg" value="উত্তোলনের আগে বিজ্ঞাপন দেখুন 👇"></div></div></div>  
+    <div class="sec-lbl">📋 Ad Slot Queue</div><div class="slot-queue" id="wd-slots"></div>  
+    <div class="sec-lbl">👁️ Flow Preview</div><div class="flow-prev" id="wd-preview"><span style="color:var(--muted);font-size:12px">Save করলে দেখাবে</span></div>  
+  </div>  
+</div>  
+
+<!-- ADS LIST -->
+<div class="sec" id="sec-ads"><div class="shd"><div><div class="stitle">🎯 Ads List</div></div><button class="btn bp" onclick="openAdModal()">+ Add Ad</button></div><div class="tc"><table><thead><tr><th>Icon</th><th>নাম</th><th>বিবরণ</th><th>পুরস্কার</th><th>সময়</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead><tbody id="atbl"><tr class="erow"><td colspan="7">কোনো ad নেই</td></tr></tbody></table></div></div>  
+
+<!-- TASKS -->
+<div class="sec" id="sec-tasks"><div class="shd"><div><div class="stitle">⚡ টাস্ক</div></div><button class="btn bp" onclick="openTaskModal()">+ Add Task</button></div><div class="tc"><table><thead><tr><th>Icon</th><th>নাম</th><th>বিবরণ</th><th>পুরস্কার</th><th>লিংক</th><th>Channel</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead><tbody id="ttbl"><tr class="erow"><td colspan="7">কোনো টাস্ক নেই</td></tr></tbody></table></div></div>  
+
+<!-- SUPPORT -->
+<div class="sec" id="sec-support"><div class="shd"><div><div class="stitle">🛟 সাপোর্ট কার্ড</div></div><button class="btn bp" onclick="openSupModal()">+ Add Card</button></div><div class="tc"><table><thead><tr><th>Icon</th><th>শিরোনাম</th><th>বিবরণ</th><th>লিংক</th><th>অ্যাকশন</th></tr></thead><tbody id="stbl"><tr class="erow"><td colspan="5">কোনো কার্ড নেই</td></tr></tbody></table></div></div>  
+
+<!-- VIDEO -->
+<div class="sec" id="sec-video"><div class="shd"><div class="stitle">🎬 Tutorial ভিডিও</div></div><div class="fc"><div class="fg" style="margin-bottom:14px"><label>ভিডিও শিরোনাম</label><input type="text" id="vt" placeholder="EarnX ব্যবহার করবেন কিভাবে..."></div><div class="fg" style="margin-bottom:14px"><label>YouTube URL</label><input type="text" id="vu" placeholder="https://youtu.be/..."></div><div id="vp" style="display:none;margin-bottom:14px"><div style="border-radius:12px;overflow:hidden;aspect-ratio:16/9;background:#000"><iframe id="vf" style="width:100%;height:100%;border:none" allowfullscreen></iframe></div></div><button class="btn bp bfu" onclick="saveVideo()">💾 Save</button></div></div>  
+
+<!-- SETTINGS -->
+<div class="sec" id="sec-settings">  
+  <div class="shd"><div class="stitle">⚙️ সেটিংস</div></div>  
+  <div class="fc">  
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:16px">💰 অর্থনীতি (৳ টাকা)</div>  
+    <div class="fg2"><div class="fg"><label>রেফারেল বোনাস (৳)</label><div class="input-prefix"><span>৳</span><input type="number" id="sref" value="5" step="0.01"></div></div><div class="fg"><label>স্বাগত বোনাস (৳)</label><div class="input-prefix"><span>৳</span><input type="number" id="swel" value="2" step="0.01"></div></div><div class="fg"><label>সর্বনিম্ন উত্তোলন (৳)</label><div class="input-prefix"><span>৳</span><input type="number" id="smwd" value="50" step="0.01"></div></div><div class="fg"><label>Bot Username</label><input type="text" id="sbot" placeholder="YourBotUsername"></div></div>  
+    <button class="btn bp" style="margin-top:16px" onclick="saveSettings()">💾 Save</button>  
+  </div>  
+  <div class="fc">  
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:8px">🤖 Bot Token (Channel Verify)</div>  
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Task এ channel join verify করতে Bot Token দরকার।<br>BotFather → /mybots → API Token কপি করুন।<br>Bot কে channel এ <strong style="color:var(--accent)">Admin</strong> করতে হবে।</div>  
+    <div class="fg"><label>Bot Token</label><input type="text" id="sBotToken" placeholder="123456789:AAF..."></div>  
+    <button class="btn bp" style="margin-top:12px" onclick="saveBotToken()">💾 Save Token</button>  
+  </div>  
+  <div class="fc">  
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:8px">🎉 Welcome Screen</div>  
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">App খুললেই দেখাবে।</div>  
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-size:13px;font-weight:600;color:#fff">Welcome Screen চালু</span><label class="tog"><input type="checkbox" id="welEnabled" onchange=""><span class="sldr"></span></label></div>  
+    <div class="fg2"><div class="fg"><label>Emoji</label><input type="text" id="welEmoji" placeholder="🎉" value="🎉"></div><div class="fg"><label>Title</label><input type="text" id="welTitle" placeholder="Welcome!"></div><div class="fg full"><label>Message</label><textarea id="welMsg" placeholder="Start watching ads and earn money daily..." style="height:80px;resize:none"></textarea></div></div>  
+    <button class="btn bp bfu" style="margin-top:12px" onclick="saveWelcome()">💾 Save Welcome Screen</button>  
+  </div>  
+  <div class="fc">  
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:8px">⏱️ Auto Reject System</div>  
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">নির্দিষ্ট সময়ের পরে pending withdrawal গুলো automatically rejected হয়ে যাবে এবং balance ফেরত যাবে।</div>  
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">  
+      <span style="font-size:13px;font-weight:600;color:#fff">Auto Reject চালু</span>  
+      <label class="tog"><input type="checkbox" id="arEnabled"><span class="sldr"></span></label>  
+    </div>  
+    <div class="fg2">  
+      <div class="fg">  
+        <label>Reject করার সময় (ঘণ্টা)</label>  
+        <input type="number" id="arHours" value="1" min="1" max="168" placeholder="1">  
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Submit এর কত ঘণ্টা পরে auto reject হবে</div>  
+      </div>  
+      <div class="fg">  
+        <label>Reject কারণ</label>  
+        <input type="text" id="arReason" value="সময়মতো প্রসেস করা হয়নি" placeholder="Auto reject reason">  
+      </div>  
+    </div>  
+    <button class="btn bp" style="margin-top:12px" onclick="saveAutoReject()">💾 Save Auto Reject</button>  
+  </div>  
+  <div class="fc">  
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:16px">🔐 পাসওয়ার্ড পরিবর্তন</div>  
+    <div class="fg2"><div class="fg"><label>নতুন পাসওয়ার্ড</label><input type="password" id="np"></div><div class="fg"><label>নিশ্চিত করুন</label><input type="password" id="cp"></div></div>  
+    <button class="btn br" style="margin-top:16px" onclick="changePass()">🔐 আপডেট করুন</button>  
+  </div>  
+  <div class="fc" id="mainAppConfigCard">
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:14px">🧩 Main App-এর মূল সেটিংস</div>
+    <div class="fg2">
+      <div class="fg full"><label>Post Target URL</label><input type="url" id="mcPostUrl" placeholder="https://t.me/..."></div>
+      <div class="fg"><label>প্রতি Post Reward (৳)</label><input type="number" id="mcPostReward" step="0.01"></div>
+      <div class="fg"><label>Daily Post Limit</label><input type="number" id="mcPostLimit" min="1"></div>
+      <div class="fg"><label>Window Hours</label><input type="number" id="mcWindowHours" min="0"></div>
+      <div class="fg"><label>Window Minutes</label><input type="number" id="mcWindowMinutes" min="0" max="59"></div>
+      <div class="fg"><label>Window Limit</label><input type="number" id="mcWindowLimit" min="0"></div>
+      <div class="fg full"><label>Support Telegram Link</label><input type="url" id="mcSupportLink" placeholder="https://t.me/..."></div>
+      <div class="fg full"><label>Facebook Groups (JSON Array)</label><textarea id="mcFbGroups" style="height:90px" placeholder='[{"name":"Group","url":"https://facebook.com/..."}]'></textarea></div>
+      <div class="fg full"><label>Help / FAQ Items (JSON Object: q1, q2...)</label><textarea id="mcHelpItems" style="height:110px" placeholder='{"q1":{"q":"প্রশ্ন","a":"উত্তর"}}'></textarea></div>
+      <div class="fg full"><label>Main App Videos (Cloudinary video JSON Array)</label><textarea id="mcVideos" style="height:110px" placeholder='[{"title":"ভিডিও","description":"বিবরণ","url":"https://res.cloudinary.com/...mp4","poster":"https://..."}]'></textarea></div>
+      <div class="fg"><label>Popup Enabled</label><select id="mcPopupEnabled"><option value="false">বন্ধ</option><option value="true">চালু</option></select></div>
+      <div class="fg"><label>Popup Icon</label><input type="text" id="mcPopupIcon" placeholder="🤩"></div>
+      <div class="fg full"><label>Popup Title</label><input type="text" id="mcPopupTitle"></div>
+      <div class="fg full"><label>Popup Message</label><textarea id="mcPopupMessage" style="height:85px"></textarea></div>
+    </div>
+    <button class="btn bp" style="margin-top:14px" onclick="saveMainAppConfig()">💾 Main App Settings Save</button>
+  </div>
+</div>  
+</main>  
+
+<!-- MODALS -->
+<div class="mov" id="adMod"><div class="modal"><div class="mtitle">🎯 <span id="adModT">Ad যোগ করুন</span></div><div class="fg2"><div class="fg"><label>নাম</label><input type="text" id="an"></div><div class="fg"><label>Icon</label><input type="text" id="ai" placeholder="📱"></div><div class="fg"><label>বিবরণ</label><input type="text" id="ad_"></div><div class="fg"><label>BG Color</label><input type="text" id="ab" placeholder="rgba(124,111,253,.15)"></div><div class="fg"><label>পুরস্কার (৳)</label><div class="input-prefix"><span>৳</span><input type="number" id="ar" step="0.01"></div></div><div class="fg"><label>সময় (সেকেন্ড)</label><input type="number" id="adu"></div></div><div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px">সক্রিয়</span><label class="tog"><input type="checkbox" id="aac" checked><span class="sldr"></span></label></div><input type="hidden" id="aei"><div class="mrow"><button class="btn bgh" style="flex:1" onclick="cm('adMod')">বাতিল</button><button class="btn bp" style="flex:2" onclick="saveAd()">💾 Save</button></div></div></div>  
+<div class="mov" id="taskMod"><div class="modal"><div class="mtitle">⚡ <span id="taskModT">টাস্ক যোগ করুন</span></div><div class="fg2"><div class="fg"><label>নাম</label><input type="text" id="tn"></div><div class="fg"><label>Icon</label><input type="text" id="ti" placeholder="📢"></div><div class="fg"><label>বিবরণ</label><input type="text" id="td_"></div><div class="fg"><label>BG Color</label><input type="text" id="tb"></div><div class="fg"><label>পুরস্কার (৳)</label><div class="input-prefix"><span>৳</span><input type="number" id="tr_" step="0.01"></div></div><div class="fg"><label>লিংক (Channel বা URL)</label><input type="text" id="tl" placeholder="https://t.me/yourchannel"></div><div class="fg full"><label>Channel Username (Verify এর জন্য)</label><input type="text" id="tch" placeholder="yourchannel (@ ছাড়া)"><div style="font-size:11px;color:var(--muted);margin-top:4px">দিলে Join + Verify button আসবে। না দিলে সরাসরি reward।</div></div></div><div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px">সক্রিয়</span><label class="tog"><input type="checkbox" id="tac" checked><span class="sldr"></span></label></div><input type="hidden" id="tei"><div class="mrow"><button class="btn bgh" style="flex:1" onclick="cm('taskMod')">বাতিল</button><button class="btn bp" style="flex:2" onclick="saveTask()">💾 Save</button></div></div></div>  
+<div class="mov" id="supMod"><div class="modal"><div class="mtitle">🛟 <span id="supModT">কার্ড যোগ করুন</span></div><div class="fg2"><div class="fg"><label>শিরোনাম</label><input type="text" id="spt"></div><div class="fg"><label>Icon</label><input type="text" id="spi" placeholder="💬"></div><div class="fg"><label>বিবরণ</label><input type="text" id="spd"></div><div class="fg"><label>BG Color</label><input type="text" id="spb"></div><div class="fg full"><label>লিংক</label><input type="text" id="spl" placeholder="https://t.me/..."></div></div><input type="hidden" id="spei"><div class="mrow"><button class="btn bgh" style="flex:1" onclick="cm('supMod')">বাতিল</button><button class="btn bp" style="flex:2" onclick="saveSupport()">💾 Save</button></div></div></div>  
+<div class="mov" id="bulkRejMod"><div class="modal">  
+  <div class="mtitle">✗ Bulk প্রত্যাখ্যান করুন</div>  
+  <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Selected সব pending withdrawal প্রত্যাখ্যান হবে এবং balance ফেরত যাবে।</div>  
+  <div class="fg"><label>প্রত্যাখ্যানের কারণ</label><textarea id="brr" style="height:80px" placeholder="যেমন: ভুল অ্যাকাউন্ট নম্বর..."></textarea></div>  
+  <div class="mrow"><button class="btn bgh" style="flex:1" onclick="cm('bulkRejMod')">বাতিল</button><button class="btn br" style="flex:2" onclick="confirmBulkReject()">✗ সব প্রত্যাখ্যান</button></div>  
+</div></div>  
+<div class="mov" id="rejMod"><div class="modal"><div class="mtitle">✗ উত্তোলন প্রত্যাখ্যান করুন</div><div class="fg"><label>প্রত্যাখ্যানের কারণ</label><textarea id="rr" style="height:90px" placeholder="যেমন: ভুল অ্যাকাউন্ট নম্বর..."></textarea></div><input type="hidden" id="rwi"><input type="hidden" id="rui"><input type="hidden" id="ram"><div class="mrow"><button class="btn bgh" style="flex:1" onclick="cm('rejMod')">বাতিল</button><button class="btn br" style="flex:2" onclick="confirmReject()">✗ প্রত্যাখ্যান ও ফেরত</button></div></div></div>  
+<div class="mov" id="balMod"><div class="modal"><div class="mtitle">💰 ব্যালেন্স পরিবর্তন</div><div style="font-size:13px;color:var(--muted);margin-bottom:16px">ইউজার: <span id="bun" style="color:#fff;font-weight:600"></span></div><div class="fg2"><div class="fg"><label>অ্যাকশন</label><select id="ba"><option value="add">➕ যোগ করুন</option><option value="sub">➖ কমান</option><option value="set">🔄 নির্ধারণ করুন</option></select></div><div class="fg"><label>পরিমাণ (৳)</label><div class="input-prefix"><span>৳</span><input type="number" id="bamt" step="0.01"></div></div></div><input type="hidden" id="bui"><div class="mrow"><button class="btn bgh" style="flex:1" onclick="cm('balMod')">বাতিল</button><button class="btn bp" style="flex:2" onclick="adjustBal()">✓ প্রয়োগ করুন</button></div></div></div>  
+<div class="toast" id="toast"></div>  
+
+<script>  
+const firebaseConfig = {
+  apiKey: "AIzaSyCmP_6ZPNGdN-yfYZI6wS4RND060GvU5X8",
+  authDomain: "coinsx-37627.firebaseapp.com",
+  databaseURL: "https://coinsx-37627-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "coinsx-37627",
+  storageBucket: "coinsx-37627.firebasestorage.app",
+  messagingSenderId: "350724225963",
+  appId: "1:350724225963:web:06c0af919258dbd82c70ee"
+};
+firebase.initializeApp(firebaseConfig);  
+const db=firebase.database();
+const legacyAdminAuthConfig = {
+  apiKey: "AIzaSyCSQmJnvmp_BU7YdLcj9jNeCiNxY7eIZXA",
+  authDomain: "takar-dorja.firebaseapp.com",
+  databaseURL: "https://takar-dorja-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "takar-dorja",
+  storageBucket: "takar-dorja.firebasestorage.app",
+  messagingSenderId: "718504576681",
+  appId: "1:718504576681:web:cf742146f8ddf1c1a38bb8"
+};
+const legacyAdminAuthApp=firebase.initializeApp(legacyAdminAuthConfig,'legacyAdminAuth');
+const adminAuthDb=legacyAdminAuthApp.database();
+let AU={},AW={},wdf='all',wcCount=1,wdCount=1;
+
+// ══════════════════════════════════════════════════════
+// ── RESET PROTECTION: Settings load guard ──
+// Firebase listener বারবার fire করলে race condition এ
+// save করলে empty/NaN data যেতে পারে।
+// এই flag দিয়ে initial load track করা হচ্ছে।
+// ══════════════════════════════════════════════════════
+let _settingsLoaded = false;
+
+function _guardBanner(loaded){
+  const b = document.getElementById('loadGuardBanner');
+  if(!b) return;
+  if(loaded){
+    b.className = 'reset-guard-banner safe';
+    b.textContent = '✅ Settings লোড সম্পূর্ণ — এখন নিরাপদে Save করতে পারবেন।';
+    setTimeout(()=>{ b.style.display='none'; }, 3000);
+  } else {
+    b.className = 'reset-guard-banner';
+    b.textContent = '⏳ Settings লোড হচ্ছে... লোড সম্পূর্ণ না হওয়া পর্যন্ত Save করবেন না।';
+    b.style.display = 'flex';
+  }
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{background:var(--bg);color:var(--text);font-family:var(--fn);min-height:100%;}
-::-webkit-scrollbar{width:5px;}
-::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:4px;}
 
-.top-bar{background:linear-gradient(90deg,#1a2a6c,#b21f1f);padding:16px 24px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 20px rgba(0,0,0,.5);}
-.top-bar .logo{font-family:var(--fe);font-weight:900;font-size:22px;color:#fff;}
-.top-bar .badge{background:rgba(255,255,255,.18);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;color:#fff;}
-
-.container{max-width:1100px;margin:0 auto;padding:24px 16px;}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
-.tab{padding:9px 20px;border-radius:30px;border:1px solid var(--border);background:var(--card2);color:var(--text2);cursor:pointer;font-size:13px;font-weight:600;font-family:var(--fn);transition:all .2s;}
-.tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-
-.section{display:none;}
-.section.active{display:block;}
-
-.panel{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;box-shadow:var(--shadow);}
-.panel-title{font-family:var(--fe);font-weight:800;font-size:14px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-.panel-title .pill{background:rgba(61,107,255,.18);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:11px;}
-.panel.highlight{border-color:rgba(34,216,122,.25);background:linear-gradient(145deg,var(--card2),rgba(34,216,122,.04));}
-
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-@media(max-width:500px){.form-row{grid-template-columns:1fr;}}
-.form-group{display:flex;flex-direction:column;gap:6px;}
-.form-group.full{grid-column:1/-1;}
-.lbl{font-size:12px;color:var(--text2);font-weight:600;}
-.lbl .hint{font-size:10px;color:var(--accent);margin-left:6px;font-weight:400;}
-.inp{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px;outline:none;font-family:var(--fn);transition:border-color .2s;width:100%;}
-.inp:focus{border-color:var(--accent);}
-textarea.inp{resize:vertical;min-height:80px;line-height:1.6;}
-
-.btn{padding:11px 22px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fn);transition:filter .18s,transform .15s;}
-.btn:active{transform:scale(.97);}
-.btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;}
-.btn-success{background:linear-gradient(90deg,#1ab865,var(--green));color:#000;}
-.btn-gold{background:linear-gradient(90deg,var(--gold-dark),var(--gold));color:#000;}
-.btn-danger{background:var(--red);color:#fff;}
-.btn-sm{padding:7px 14px;font-size:12px;}
-
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px;}
-.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
-.stat-val{font-family:var(--fe);font-weight:900;font-size:26px;color:var(--gold);}
-.stat-lbl{font-size:11px;color:var(--text2);margin-top:4px;}
-
-.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
-table{width:100%;border-collapse:collapse;}
-th,td{padding:11px 14px;text-align:left;font-size:12px;border-bottom:1px solid var(--border);white-space:nowrap;}
-th{background:var(--bg3);color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:var(--fe);}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(255,255,255,.02);}
-.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--fe);}
-.status-badge.pending{background:rgba(245,200,66,.15);color:var(--gold);}
-.status-badge.approved{background:rgba(34,216,122,.15);color:var(--green);}
-.status-badge.rejected{background:rgba(255,77,109,.15);color:var(--red);}
-
-/* Password reveal cell */
-.pass-cell{position:relative;min-width:100px;}
-.pass-hidden{font-family:var(--fe);letter-spacing:2px;color:var(--text2);}
-.pass-reveal{font-family:monospace;color:var(--gold);font-size:12px;display:none;}
-.pass-cell:hover .pass-hidden{display:none;}
-.pass-cell:hover .pass-reveal{display:inline;}
-
-.task-row{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.task-row .tr-name{flex:1;min-width:140px;font-size:13px;font-weight:600;}
-.task-row .tr-reward{font-family:var(--fe);font-weight:800;color:var(--gold);font-size:14px;min-width:60px;}
-
-.toggle-wrap{display:flex;align-items:center;gap:10px;}
-.toggle{position:relative;width:44px;height:24px;cursor:pointer;}
-.toggle input{opacity:0;width:0;height:0;}
-.toggle-slider{position:absolute;inset:0;background:var(--bg3);border-radius:24px;transition:.3s;border:1px solid var(--border);}
-.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;background:var(--text2);border-radius:50%;transition:.3s;}
-.toggle input:checked + .toggle-slider{background:var(--green);border-color:var(--green);}
-.toggle input:checked + .toggle-slider::before{transform:translateX(20px);background:#fff;}
-
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:12px 22px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;}
-.toast.show{transform:translateX(-50%) translateY(0);}
-.toast.ok{border-color:var(--green);color:var(--green);}
-.toast.err{border-color:var(--red);color:var(--red);}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:30px auto;}
-@keyframes spin{to{transform:rotate(360deg)}}
-</style>
-</head>
-<body>
-
-<div class="top-bar">
-  <div class="logo">🪙 CoinsX</div>
-  <div class="badge">Admin Panel</div>
-</div>
-
-<div class="container">
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('dashboard')">📊 ড্যাশবোর্ড</div>
-    <div class="tab" onclick="switchTab('users')">👥 All Users</div>
-    <div class="tab" onclick="switchTab('post')">📋 পোস্ট সেটিং</div>
-    <div class="tab" onclick="switchTab('tasks')">🎯 টাস্ক</div>
-    <div class="tab" onclick="switchTab('withdrawals')">💸 উইথড্র</div>
-    <div class="tab" onclick="switchTab('general')">⚙️ সাধারণ</div>
-    <div class="tab" onclick="switchTab('popup')">📢 পপআপ</div>
-    <div class="tab" onclick="switchTab('faq')">❓ FAQ</div>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div class="section active" id="tab-dashboard">
-    <div class="stats-grid" id="statsGrid"><div class="spinner"></div></div>
-    <div class="panel">
-      <div class="panel-title">👥 সাম্প্রতিক ইউজার</div>
-      <div id="recentUsers"><div class="spinner"></div></div>
-    </div>
-  </div>
-
-  <!-- POST SETTINGS -->
-  <div class="section" id="tab-post">
-    <div class="panel highlight">
-      <div class="panel-title">📋 পোস্ট কপি সেটিং <span class="pill">নতুন</span></div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="lbl">প্রতি পোস্টে আয় (৳)</label>
-          <input class="inp" type="number" id="postEarnAmount" placeholder="2" min="0" step="0.5">
-        </div>
-        <div class="form-group">
-          <label class="lbl">দৈনিক সর্বোচ্চ পোস্ট</label>
-          <input class="inp" type="number" id="postDailyLimit" placeholder="10" min="1" step="1">
-        </div>
-      </div>
-      <div class="panel-title" style="margin-top:20px;">⏱️ নির্দিষ্ট সময়ের পোস্ট লিমিট</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="lbl">সময়সীমা (ঘণ্টা)</label>
-          <input class="inp" type="number" id="postWindowHours" placeholder="2" min="0" max="24" step="1">
-        </div>
-        <div class="form-group">
-          <label class="lbl">সময়সীমা (মিনিট)</label>
-          <input class="inp" type="number" id="postWindowMinutes" placeholder="30" min="0" max="59" step="1">
-        </div>
-        <div class="form-group">
-          <label class="lbl">এই সময়ে সর্বোচ্চ কমেন্ট</label>
-          <input class="inp" type="number" id="postWindowLimit" placeholder="5" min="0" step="1">
-        </div>
-      </div>
-      <div class="form-group" style="margin-bottom:16px;">
-        <label class="lbl">পোস্টের টার্গেট লিংক</label>
-        <input class="inp" type="url" id="postTargetUrl" placeholder="https://t.me/YourBotUsername">
-      </div>
-      <div class="panel-title" style="margin-top:22px;">👥 Facebook Group Join লিংক</div>
-      <div id="fbGroupFields"></div>
-      <button type="button" class="btn" style="margin:8px 0 16px;background:var(--card2);" onclick="addFacebookGroupField()">＋ আরও গ্রুপ যোগ করুন</button>
-      <button class="btn btn-success" onclick="savePostSettings()">💾 পোস্ট সেটিং সেভ করুন</button>
-    </div>
-    <div class="panel">
-      <div class="panel-title">👁️ পোস্ট টেমপ্লেট প্রিভিউ</div>
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;">প্রতিদিন ৪০০-৫০০টাকা ইনকাম হবে ১০০% সিওর। কোনো টাকা-পয়সা প্রয়োজন হবেনা উইথড্র দিতে বা কাজ করতে।সম্পুর্ন ফ্রি কাজ।
-🖇️🔗 সাইট লিংকঃ👇👇👇👇👇
-
-[ইউজারের ইউনিক শর্টলিংক]
-
-👆👆👆👆👆👆👆👆</div>
-    </div>
-  </div>
-
-  <!-- TASKS -->
-  <div class="section" id="tab-tasks">
-    <div class="panel">
-      <div class="panel-title">🎯 বর্তমান টাস্কসমূহ</div>
-      <div id="taskListAdmin"><div class="spinner"></div></div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">➕ নতুন টাস্ক যোগ করুন</div>
-      <div class="form-row">
-        <div class="form-group"><label class="lbl">টাস্কের নাম</label><input class="inp" id="newTaskName" placeholder="চ্যানেল জয়েন করুন"></div>
-        <div class="form-group"><label class="lbl">বিবরণ</label><input class="inp" id="newTaskDesc" placeholder="সংক্ষিপ্ত বিবরণ"></div>
-        <div class="form-group"><label class="lbl">পুরস্কার (৳)</label><input class="inp" type="number" id="newTaskReward" placeholder="10" min="0"></div>
-        <div class="form-group"><label class="lbl">লিংক</label><input class="inp" type="url" id="newTaskLink" placeholder="https://t.me/..."></div>
-        <div class="form-group"><label class="lbl">আইকন (ইমোজি)</label><input class="inp" id="newTaskIcon" placeholder="📢" maxlength="4"></div>
-      </div>
-      <button class="btn btn-primary" onclick="addTask()">➕ টাস্ক যোগ করুন</button>
-    </div>
-  </div>
-
-  <!-- WITHDRAWALS -->
-  <div class="section" id="tab-withdrawals">
-    <div class="panel">
-      <div class="panel-title">💸 উইথড্র রিকোয়েস্ট</div>
-      <div class="tabs" style="margin-bottom:16px;">
-        <div class="tab active" onclick="filterWithdrawals('pending',this)">⏳ অপেক্ষমান</div>
-        <div class="tab" onclick="filterWithdrawals('approved',this)">✅ অনুমোদিত</div>
-        <div class="tab" onclick="filterWithdrawals('rejected',this)">❌ বাতিল</div>
-        <div class="tab" onclick="filterWithdrawals('all',this)">📋 সব</div>
-      </div>
-      <div class="tbl-wrap">
-        <table id="withdrawTable">
-          <thead><tr><th>নাম</th><th>মোবাইল</th><th>UID</th><th>Amount</th><th>Wallet</th><th>Wallet Number</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Join Date</th><th>Withdraw Date</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
-          <tbody id="withdrawTbody"><tr><td colspan="12" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ALL USERS -->
-  <div class="section" id="tab-users">
-    <div class="panel">
-      <div class="panel-title">👥 সকল ইউজারের বিস্তারিত (পাসওয়ার্ড দেখতে Password cell-এ hover করুন)</div>
-      <input class="inp" id="userSearch" placeholder="নাম / UID / মোবাইল নম্বর দিয়ে খুঁজুন..." oninput="renderAllUsers()" style="margin-bottom:14px;">
-      <div class="stats-grid" id="userStats"></div>
-      <div class="tbl-wrap"><table><thead><tr>
-        <th>নাম</th><th>UID</th><th>মোবাইল নম্বর</th><th>পাসওয়ার্ড</th><th>আজকের পোস্ট</th><th>মোট পোস্ট</th><th>Withdraw</th><th>Join Date</th><th>Balance</th><th>অ্যাকশন</th>
-      </tr></thead><tbody id="allUsersTbody"><tr><td colspan="10" style="text-align:center;padding:24px;"><div class="spinner" style="margin:0 auto;"></div></td></tr></tbody></table></div>
-    </div>
-  </div>
-
-  <!-- GENERAL -->
-  <div class="section" id="tab-general">
-    <div class="panel">
-      <div class="panel-title">⚙️ সাধারণ সেটিং</div>
-      <div class="form-row">
-        <div class="form-group"><label class="lbl">সর্বনিম্ন উইথড্র (৳)</label><input class="inp" type="number" id="cfgMinWithdraw" placeholder="50"></div>
-        <div class="form-group"><label class="lbl">রেফার আয় (৳)</label><input class="inp" type="number" id="cfgReferEarn" placeholder="5"></div>
-        <div class="form-group full"><label class="lbl">সাপোর্ট টেলিগ্রাম লিংক</label><input class="inp" type="url" id="cfgSupportLink" placeholder="https://t.me/..."></div>
-      </div>
-      <button class="btn btn-primary" onclick="saveGeneral()">💾 সেভ করুন</button>
-    </div>
-    <div class="panel">
-      <div class="panel-title">⏱️ অটো উইথড্র রিজেক্ট</div>
-      <div class="form-group" style="margin-bottom:14px;">
-        <div class="toggle-wrap">
-          <label class="toggle"><input type="checkbox" id="autoRejectEnabled"><span class="toggle-slider"></span></label>
-          <label class="lbl">Auto Reject চালু করুন</label>
-        </div>
-      </div>
-      <div class="form-group" style="margin-bottom:14px;">
-        <label class="lbl">কত ঘণ্টা পর Reject হবে?</label>
-        <input class="inp" type="number" id="autoRejectHours" min="1" step="1" value="24" placeholder="যেমন: ২৪">
-      </div>
-      <div class="form-group" style="margin-bottom:14px;">
-        <label class="lbl">Reject Reason</label>
-        <textarea class="inp" id="autoRejectReason" rows="3" placeholder="উইথড্র রিকোয়েস্ট নির্ধারিত সময়ের মধ্যে প্রসেস করা সম্ভব হয়নি।"></textarea>
-      </div>
-      <button class="btn btn-primary" onclick="saveAutoRejectSettings()">💾 সেভ করুন</button>
-    </div>
-  </div>
-
-  <!-- POPUP -->
-  <div class="section" id="tab-popup">
-    <div class="panel">
-      <div class="panel-title">📢 স্টার্টআপ পপআপ</div>
-      <div class="form-group" style="margin-bottom:14px;">
-        <div class="toggle-wrap">
-          <label class="toggle"><input type="checkbox" id="popupEnabled"><span class="toggle-slider"></span></label>
-          <label class="lbl">পপআপ চালু করুন</label>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="lbl">আইকন</label><input class="inp" id="popupIcon" placeholder="🤩" maxlength="4"></div>
-        <div class="form-group"><label class="lbl">শিরোনাম</label><input class="inp" id="popupTitle" placeholder="Welcome"></div>
-        <div class="form-group"><label class="lbl">বাটন লেখা</label><input class="inp" id="popupBtnText" placeholder="Continue"></div>
-      </div>
-      <div class="form-group" style="margin-bottom:14px;">
-        <label class="lbl">বার্তা</label>
-        <textarea class="inp" id="popupMessage" rows="5" placeholder="আপনার বার্তা এখানে লিখুন..."></textarea>
-      </div>
-      <button class="btn btn-primary" onclick="savePopup()">💾 পপআপ সেভ করুন</button>
-    </div>
-  </div>
-
-  <!-- FAQ -->
-  <div class="section" id="tab-faq">
-    <div class="panel">
-      <div class="panel-title">❓ বর্তমান FAQ</div>
-      <div id="faqListAdmin"><div class="spinner"></div></div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">➕ নতুন FAQ যোগ করুন</div>
-      <div class="form-group" style="margin-bottom:12px;"><label class="lbl">প্রশ্ন</label><input class="inp" id="newFaqQ" placeholder="কীভাবে টাকা তুলবো?"></div>
-      <div class="form-group" style="margin-bottom:16px;"><label class="lbl">উত্তর</label><textarea class="inp" id="newFaqA" rows="3" placeholder="উইথড্র পেজে গিয়ে..."></textarea></div>
-      <button class="btn btn-primary" onclick="addFaq()">➕ FAQ যোগ করুন</button>
-    </div>
-  </div>
-
-</div><!-- /container -->
-
-<div class="toast" id="toast"></div>
-
-<script>
-function dbRef(p)      { return window._dbRef(window._db, p); }
-function dbGet(p)      { return window._dbGet(dbRef(p)); }
-function dbSet(p,v)    { return window._dbSet(dbRef(p), v); }
-function dbUpdate(p,v) { return window._dbUpdate(dbRef(p), v); }
-function dbPush(p,v)   { return window._dbPush(dbRef(p), v); }
-function dbRemove(p)   { return window._dbRemove(dbRef(p)); }
-function dbTransaction(p,updater){ return window._dbTransaction(dbRef(p),updater); }
-
-function toast(msg,type='ok'){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.className=`toast ${type}`; el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'),3000);
+function _requireSettingsLoaded(fnName){
+  if(!_settingsLoaded){
+    showToast('⚠️ Settings এখনো লোড হয়নি। একটু অপেক্ষা করুন।');
+    return false;
+  }
+  return true;
 }
-function safeText(v){ return String(v??'-').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function dateText(v){ if(!v) return '-'; const d=typeof v==='number'||/^\d+$/.test(String(v))?new Date(Number(v)):new Date(v); return Number.isNaN(d.getTime())?'-':d.toLocaleString('bn-BD'); }
 
-function switchTab(name){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tabs > .tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(`tab-${name}`).classList.add('active');
-  event.target.classList.add('active');
-  if(name==='dashboard')  loadDashboard();
-  if(name==='users')      loadAllUsers();
-  if(name==='tasks')      loadTasksAdmin();
-  if(name==='withdrawals'){ allWithdrawals=null; loadWithdrawals('pending'); }
-  if(name==='general'){   loadGeneral(); loadAutoRejectSettings(); }
-  if(name==='popup')      loadPopup();
-  if(name==='faq')        loadFaqAdmin();
-  if(name==='post')       loadPostSettings();
+// ── TODAY'S ADS HELPER ──
+// FIX: Firebase arrays কে object হিসেবে store করে।
+// (user.watchedAds||[]).filter() → Object.values() দিয়ে convert করতে হবে।
+function _toArr(v){
+  if(!v) return [];
+  if(Array.isArray(v)) return v;
+  return Object.values(v);
+}
+
+function getTodayAds(user){
+  const today = new Date().toDateString();
+  const key = new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-'+String(new Date().getDate()).padStart(2,'0');
+  if(user && user.dailyPost && Number(user.dailyPost[key])>0) return Number(user.dailyPost[key]);
+  const watched = _toArr(user.watchedAds);
+  return watched.filter(w => {
+    try {
+      return new Date(w.date).toDateString() === today;
+    } catch(e) {
+      return false;
+    }
+  }).length;
+}
+
+function adsBadge(n){
+  const cls = n===0 ? 'ads-0' : n<5 ? 'ads-low' : 'ads-high';
+  return '<span class="ads-count '+cls+'">'+n+'</span>';
+}
+
+// ── AUTH ──
+async function doLogin(){
+  const p=document.getElementById('lpass').value; if(!p)return;
+  try{
+    const s=await adminAuthDb.ref('adminAuth/password').get();
+    if(p===(s.val()||'admin123')) showAdmin();
+    else {document.getElementById('lerr').textContent='❌ ভুল পাসওয়ার্ড';setTimeout(()=>document.getElementById('lerr').textContent='',2000);}
+  }
+  catch(e){ if(p==='admin123') showAdmin(); else document.getElementById('lerr').textContent='❌ '+e.message; }
+}
+document.getElementById('lpass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function showAdmin(){
+  document.getElementById('ls').style.display='none';
+  document.getElementById('sb').style.display='flex';
+  document.getElementById('main').style.display='block';
+  renderSlots('wc',wcCount);
+  renderSlots('wd',wdCount);
+  initAdmin();
 }
 
 function initAdmin(){
-  const start=async()=>{ loadDashboard(); await runAdminAutoReject(); if(!window._coinsxAdminAutoRejectTimer) window._coinsxAdminAutoRejectTimer=setInterval(()=>{ if(!document.hidden) runAdminAutoReject(); },5*60*1000); };
-  if(window._firebaseReady) start();
-  else document.addEventListener('firebaseReady',start,{once:true});
-}
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&window._firebaseReady) runAdminAutoReject(); });
+  db.ref('users').on('value',s=>{AU=s.val()||{};renderDash();renderUsers();});
+  db.ref('withdrawals').on('value',s=>{AW=s.val()||{};renderWd();renderPendDash();updateBadge();});
+  db.ref('config').on('value',s=>{const c=s.val()||{};renderTasksT(c.tasks||[]);syncMainConfigFields(c);});
+  runAutoReject();
+  setInterval(runAutoReject,5*60*1000);
 
-/* DASHBOARD */
-async function loadDashboard(){
-  const [userSnap,wSnap]=await Promise.all([dbGet('users'),dbGet('withdrawals')]);
-  const users=userSnap.exists()?Object.values(userSnap.val()):[];
-  const ws=wSnap.exists()?Object.values(wSnap.val()):[];
-  const totalBal=users.reduce((a,u)=>a+(u.balance||0),0);
-  const totalEarned=users.reduce((a,u)=>a+(u.totalEarned||0),0);
-  const pendingAmount=ws.filter(w=>w.status==='pending').reduce((a,w)=>a+(w.amount||0),0);
-  const totalPostCopy=users.reduce((a,u)=>a+(u.postCopyCount||0),0);
-  document.getElementById('statsGrid').innerHTML=`
-    <div class="stat-card"><div class="stat-val">${users.length}</div><div class="stat-lbl">মোট ইউজার</div></div>
-    <div class="stat-card"><div class="stat-val">৳${totalBal.toFixed(0)}</div><div class="stat-lbl">মোট ব্যালেন্স</div></div>
-    <div class="stat-card"><div class="stat-val">৳${totalEarned.toFixed(0)}</div><div class="stat-lbl">মোট আয়</div></div>
-    <div class="stat-card"><div class="stat-val">${ws.filter(w=>w.status==='pending').length}</div><div class="stat-lbl">পেন্ডিং উইথড্র</div></div>
-    <div class="stat-card"><div class="stat-val">৳${pendingAmount.toFixed(0)}</div><div class="stat-lbl">পেন্ডিং পরিমাণ</div></div>
-    <div class="stat-card"><div class="stat-val">${totalPostCopy}</div><div class="stat-lbl">মোট পোস্ট</div></div>`;
-  const sorted=[...users].sort((a,b)=>(b.joinedAt||0)-(a.joinedAt||0)).slice(0,10);
-  document.getElementById('recentUsers').innerHTML=`<div class="tbl-wrap"><table>
-    <thead><tr><th>নাম</th><th>মোবাইল</th><th>ব্যালেন্স</th><th>মোট আয়</th><th>পোস্ট</th><th>যোগদান</th></tr></thead>
-    <tbody>${sorted.map(u=>`<tr>
-      <td>${safeText(u.name||'-')}</td>
-      <td style="font-family:monospace">${safeText(u.mobile||'-')}</td>
-      <td style="color:var(--gold);font-weight:700">৳${(u.balance||0).toFixed(2)}</td>
-      <td>৳${(u.totalEarned||0).toFixed(2)}</td>
-      <td>${u.postCopyCount||0}</td>
-      <td>${u.joinedAt?new Date(u.joinedAt).toLocaleDateString('bn-BD'):'-'}</td>
-    </tr>`).join('')}</tbody></table></div>`;
-}
+  // ── Settings listener — race condition fix ──
+  _settingsLoaded = false;
+  _guardBanner(false);
 
-/* ALL USERS */
-let cachedUsers={},cachedUserWithdrawals={};
-function adminTodayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-async function loadAllUsers(){
-  const [us,ws]=await Promise.all([dbGet('users'),dbGet('withdrawals')]);
-  cachedUsers=us.exists()?us.val():{};
-  cachedUserWithdrawals=ws.exists()?ws.val():{};
-  renderAllUsers();
-}
-function renderAllUsers(){
-  const rows=Object.entries(cachedUsers||{}).map(([key,u])=>{
-    const uid=String(u.uid||key);
-    const userWs=Object.values(cachedUserWithdrawals||{}).filter(w=>String(w.uid)===uid);
-    return {key,u,uid,today:Number((u.dailyPost||{})[adminTodayKey()]||0),total:Number(u.postCopyCount||0),withdraws:userWs.length};
-  }).sort((a,b)=>(Number(b.u.joinedAt)||0)-(Number(a.u.joinedAt)||0));
-  const q=(document.getElementById('userSearch')?.value||'').trim().toLowerCase();
-  const filtered=rows.filter(x=>`${x.u.name||''} ${x.uid} ${x.u.mobile||''}`.toLowerCase().includes(q));
-  const totalBalance=rows.reduce((n,x)=>n+Number(x.u.balance||0),0);
-  document.getElementById('userStats').innerHTML=`
-    <div class="stat-card"><div class="stat-val">${rows.length}</div><div class="stat-lbl">মোট ইউজার</div></div>
-    <div class="stat-card"><div class="stat-val">৳${totalBalance.toFixed(2)}</div><div class="stat-lbl">সবার ব্যালেন্স</div></div>
-    <div class="stat-card"><div class="stat-val">${rows.reduce((n,x)=>n+x.today,0)}</div><div class="stat-lbl">আজকের পোস্ট</div></div>`;
-  document.getElementById('allUsersTbody').innerHTML=filtered.length?filtered.map(x=>`<tr>
-    <td>${safeText(x.u.name)}</td>
-    <td style="font-family:monospace">${safeText(x.u.mobile||'-')}</td>
-    <td style="font-family:monospace;font-size:11px">${safeText(x.uid)}</td>
-    <td class="pass-cell">
-      <span class="pass-hidden">••••••</span>
-      <span class="pass-reveal">${safeText(x.u.password||'-')}</span>
-    </td>
-    <td>${x.today}</td><td>${x.total}</td><td>${x.withdraws}</td>
-    <td>${dateText(x.u.joinedAt)}</td>
-    <td style="color:var(--gold);font-weight:700">৳${Number(x.u.balance||0).toFixed(2)}</td>
-    <td><button class="btn btn-danger" style="padding:7px 10px;font-size:11px;white-space:nowrap" onclick="deleteUser('${encodeURIComponent(x.key)}','${encodeURIComponent(x.uid)}')">🗑️ Delete</button></td>
-  </tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text2)">কোনো ইউজার পাওয়া যায়নি</td></tr>';
-}
+  db.ref('settings').on('value',s=>{
+    const d=s.val()||{};
+    db.ref('config').once('value').then(cs=>{ const c=cs.val()||{}; syncMainConfigFields(c); });
 
-/* DELETE USER + RELATED WITHDRAWAL HISTORY */
-async function deleteUser(encodedKey, encodedUid){
-  const userKey=decodeURIComponent(encodedKey||'');
-  const uid=String(decodeURIComponent(encodedUid||''));
-  const user=cachedUsers?.[userKey];
-  if(!user){ toast('ইউজার পাওয়া যায়নি। তালিকা রিফ্রেশ করুন।','err'); return; }
-  const label=user.name||uid||userKey;
-  if(!confirm(`আপনি কি নিশ্চিতভাবে “${label}” ইউজারকে Delete করতে চান?\n\nতার User Data এবং সংশ্লিষ্ট সব Withdraw History Firebase থেকে স্থায়ীভাবে মুছে যাবে। এই কাজ Undo করা যাবে না।`)) return;
-  const second=prompt('নিশ্চিত করতে DELETE লিখুন:');
-  if(second!=='DELETE'){ toast('Delete বাতিল করা হয়েছে।','err'); return; }
-  try{
-    const wsSnap=await dbGet('withdrawals');
-    const withdrawals=wsSnap.exists()?wsSnap.val():{};
-    const updates={};
-    updates[`users/${userKey}`]=null;
-    let removedWithdrawals=0;
-    for(const [withdrawalId,w] of Object.entries(withdrawals||{})){
-      const linkedUid=String(w?.uid??w?.userId??w?.telegramId??'');
-      if(linkedUid===uid || linkedUid===String(userKey)){
-        updates[`withdrawals/${withdrawalId}`]=null;
-        removedWithdrawals++;
-      }
+    // Render lists — safe, always from Firebase
+    renderAdsT(d.ads||[]);
+    renderSupT(d.supportCards||[]);
+
+    // Populate UI inputs from Firebase data
+    if(d.welcomeBonus!=null)  document.getElementById('swel').value=d.welcomeBonus;
+    if(d.botUsername)         document.getElementById('sbot').value=d.botUsername;
+    if(d.botToken)            document.getElementById('sBotToken').value=d.botToken;
+    if(d.welcome){
+      document.getElementById('welEnabled').checked = d.welcome.enabled||false;
+      document.getElementById('welEmoji').value  = d.welcome.emoji||'🎉';
+      document.getElementById('welTitle').value  = d.welcome.title||'Welcome!';
+      document.getElementById('welMsg').value    = d.welcome.message||'';
     }
-    // One atomic multi-location update: either all selected records are removed or none are.
-    await dbUpdate('',updates);
-    delete cachedUsers[userKey];
-    for(const [id,w] of Object.entries(cachedUserWithdrawals||{})){
-      const linkedUid=String(w?.uid??w?.userId??w?.telegramId??'');
-      if(linkedUid===uid || linkedUid===String(userKey)) delete cachedUserWithdrawals[id];
+    if(d.video){
+      document.getElementById('vt').value=d.video.title||'';
+      document.getElementById('vu').value=d.video.url||'';
+      if(d.video.url) showVP(d.video.url);
     }
-    renderAllUsers();
-    toast(`ইউজার এবং ${removedWithdrawals}টি Withdraw History মুছে ফেলা হয়েছে।`);
-    loadDashboard().catch(()=>{});
-  }catch(err){
-    console.error('Delete user failed:',err);
-    toast('Delete করা যায়নি: '+(err?.message||'Firebase error'),'err');
+    if(d.autoReject){
+      document.getElementById('arEnabled').checked = d.autoReject.enabled||false;
+      document.getElementById('arHours').value     = d.autoReject.hours||1;
+      document.getElementById('arReason').value    = d.autoReject.reason||'সময়মতো প্রসেস করা হয়নি';
+    }
+    if(d.credentials) loadCreds(d.credentials);
+    if(d.watchChain)  loadChain('wc',d.watchChain);
+    if(d.withdrawChain) loadChain('wd',d.withdrawChain);
+
+    // ── Mark settings as loaded (first fire complete) ──
+    if(!_settingsLoaded){
+      _settingsLoaded = true;
+      _guardBanner(true);
+    }
+  });
+}
+
+function setCnt(chain,n){
+  if(chain==='wc') wcCount=n; else wdCount=n;
+  document.getElementById(chain+'-count').value=n;
+  document.getElementById(chain+'-cnt').querySelectorAll('.cnt-opt').forEach(el=>{
+    el.classList.toggle('active',parseInt(el.getAttribute('data-n'))===n);
+  });
+  renderSlots(chain,n);
+}
+
+function renderSlots(chain,count,saved=[]){
+  const c=document.getElementById(chain+'-slots');
+  let h='';
+  for(let i=0;i<count;i++){
+    const raw=saved[i]||'adsgram';
+    const sv=typeof raw==='string'?raw:(raw.name||'adsgram');
+    const link=typeof raw==='object'?(raw.link||''):'';
+    h+=`<div class="slot-row" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><div class="slot-num">${i+1}</div><div class="slot-lbl">Slot ${i+1}</div><select class="slot-select" id="${chain}-slot-${i}" onchange="toggleSlotLink('${chain}',${i})"><option value="adsgram" ${sv==='adsgram'?'selected':''}>🎯 Adsgram</option><option value="monetag" ${sv==='monetag'?'selected':''}>💰 Monetag</option><option value="adsterra" ${sv==='adsterra'?'selected':''}>⭐ Adsterra</option></select><input type="url" id="${chain}-link-${i}" value="${String(link).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" placeholder="এই Adsterra slot-এর Direct Link" style="display:${sv==='adsterra'?'block':'none'};flex:1;min-width:220px" /></div>`;
   }
+  c.innerHTML=h;
+}
+function toggleSlotLink(chain,i){
+  const sel=document.getElementById(`${chain}-slot-${i}`);
+  const input=document.getElementById(`${chain}-link-${i}`);
+  if(input) input.style.display=sel&&sel.value==='adsterra'?'block':'none';
+}
+function getSlots(chain){
+  const n=chain==='wc'?wcCount:wdCount;
+  return Array.from({length:n},(_,i)=>{
+    const el=document.getElementById(`${chain}-slot-${i}`);
+    const name=el?el.value:'adsgram';
+    return name==='adsterra'?{name,link:(document.getElementById(`${chain}-link-${i}`)?.value||'').trim()}:name;
+  });
 }
 
-/* POST SETTINGS */
-let fbGroupFieldCount=0;
-function addFacebookGroupField(group={}){
-  const container=document.getElementById('fbGroupFields');
-  if(!container) return;
-  const id=++fbGroupFieldCount;
-  const row=document.createElement('div');
-  row.className='form-row';
-  row.style.cssText='align-items:end;margin-bottom:10px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;';
-  row.innerHTML=`<div class="form-group"><label class="lbl">Group ${id} নাম</label><input class="inp fb-group-name" placeholder="যেমন: CoinsX Community"></div>
-    <div class="form-group"><label class="lbl">Group ${id} URL</label><input class="inp fb-group-url" type="url" placeholder="https://www.facebook.com/groups/..."></div>
-    <button type="button" class="btn" style="background:rgba(255,77,109,.15);color:var(--red);height:42px;" onclick="this.closest('.form-row').remove()">✕</button>`;
-  row.querySelector('.fb-group-name').value=group.name||'';
-  row.querySelector('.fb-group-url').value=group.url||'';
-  container.appendChild(row);
+function toggleNC(n){document.getElementById('nc-'+n).classList.toggle('on',document.getElementById(n+'-active').checked);}
+
+function loadCreds(c){
+  ['adsgram','monetag','adsterra'].forEach(n=>{
+    const d=c[n]; if(!d)return;
+    const cb=document.getElementById(n+'-active');
+    if(cb){cb.checked=d.active||false;toggleNC(n);}
+    if(n==='adsgram'&&d.blockId) document.getElementById('adsgram-blockId').value=d.blockId;
+    if(n==='monetag'){
+      if(d.zoneId) document.getElementById('monetag-zoneId').value=d.zoneId;
+      if(d.type)   document.getElementById('monetag-type').value=d.type;
+    }
+    if(n==='adsterra'){
+      if(d.link)   document.getElementById('adsterra-link').value=d.link;
+      if(d.script) document.getElementById('adsterra-script').value=d.script;
+    }
+  });
 }
-async function loadPostSettings(){
-  try{
-    const snap=await dbGet('config');
-    const cfg=snap.exists()?snap.val():{};
-    document.getElementById('postEarnAmount').value=cfg.postEarnAmount??2;
-    document.getElementById('postDailyLimit').value=cfg.postDailyLimit??10;
-    document.getElementById('postWindowHours').value=cfg.postWindowHours??0;
-    document.getElementById('postWindowMinutes').value=cfg.postWindowMinutes??0;
-    document.getElementById('postWindowLimit').value=cfg.postWindowLimit??0;
-    document.getElementById('postTargetUrl').value=cfg.postTargetUrl??'';
-    const container=document.getElementById('fbGroupFields');
-    container.innerHTML=''; fbGroupFieldCount=0;
-    const groups=Array.isArray(cfg.fbGroups)?cfg.fbGroups:Object.values(cfg.fbGroups||{});
-    groups.forEach(g=>addFacebookGroupField(g));
-    if(!groups.length) addFacebookGroupField();
-  }catch(err){ console.error(err); toast('পোস্ট সেটিং লোড হয়নি','err'); }
+
+// ── SAVE CREDENTIALS — reset guard ──
+async function saveCreds(){
+  if(!_requireSettingsLoaded('saveCreds')) return;
+  const c={
+    adsgram:{active:document.getElementById('adsgram-active').checked,blockId:document.getElementById('adsgram-blockId').value.trim()},
+    monetag:{active:document.getElementById('monetag-active').checked,zoneId:document.getElementById('monetag-zoneId').value.trim(),type:document.getElementById('monetag-type').value},
+    adsterra:{active:document.getElementById('adsterra-active').checked,link:document.getElementById('adsterra-link').value.trim(),script:document.getElementById('adsterra-script').value.trim()}
+  };
+  await db.ref('settings/credentials').set(c);
+  showToast('✅ Credentials সংরক্ষিত হয়েছে!');
 }
-async function savePostSettings(){
-  const earn=parseFloat(document.getElementById('postEarnAmount').value);
-  const limit=parseInt(document.getElementById('postDailyLimit').value,10);
-  const windowHours=parseInt(document.getElementById('postWindowHours').value||'0',10);
-  const windowMinutes=parseInt(document.getElementById('postWindowMinutes').value||'0',10);
-  const windowLimit=parseInt(document.getElementById('postWindowLimit').value||'0',10);
-  const url=document.getElementById('postTargetUrl').value.trim();
-  const fbGroups=[];
-  const rows=[...document.querySelectorAll('#fbGroupFields .form-row')];
-  for(let i=0;i<rows.length;i++){
-    const name=rows[i].querySelector('.fb-group-name').value.trim();
-    const groupUrl=rows[i].querySelector('.fb-group-url').value.trim();
-    if(!name&&!groupUrl) continue;
-    if(!name||!groupUrl){ toast(`Group ${i+1}: নাম ও URL দিন`,'err'); return; }
-    let p; try{ p=new URL(groupUrl); }catch(_){ toast(`Group ${i+1}: সঠিক URL দিন`,'err'); return; }
-    if(!['http:','https:'].includes(p.protocol)){ toast(`Group ${i+1}: সঠিক URL দিন`,'err'); return; }
-    fbGroups.push({name,url:p.href});
+
+function loadChain(prefix,data){
+  if(!data)return;
+  const n=data.count||1;
+  if(prefix==='wc'){
+    wcCount=n;
+    if(data.reward!=null)      document.getElementById('wc-reward').value=data.reward;
+    if(data.cooldownSec!=null) document.getElementById('wc-cooldown').value=data.cooldownSec;
+    if(data.dailyLimit!=null)  document.getElementById('wc-dailylimit').value=data.dailyLimit;
   }
-  if(!Number.isFinite(earn)||earn<0){ toast('সঠিক আয়ের পরিমাণ দিন','err'); return; }
-  if(!Number.isInteger(limit)||limit<1){ toast('সঠিক দৈনিক লিমিট দিন','err'); return; }
-  const windowDurationMs=(windowHours*60+windowMinutes)*60000;
-  if((windowDurationMs===0)!==(windowLimit===0)){ toast('সময় ও লিমিট একসাথে সেট করুন অথবা দুটোই ০ রাখুন','err'); return; }
-  let parsed; try{ parsed=new URL(url); }catch(_){ toast('সঠিক Target URL দিন','err'); return; }
-  if(!['http:','https:'].includes(parsed.protocol)){ toast('Target URL https:// হতে হবে','err'); return; }
-  const btn=document.querySelector('#tab-post button[onclick="savePostSettings()"]');
-  if(btn) btn.disabled=true;
+  if(prefix==='wd'){
+    wdCount=n;
+    if(data.message) document.getElementById('wd-msg').value=data.message;
+    document.getElementById('wd-enabled').checked=data.enabled||false;
+    toggleWdChain();
+  }
+  document.getElementById(prefix+'-count').value=n;
+  document.getElementById(prefix+'-cnt').querySelectorAll('.cnt-opt').forEach(el=>{
+    el.classList.toggle('active',parseInt(el.getAttribute('data-n'))===n);
+  });
+  renderSlots(prefix,n,data.slots||[]);
+  renderChainPreview(prefix,data);
+}
+
+// ── SAVE CHAIN — reset guard ──
+async function saveChain(type){
+  if(!_requireSettingsLoaded('saveChain')) return;
+  const p=type==='watch'?'wc':'wd';
+  const slots=getSlots(p);
+  const data={count:p==='wc'?wcCount:wdCount,slots,enabled:p==='wd'?document.getElementById('wd-enabled').checked:true};
+  if(p==='wc'){
+    const rewardVal = parseFloat(document.getElementById('wc-reward').value);
+    const cooldownVal = parseInt(document.getElementById('wc-cooldown').value);
+    const limitVal = parseInt(document.getElementById('wc-dailylimit').value);
+    // NaN guard — prevent saving invalid values
+    data.reward     = isNaN(rewardVal)   ? 0.5  : rewardVal;
+    data.cooldownSec= isNaN(cooldownVal) ? 30   : cooldownVal;
+    data.dailyLimit = isNaN(limitVal)    ? 5    : limitVal;
+  }
+  if(p==='wd') data.message=document.getElementById('wd-msg').value.trim();
+  await db.ref('settings/'+(type==='watch'?'watchChain':'withdrawChain')).set(data);
+  renderChainPreview(p,data);
+  showToast(`✅ ${type==='watch'?'Watch':'Withdraw'} Chain সংরক্ষিত!`);
+}
+
+function toggleWdChain(){
+  const on=document.getElementById('wd-enabled').checked;
+  document.getElementById('wdChainCard').classList.toggle('chain-enabled',on);
+  const b=document.getElementById('wdBadge');
+  b.textContent=on?'ON':'OFF';
+  b.style.background=on?'var(--gs)':'var(--ys)';
+  b.style.color=on?'var(--green)':'var(--yellow)';
+  b.style.borderColor=on?'rgba(0,224,150,.3)':'rgba(255,200,74,.3)';
+}
+
+function renderChainPreview(prefix,data){
+  const el=document.getElementById(prefix+'-preview');
+  const slots=(data.slots||[]).map(x=>typeof x==='string'?x:(x.name||'adsgram'));
+  const ic={adsgram:'🎯',monetag:'💰',adsterra:'⭐'};
+  const nm={adsgram:'Adsgram',monetag:'Monetag',adsterra:'Adsterra'};
+  const reward=prefix==='wc'?(data.reward||0.5):null;
+  if(!slots.length){
+    el.innerHTML=`<span style="color:var(--muted);font-size:12px">Save করলে দেখাবে</span>`;
+    return;
+  }
+  el.innerHTML=`<div class="fp-chip" style="background:${prefix==='wc'?'var(--ys)':'var(--gs)'};color:${prefix==='wc'?'var(--yellow)':'var(--green)'}">${prefix==='wc'?'▶ Watch':'💸 Withdraw'}</div><span style="color:var(--muted)">→</span>${slots.map((net,i)=>`<div class="fp-chip" style="background:rgba(255,255,255,.06);color:var(--text)">${ic[net]||'?'} ${nm[net]||net}<span style="background:var(--accent);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px">#${i+1}</span></div>${i<slots.length-1?'<span style="color:var(--muted)">→</span>':''}`).join('')}<span style="color:var(--muted)">→</span><div class="fp-chip" style="background:${prefix==='wc'?'var(--ys)':'var(--gs)'};color:${prefix==='wc'?'var(--yellow)':'var(--green)'}">${prefix==='wc'?`🎉 ৳${Number(reward).toFixed(2)}`:'✅ Submit'}</div>`;
+}
+
+// ── DASHBOARD ──
+function renderDash(){
+  const u=Object.entries(AU).map(([id,x])=>({...x,uid:x.uid||id}));
+  document.getElementById('st-u').textContent=u.length;
+  document.getElementById('st-c').textContent=(u.reduce((a,x)=>a+(Number(x.totalEarned)||0),0)).toFixed(2);
+  document.getElementById('ucl').textContent=u.length+' জন ইউজার';
+
+  // FIX: _toArr() দিয়ে Firebase object→array convert করে today's ads গণনা
+  const todayTotal=u.reduce((s,x)=>s+getTodayAds(x),0);
+  document.getElementById('st-tada').textContent=todayTotal;
+
+  const rec=[...u].sort((a,b)=>new Date(b.joinedAt||0)-new Date(a.joinedAt||0)).slice(0,8);
+  const t=document.getElementById('rut');
+  if(!rec.length){t.innerHTML=`<tr class="erow"><td colspan="5">কোনো ইউজার নেই</td></tr>`;return;}
+  t.innerHTML=rec.map(u=>`<tr class="${u.blocked?'blocked-row':''}"><td><strong>${u.name||u.userName||'?'}</strong></td><td style="font-family:monospace;color:var(--muted);font-size:12px">${u.uid||u.userId}</td><td style="color:var(--taka);font-weight:700">৳ ${Number(u.balance||0).toFixed(2)}</td><td>${ta(u.joinedAt)}</td><td>${adsBadge(getTodayAds(u))}</td></tr>`).join('');
+}
+
+function renderPendDash(){
+  const pend=Object.entries(AW).filter(([,v])=>v.status==='pending').map(([k,v])=>({id:k,...v}));
+  document.getElementById('st-w').textContent=pend.length;
+  const t=document.getElementById('pwt');
+  if(!pend.length){t.innerHTML=`<tr class="erow"><td colspan="6">কোনো অনুরোধ নেই</td></tr>`;return;}
+  t.innerHTML=pend.slice(0,5).map(w=>`<tr><td><strong>${(w.name||w.userName||'—')}</strong></td><td>${w.method||w.walletLabel||w.wallet||'—'}</td><td style="font-family:monospace;font-size:12px">${w.number||w.account||'—'}</td><td style="color:var(--taka);font-weight:700">৳ ${Number(w.amount).toFixed(2)}</td><td style="color:var(--muted);font-size:11px">${ta(w.requestedAt||w.createdAt)}</td><td><div style="display:flex;gap:6px"><button class="btn bg bsm" onclick="apprWd('${w.id}')">✓</button><button class="btn br bsm" onclick="openRej('${w.id}','${w.uid||w.userId}',${w.amount})">✗</button></div></td></tr>`).join('');
+}
+
+function updateBadge(){
+  const c=Object.values(AW).filter(v=>v.status==='pending').length;
+  const b=document.getElementById('pbadge');
+  b.textContent=c;
+  b.style.display=c>0?'inline':'none';
+}
+
+// ── DATE FILTER ──
+function applyDateFilter(){clearUserSelection();filterUsers();}
+function clearDateFilter(){
+  document.getElementById('dfFrom').value='';
+  document.getElementById('dfTo').value='';
+  const res=document.getElementById('dfResult');
+  res.textContent='';res.classList.remove('show');
+  clearUserSelection();filterUsers();
+}
+
+// ── USERS ──
+function renderUsers(f=''){
+  let u=Object.entries(AU).map(([id,x])=>({...x,uid:x.uid||id}));
+  if(f) u=u.filter(x=>(x.name||x.userName||'').toLowerCase().includes(f)||String(x.uid||x.userId||'').includes(f)||(x.mobile||'').includes(f));
+
+  const fromVal=document.getElementById('dfFrom')?.value;
+  const toVal  =document.getElementById('dfTo')?.value;
+  let dateFiltered=false;
+  if(fromVal||toVal){
+    dateFiltered=true;
+    const fromTs=fromVal?new Date(fromVal).setHours(0,0,0,0):null;
+    const toTs  =toVal  ?new Date(toVal).setHours(23,59,59,999):null;
+    u=u.filter(x=>{
+      if(!x.joinedAt) return false;
+      const joined=new Date(x.joinedAt).getTime();
+      if(fromTs && joined<fromTs) return false;
+      if(toTs   && joined>toTs  ) return false;
+      return true;
+    });
+  }
+
+  const res=document.getElementById('dfResult');
+  if(dateFiltered&&res){res.textContent=`${u.length} জন পাওয়া গেছে`;res.classList.add('show');}
+  else if(res){res.classList.remove('show');}
+
+  document.getElementById('ucl').textContent=u.length+' জন ইউজার';
+  u.sort((a,b)=>new Date(b.joinedAt||0)-new Date(a.joinedAt||0));
+  const t=document.getElementById('utbl');
+  if(!u.length){
+    t.innerHTML=`<tr class="erow"><td colspan="14">${dateFiltered?'এই তারিখ পরিসরে কোনো ইউজার নেই':'কোনো ইউজার নেই'}</td></tr>`;
+    return;
+  }
+  t.innerHTML=u.map(x=>`
+    <tr class="${x.blocked?'blocked-row':''}">
+      <td><input type="checkbox" class="u-checkbox" data-id="${x.uid||x.userId}" onchange="userSelectToggle(this)"></td>
+      <td><strong>${x.name||x.userName||'?'}</strong></td>
+      <td style="font-family:monospace;font-size:11px;color:var(--muted)">${x.uid||x.userId}</td>
+      <td style="font-size:11px">${x.mobile||'—'}</td><td style="font-size:11px;max-width:90px;word-break:break-all">${x.password||'—'}</td>
+      <td style="color:var(--taka);font-weight:700">৳ ${Number(x.balance||0).toFixed(2)}</td>
+      <td style="color:var(--green)">৳ ${Number(x.totalEarned||0).toFixed(2)}</td>
+      <td style="color:var(--red)">৳ ${Number(x.totalWithdrawn||Object.values(AW).filter(w=>String(w.uid||w.userId)===String(x.uid||x.userId)&&w.status==='approved').reduce((a,w)=>a+Number(w.amount||0),0)).toFixed(2)}</td>
+      <td style="color:var(--accent);font-weight:600">${Number(x.referCount||0)}</td>
+      <td style="color:var(--accent);font-weight:600">${Object.values(AW).filter(w=>String((w.uid||w.userId))===String((x.uid||x.userId))).length}</td>
+      <td style="color:var(--muted);font-size:11px">${fd(x.joinedAt)}</td>
+      <td>${adsBadge(getTodayAds(x))}</td>
+      <td><span class="bdg ${x.blocked?'b-blk':'b-ok'}">${x.blocked?'🚫 ব্লক':'✅ সক্রিয়'}</span></td>
+      <td><div style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn bgh bsm" onclick="openBal('${x.uid||x.userId}','${x.name||x.userName||'?'}')">💰</button>
+        ${x.blocked
+          ?`<button class="btn bg bsm" onclick="toggleBlock('${x.uid||x.userId}',false)">✅ Unblock</button>`
+          :`<button class="btn br bsm" onclick="toggleBlock('${x.uid||x.userId}',true)">🚫 Block</button>`}
+        <button class="btn bsm" style="background:rgba(255,50,50,.15);color:#ff4444;border:1px solid rgba(255,50,50,.3)" onclick="deleteUser('${x.uid||x.userId}','${x.name||x.userName||'?'}')">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function filterUsers(){renderUsers(document.getElementById('usrch').value.toLowerCase());}
+
+async function toggleBlock(uid,block){
+  const msg=block?'এই ইউজারকে ব্লক করবেন?':'এই ইউজারকে আনব্লক করবেন?';
+  if(!confirm(msg))return;
+  await db.ref('users/'+uid).update({blocked:block});
+  showToast(block?'🚫 ইউজার ব্লক করা হয়েছে!':'✅ ইউজার আনব্লক করা হয়েছে!');
+}
+
+async function deleteUser(uid,name){
+  if(!confirm(`"${name}" এর সমস্ত ডেটা মুছে ফেলবেন?\nUser + সব Withdrawal history চিরতরে মুছে যাবে!`))return;
+  if(!confirm('আপনি কি নিশ্চিত? এই কাজ পূর্বাবস্থায় ফেরানো যাবে না!'))return;
   try{
-    await dbUpdate('config',{ postEarnAmount:earn,postDailyLimit:limit,postWindowHours:windowHours,postWindowMinutes:windowMinutes,postWindowLimit:windowLimit,postTargetUrl:parsed.href,fbGroups });
-    document.getElementById('postTargetUrl').value=parsed.href;
-    toast('✅ পোস্ট সেটিং সেভ হয়েছে!');
-  }catch(err){ console.error(err); toast('সেভ হয়নি। Firebase সংযোগ পরীক্ষা করুন।','err'); }
-  finally{ if(btn) btn.disabled=false; }
+    const userBefore=AU[uid]||{};
+    await db.ref('users/'+uid).remove();
+    if(userBefore.mobile) await db.ref('mobileIndex/'+String(userBefore.mobile).replace(/\./g,'_')).remove();
+    const ws=await db.ref('withdrawals').get();
+    if(ws.exists()){
+      const dels=[];
+      ws.forEach(c=>{if(String(c.val().uid||c.val().userId)===String(uid))dels.push(db.ref('withdrawals/'+c.key).remove());});
+      await Promise.all(dels);
+    }
+    showToast('🗑️ ইউজার ও সকল ডেটা মুছে ফেলা হয়েছে!');
+  }catch(e){showToast('❌ Error: '+e.message);}
 }
 
-/* TASKS */
-async function loadTasksAdmin(){
-  const snap=await dbGet('config/tasks');
-  const tasks=snap.exists()?snap.val():{};
-  const keys=Object.keys(tasks);
-  const el=document.getElementById('taskListAdmin');
-  if(keys.length===0){ el.innerHTML='<p style="color:var(--text2);font-size:13px;">কোনো টাস্ক নেই।</p>'; return; }
-  el.innerHTML=keys.map(k=>`<div class="task-row">
-    <div class="tr-name">${tasks[k].icon||''} ${tasks[k].name}</div>
-    <div class="tr-reward">৳${Number(tasks[k].reward).toFixed(0)}</div>
-    <div style="font-size:11px;color:var(--text2);flex:1;">${tasks[k].desc||''}</div>
-    <button class="btn btn-danger btn-sm" onclick="deleteTask('${k}')">🗑️ মুছুন</button></div>`).join('');
-}
-async function addTask(){
-  const name=document.getElementById('newTaskName').value.trim();
-  const desc=document.getElementById('newTaskDesc').value.trim();
-  const reward=parseFloat(document.getElementById('newTaskReward').value);
-  const link=document.getElementById('newTaskLink').value.trim();
-  const icon=document.getElementById('newTaskIcon').value.trim()||'✅';
-  if(!name||isNaN(reward)){ toast('নাম ও পুরস্কার আবশ্যক','err'); return; }
-  const key='t'+Date.now();
-  await dbSet(`config/tasks/${key}`,{name,desc,reward,link,icon});
-  toast('✅ টাস্ক যোগ হয়েছে!');
-  ['newTaskName','newTaskDesc','newTaskReward','newTaskLink','newTaskIcon'].forEach(id=>document.getElementById(id).value='');
-  loadTasksAdmin();
-}
-async function deleteTask(key){
-  if(!confirm('এই টাস্কটি মুছবেন?')) return;
-  await dbRemove(`config/tasks/${key}`);
-  toast('টাস্ক মুছা হয়েছে');
-  loadTasksAdmin();
-}
-
-/* WITHDRAWALS */
-let allWithdrawals=null;
-let currentWithdrawalFilter='pending';
-const withdrawalBusy=new Set();
-function activeWithdrawalFilter(){ return currentWithdrawalFilter || 'pending'; }
-async function loadWithdrawals(filter='pending'){
-  currentWithdrawalFilter=filter;
-  const snap=await dbGet('withdrawals');
-  allWithdrawals=snap.exists()?snap.val():{};
-  renderWithdrawTable(filter);
-}
-function filterWithdrawals(filter,el){
-  currentWithdrawalFilter=filter;
-  document.querySelectorAll('#tab-withdrawals .tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  if(!allWithdrawals) loadWithdrawals(filter);
-  else renderWithdrawTable(filter);
-}
-async function renderWithdrawTable(filter){
-  const entries=Object.entries(allWithdrawals||{}).filter(([,v])=>filter==='all'||v.status===filter).sort(([,a],[,b])=>(b.requestedAt||0)-(a.requestedAt||0));
-  const mi={bkash:'📱',nagad:'🟠',rocket:'🚀'};
-  const tBody=document.getElementById('withdrawTbody');
-  if(entries.length===0){ tBody.innerHTML=`<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text2);">কোনো এন্ট্রি নেই</td></tr>`; return; }
-  const usersSnap=await dbGet('users');
-  const userMap=usersSnap.exists()?usersSnap.val():{};
-  const today=adminTodayKey();
-  tBody.innerHTML=entries.map(([key,v])=>{
-    const u=userMap[String(v.uid)]||{};
-    const totalPosts=Number(u.postCopyCount||0);
-    const todayPosts=Number((u.dailyPost||{})[today]||0);
-    return `<tr>
-      <td>${safeText(v.name||u.name||'-')}</td>
-      <td style="font-family:monospace">${safeText(v.mobile||u.mobile||'-')}</td>
-      <td style="font-family:monospace;font-size:11px">${safeText(v.uid||'-')}</td>
-      <td style="color:var(--gold);font-weight:700">৳${Number(v.amount||0).toFixed(2)}</td>
-      <td>${mi[v.method]||''} ${safeText((v.method||'-').toUpperCase())}</td>
-      <td style="font-family:monospace">${safeText(v.number||'-')}</td>
-      <td>${todayPosts}</td><td>${totalPosts}</td>
-      <td>${dateText(u.joinedAt)}</td><td>${dateText(v.requestedAt)}</td>
-      <td><span class="status-badge ${v.status}">${v.status==='pending'?'অপেক্ষমান':v.status==='approved'?'অনুমোদিত':'বাতিল'}</span>${v.status==='rejected'&&v.reason?`<div style="font-size:11px;color:var(--red);margin-top:5px;max-width:180px;white-space:normal;">${safeText(v.reason)}</div>`:''}</td>
-      <td style="display:flex;gap:6px;">
-        ${v.status==='pending'?`<button class="btn btn-success btn-sm" onclick="updateWithdrawal('${key}','approved')">✅</button><button class="btn btn-danger btn-sm" onclick="updateWithdrawal('${key}','rejected')">❌</button>`:'<span style="font-size:11px;color:var(--text2);">সম্পন্ন</span>'}
-      </td></tr>`;
+// ── WITHDRAWALS ──
+function renderWd(){
+  let it=Object.entries(AW).map(([k,v])=>({id:k,...v}));
+  if(wdf!=='all') it=it.filter(w=>w.status===wdf);
+  it.sort((a,b)=>Number(b.requestedAt||b.createdAt||0)-Number(a.requestedAt||a.createdAt||0));
+  const sM={pending:'b-p',approved:'b-a',rejected:'b-r'};
+  const sL={pending:'⏳ অপেক্ষমান',approved:'✓ অনুমোদিত',rejected:'✗ প্রত্যাখ্যাত'};
+  const t=document.getElementById('wdt');
+  if(!it.length){t.innerHTML=`<tr class="erow"><td colspan="11">কোনো উত্তোলন নেই</td></tr>`;return;}
+  bulkSelected.clear();updateBulkBar();
+  t.innerHTML=it.map(w=>{
+    const uData=AU[(w.uid||w.userId)]||{};
+    const uBal=Number(uData.balance||0).toFixed(2);
+    const isBlocked=uData.blocked||false;
+    const isPending=w.status==='pending';
+    return`<tr class="${isBlocked?'blocked-row':''}" id="wrow_${w.id}">
+      <td>${isPending?`<input type="checkbox" class="wd-checkbox" data-id="${w.id}" data-uid="${(w.uid||w.userId)}" data-amt="${w.amount}" onchange="bulkToggle(this)">`:'—'}</td>
+      <td><strong>${(w.name||w.userName||'—')}</strong><br><span style="font-size:11px;color:var(--muted)">${(w.uid||w.userId)}</span></td>
+      <td style="color:var(--accent);font-weight:600">${Object.values(AW).filter(v=>String(v.uid||v.userId)===String(w.uid||w.userId)).length}</td>
+      <td style="color:var(--taka);font-weight:700">৳ ${uBal}</td>
+      <td>${adsBadge(getTodayAds(uData))}</td>
+      <td>${w.method||w.walletLabel||w.wallet||'—'}</td>
+      <td style="font-family:monospace;font-size:12px">${w.number||w.account||'—'}</td>
+      <td style="color:var(--taka);font-weight:700">৳ ${Number(w.amount).toFixed(2)}</td>
+      <td><span class="bdg ${sM[w.status]||'b-p'}">${sL[w.status]||'অপেক্ষমান'}</span>${w.status==='rejected'&&w.reason?`<br><span style="font-size:11px;color:var(--red)">${w.reason}</span>`:''}</td>
+      <td style="color:var(--muted);font-size:12px">${fd(w.requestedAt||w.createdAt)}</td>
+      <td><div style="display:flex;gap:5px;flex-wrap:wrap">${isPending?`<button class="btn bg bsm" onclick="apprWd('${w.id}')">✓</button><button class="btn br bsm" onclick="openRej('${w.id}','${w.uid||w.userId}',${w.amount})">✗</button>`:''}<br>${isBlocked?`<button class="btn bg bsm" onclick="toggleBlock('${(w.uid||w.userId)}',false)">✅ Unblock</button>`:`<button class="btn br bsm" onclick="toggleBlock('${(w.uid||w.userId)}',true)">🚫 Block</button>`}</div></td>
+    </tr>`;
   }).join('');
 }
 
-async function refundRejectedWithdrawal(withdrawalId, withdrawal, source){
-  const w = withdrawal || {};
-  const uid = String(w.uid || w.userId || w.telegramId || '').trim();
-  const amount = Number(w.amount);
-  if(!uid || !Number.isFinite(amount) || amount <= 0){
-    await dbUpdate(`withdrawals/${withdrawalId}`, {refundError: !uid ? 'missing_uid' : 'invalid_amount'});
-    throw new Error(!uid ? 'Withdraw record-এ uid/userId নেই' : 'Withdraw amount সঠিক নয়');
+// ── BULK SELECTION (Withdrawals) ──
+let bulkSelected=new Set();
+function bulkToggle(cb){
+  const id=cb.dataset.id,uid=cb.dataset.uid,amt=parseFloat(cb.dataset.amt);
+  if(cb.checked){bulkSelected.add(JSON.stringify({id,uid,amt}));document.getElementById('wrow_'+id)?.classList.add('sel-row');}
+  else{bulkSelected.delete(JSON.stringify({id,uid,amt}));document.getElementById('wrow_'+id)?.classList.remove('sel-row');}
+  updateBulkBar();
+}
+function bulkToggleAll(checked){
+  document.querySelectorAll('#wdt input[type=checkbox][data-id]').forEach(cb=>{
+    cb.checked=checked;
+    const id=cb.dataset.id,uid=cb.dataset.uid,amt=parseFloat(cb.dataset.amt);
+    if(checked){bulkSelected.add(JSON.stringify({id,uid,amt}));document.getElementById('wrow_'+id)?.classList.add('sel-row');}
+    else{bulkSelected.delete(JSON.stringify({id,uid,amt}));document.getElementById('wrow_'+id)?.classList.remove('sel-row');}
+  });
+  updateBulkBar();
+}
+function bulkSelectAll(){bulkToggleAll(true);}
+function bulkClearAll(){bulkToggleAll(false);}
+function updateBulkBar(){
+  const n=bulkSelected.size;
+  const bar=document.getElementById('bulkBar');
+  if(bar){bar.classList.toggle('show',n>0);document.getElementById('bulkCount').textContent=n+'টি selected';}
+}
+async function bulkApprove(){
+  if(!bulkSelected.size)return showToast('⚠️ কিছু select করুন');
+  if(!confirm(bulkSelected.size+'টি withdrawal approve করবেন?'))return;
+  const items=[...bulkSelected].map(s=>JSON.parse(s));
+  showToast('⏳ Processing...');
+  for(const w of items){await db.ref('withdrawals/'+w.id).update({status:'approved',processedAt:Date.now(),manualProcessed:true});}
+  bulkSelected.clear();updateBulkBar();
+  showToast('✅ '+items.length+'টি approved!');
+}
+function openBulkReject(){
+  if(!bulkSelected.size)return showToast('⚠️ কিছু select করুন');
+  document.getElementById('brr').value='';
+  document.getElementById('bulkRejMod').classList.add('open');
+}
+async function confirmBulkReject(){
+  const r=document.getElementById('brr').value.trim();
+  if(!r)return showToast('⚠️ কারণ লিখুন');
+  const items=[...bulkSelected].map(s=>JSON.parse(s));
+  showToast('⏳ Processing...');
+  for(const w of items){
+    const snap=await db.ref('withdrawals/'+w.id).get();
+    const current=snap.val()||{};
+    if(current.status!=='pending') continue;
+    if(current.userRefunded!==true){
+      const tx=await db.ref('users/'+w.uid+'/balance').transaction(v=>(Number(v)||0)+w.amt);
+      if(!tx.committed) throw new Error('Refund failed for '+w.uid);
+    }
+    await db.ref('withdrawals/'+w.id).update({status:'rejected',reason:r,userRefunded:true,refundRequired:false,processedAt:Date.now(),manualProcessed:true});
+  }
+  bulkSelected.clear();updateBulkBar();cm('bulkRejMod');
+  showToast('✗ নির্বাচিত withdrawal reject ও balance refund সম্পন্ন!');
+}
+
+function fw(f){wdf=f;renderWd();}
+async function apprWd(id){await db.ref('withdrawals/'+id).update({status:'approved',processedAt:Date.now(),manualProcessed:true});showToast('✅ অনুমোদিত হয়েছে!');}
+function openRej(id,uid,amt){
+  document.getElementById('rwi').value=id;
+  document.getElementById('rui').value=uid;
+  document.getElementById('ram').value=amt;
+  document.getElementById('rr').value='';
+  document.getElementById('rejMod').classList.add('open');
+}
+async function confirmReject(){
+  const id=document.getElementById('rwi').value,
+        uid=document.getElementById('rui').value,
+        amt=parseFloat(document.getElementById('ram').value),
+        r=document.getElementById('rr').value.trim();
+  if(!r)return showToast('⚠️ কারণ লিখুন');
+  const wSnap=await db.ref('withdrawals/'+id).get();const w=wSnap.val()||{};
+  if(w.userRefunded!==true){const tx=await db.ref('users/'+uid+'/balance').transaction(v=>(Number(v)||0)+amt);if(!tx.committed)throw new Error('Balance refund failed');}
+  await db.ref('withdrawals/'+id).update({status:'rejected',reason:r,userRefunded:true,refundRequired:false,processedAt:Date.now(),manualProcessed:true});
+  cm('rejMod');
+  showToast('✗ প্রত্যাখ্যাত ও ব্যালেন্স ফেরত দেওয়া হয়েছে');
+}
+
+// ── ADS ──
+function renderAdsT(ads){
+  const t=document.getElementById('atbl');
+  if(!ads.length){t.innerHTML=`<tr class="erow"><td colspan="7">কোনো ad নেই</td></tr>`;return;}
+  t.innerHTML=ads.map((a,i)=>`<tr><td style="font-size:22px">${a.icon||'📺'}</td><td><strong>${a.name}</strong></td><td style="color:var(--muted)">${a.desc||''}</td><td style="color:var(--taka);font-weight:700">৳${Number(a.reward).toFixed(2)}</td><td>${a.duration}s</td><td><span class="bdg ${a.active!==false?'b-a':'b-r'}">${a.active!==false?'সক্রিয়':'বন্ধ'}</span></td><td><div style="display:flex;gap:6px"><button class="btn bgh bsm" onclick="editAd(${i})">✏️</button><button class="btn br bsm" onclick="delAd(${i})">🗑️</button></div></td></tr>`).join('');
+}
+function openAdModal(){
+  ['an','ai','ad_','ab','ar','adu'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('aac').checked=true;
+  document.getElementById('aei').value='';
+  document.getElementById('adModT').textContent='Ad যোগ করুন';
+  document.getElementById('adMod').classList.add('open');
+}
+async function editAd(i){
+  const s=await db.ref('settings/ads').get();const a=(s.val()||[])[i];if(!a)return;
+  document.getElementById('an').value=a.name||'';
+  document.getElementById('ai').value=a.icon||'';
+  document.getElementById('ad_').value=a.desc||'';
+  document.getElementById('ab').value=a.bg||'';
+  document.getElementById('ar').value=a.reward||'';
+  document.getElementById('adu').value=a.duration||'';
+  document.getElementById('aac').checked=a.active!==false;
+  document.getElementById('aei').value=i;
+  document.getElementById('adModT').textContent='Ad সম্পাদনা করুন';
+  document.getElementById('adMod').classList.add('open');
+}
+async function saveAd(){
+  const n=document.getElementById('an').value.trim();if(!n)return showToast('⚠️ নাম দিন');
+  const s=await db.ref('settings/ads').get();const ads=s.val()||[];
+  const ei=document.getElementById('aei').value;
+  const obj={id:ei!==''?(ads[parseInt(ei)]?.id||'ad_'+Date.now()):'ad_'+Date.now(),name:n,icon:document.getElementById('ai').value.trim()||'📺',desc:document.getElementById('ad_').value.trim(),bg:document.getElementById('ab').value.trim()||'rgba(124,111,253,.15)',reward:parseFloat(document.getElementById('ar').value)||0,duration:parseInt(document.getElementById('adu').value)||15,active:document.getElementById('aac').checked};
+  if(ei!=='')ads[parseInt(ei)]=obj;else ads.push(obj);
+  await db.ref('settings/ads').set(ads);
+  cm('adMod');showToast('✅ সংরক্ষিত হয়েছে!');
+}
+async function delAd(i){
+  if(!confirm('মুছে ফেলবেন?'))return;
+  const s=await db.ref('settings/ads').get();const ads=s.val()||[];
+  ads.splice(i,1);
+  await db.ref('settings/ads').set(ads);
+  showToast('🗑️ মুছে ফেলা হয়েছে');
+}
+
+// ── TASKS ──
+function renderTasksT(tasks){
+  const t=document.getElementById('ttbl');
+  if(!tasks.length){t.innerHTML=`<tr class="erow"><td colspan="8">কোনো টাস্ক নেই</td></tr>`;return;}
+  t.innerHTML=tasks.map((x,i)=>`<tr><td style="font-size:22px">${x.icon||'✅'}</td><td><strong>${x.name}</strong></td><td style="color:var(--muted)">${x.desc||''}</td><td style="color:var(--green);font-weight:700">৳${Number(x.reward).toFixed(2)}</td><td style="font-size:11px;color:var(--accent)">${x.link||'—'}</td><td style="font-size:11px;color:var(--yellow)">${x.channelUsername?'@'+x.channelUsername:'—'}</td><td><span class="bdg ${x.active!==false?'b-a':'b-r'}">${x.active!==false?'সক্রিয়':'বন্ধ'}</span></td><td><div style="display:flex;gap:6px"><button class="btn bgh bsm" onclick="editTask(${i})">✏️</button><button class="btn br bsm" onclick="delTask(${i})">🗑️</button></div></td></tr>`).join('');
+}
+function openTaskModal(){
+  ['tn','ti','td_','tb','tr_','tl','tch'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('tac').checked=true;
+  document.getElementById('tei').value='';
+  document.getElementById('taskModT').textContent='টাস্ক যোগ করুন';
+  document.getElementById('taskMod').classList.add('open');
+}
+async function editTask(i){
+  const s=await db.ref('config/tasks').get();const x=(s.val()||[])[i];if(!x)return;
+  document.getElementById('tn').value=x.name||'';
+  document.getElementById('ti').value=x.icon||'';
+  document.getElementById('td_').value=x.desc||'';
+  document.getElementById('tb').value=x.bg||'';
+  document.getElementById('tr_').value=x.reward||'';
+  document.getElementById('tl').value=x.link||'';
+  document.getElementById('tch').value=x.channelUsername||'';
+  document.getElementById('tac').checked=x.active!==false;
+  document.getElementById('tei').value=i;
+  document.getElementById('taskModT').textContent='টাস্ক সম্পাদনা করুন';
+  document.getElementById('taskMod').classList.add('open');
+}
+async function saveTask(){
+  const n=document.getElementById('tn').value.trim();if(!n)return showToast('⚠️ নাম দিন');
+  const s=await db.ref('config/tasks').get();const tasks=s.val()||[];
+  const ei=document.getElementById('tei').value;
+  const ch=document.getElementById('tch').value.trim().replace('@','');
+  const obj={id:ei!==''?(tasks[parseInt(ei)]?.id||'task_'+Date.now()):'task_'+Date.now(),name:n,icon:document.getElementById('ti').value.trim()||'✅',desc:document.getElementById('td_').value.trim(),bg:document.getElementById('tb').value.trim()||'rgba(0,224,150,.12)',reward:parseFloat(document.getElementById('tr_').value)||0,link:document.getElementById('tl').value.trim(),channelUsername:ch||null,type:ch?'channel':'regular',active:document.getElementById('tac').checked};
+  if(ei!=='')tasks[parseInt(ei)]=obj;else tasks.push(obj);
+  await db.ref('config/tasks').set(tasks);
+  cm('taskMod');showToast('✅ সংরক্ষিত!');
+}
+async function delTask(i){
+  if(!confirm('মুছে ফেলবেন?'))return;
+  const s=await db.ref('config/tasks').get();const t=s.val()||[];
+  t.splice(i,1);
+  await db.ref('config/tasks').set(t);
+  showToast('🗑️ মুছে ফেলা হয়েছে');
+}
+
+// ── SUPPORT ──
+function renderSupT(cards){
+  const t=document.getElementById('stbl');
+  if(!cards.length){t.innerHTML=`<tr class="erow"><td colspan="5">কোনো কার্ড নেই</td></tr>`;return;}
+  t.innerHTML=cards.map((c,i)=>`<tr><td style="font-size:22px">${c.icon||'💬'}</td><td><strong>${c.title}</strong></td><td style="color:var(--muted)">${c.desc||''}</td><td style="font-size:12px;color:var(--accent)">${c.link||'—'}</td><td><div style="display:flex;gap:6px"><button class="btn bgh bsm" onclick="editSup(${i})">✏️</button><button class="btn br bsm" onclick="delSup(${i})">🗑️</button></div></td></tr>`).join('');
+}
+function openSupModal(){
+  ['spt','spi','spd','spb','spl'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('spei').value='';
+  document.getElementById('supModT').textContent='কার্ড যোগ করুন';
+  document.getElementById('supMod').classList.add('open');
+}
+async function editSup(i){
+  const s=await db.ref('settings/supportCards').get();const c=(s.val()||[])[i];if(!c)return;
+  document.getElementById('spt').value=c.title||'';
+  document.getElementById('spi').value=c.icon||'';
+  document.getElementById('spd').value=c.desc||'';
+  document.getElementById('spb').value=c.bg||'';
+  document.getElementById('spl').value=c.link||'';
+  document.getElementById('spei').value=i;
+  document.getElementById('supModT').textContent='কার্ড সম্পাদনা করুন';
+  document.getElementById('supMod').classList.add('open');
+}
+async function saveSupport(){
+  const t=document.getElementById('spt').value.trim();if(!t)return showToast('⚠️ শিরোনাম দিন');
+  const s=await db.ref('settings/supportCards').get();const cards=s.val()||[];
+  const ei=document.getElementById('spei').value;
+  const obj={title:t,icon:document.getElementById('spi').value.trim()||'💬',desc:document.getElementById('spd').value.trim(),bg:document.getElementById('spb').value.trim()||'var(--as)',link:document.getElementById('spl').value.trim()};
+  if(ei!=='')cards[parseInt(ei)]=obj;else cards.push(obj);
+  await db.ref('settings/supportCards').set(cards);
+  cm('supMod');showToast('✅ সংরক্ষিত!');
+}
+async function delSup(i){
+  if(!confirm('মুছে ফেলবেন?'))return;
+  const s=await db.ref('settings/supportCards').get();const c=s.val()||[];
+  c.splice(i,1);
+  await db.ref('settings/supportCards').set(c);
+  showToast('🗑️ মুছে ফেলা হয়েছে');
+}
+
+// ── VIDEO ──
+function showVP(u){
+  let e=u;
+  const y=u.match(/(?:youtu\.be\/|v=)([^&?#\s]+)/);
+  if(y) e=`https://www.youtube.com/embed/${y[1]}?rel=0`;
+  document.getElementById('vf').src=e;
+  document.getElementById('vp').style.display='block';
+}
+async function saveVideo(){
+  await db.ref('settings/video').set({title:document.getElementById('vt').value.trim(),url:document.getElementById('vu').value.trim()});
+  if(document.getElementById('vu').value) showVP(document.getElementById('vu').value);
+  showToast('✅ সংরক্ষিত!');
+}
+document.getElementById('vu').addEventListener('input',e=>{if(e.target.value)showVP(e.target.value);});
+
+// ── MAIN APP CONFIG COMPATIBILITY ──
+function syncMainConfigFields(c){
+  const set=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined&&v!==null)e.value=typeof v==='object'?JSON.stringify(v,null,2):String(v);};
+  set('mcPostUrl',c.postTargetUrl);set('mcPostReward',c.postEarnAmount);set('mcPostLimit',c.postDailyLimit);
+  set('mcWindowHours',c.postWindowHours);set('mcWindowMinutes',c.postWindowMinutes);set('mcWindowLimit',c.postWindowLimit);
+  set('mcSupportLink',c.supportLink);set('mcFbGroups',c.fbGroups||[]);set('mcHelpItems',c.helpItems||{});set('mcVideos',c.videos||[]);
+  const p=c.popup||{};set('mcPopupEnabled',String(!!p.enabled));set('mcPopupIcon',p.icon||'🤩');set('mcPopupTitle',p.title||'Welcome');set('mcPopupMessage',p.message||'');
+  if(c.referEarn!=null){const e=document.getElementById('sref');if(e)e.value=c.referEarn;}
+  if(c.minWithdraw!=null){const e=document.getElementById('smwd');if(e)e.value=c.minWithdraw;}
+}
+async function saveMainAppConfig(){
+  const parse=(id,fallback)=>{const raw=document.getElementById(id).value.trim();if(!raw)return fallback;try{return JSON.parse(raw);}catch(e){throw new Error(id+' এর JSON format ভুল');}};
+  try{
+    const videos=parse('mcVideos',[]),groups=parse('mcFbGroups',[]),help=parse('mcHelpItems',{});
+    if(!Array.isArray(videos)||!Array.isArray(groups)||!help||typeof help!=='object'||Array.isArray(help)) throw new Error('Videos/Facebook Groups অবশ্যই JSON Array এবং Help Items JSON Object হতে হবে');
+    await db.ref('config').update({
+      postTargetUrl:document.getElementById('mcPostUrl').value.trim(),
+      postEarnAmount:Number(document.getElementById('mcPostReward').value)||0,
+      postDailyLimit:Math.max(1,Number(document.getElementById('mcPostLimit').value)||10),
+      postWindowHours:Math.max(0,Number(document.getElementById('mcWindowHours').value)||0),
+      postWindowMinutes:Math.max(0,Number(document.getElementById('mcWindowMinutes').value)||0),
+      postWindowLimit:Math.max(0,Number(document.getElementById('mcWindowLimit').value)||0),
+      supportLink:document.getElementById('mcSupportLink').value.trim(),
+      fbGroups:groups,helpItems:help,videos,
+      popup:{enabled:document.getElementById('mcPopupEnabled').value==='true',icon:document.getElementById('mcPopupIcon').value.trim()||'🤩',title:document.getElementById('mcPopupTitle').value.trim()||'Welcome',message:document.getElementById('mcPopupMessage').value.trim()},
+      referEarn:Number(document.getElementById('sref').value)||0,
+      minWithdraw:Number(document.getElementById('smwd').value)||50
+    });
+    showToast('✅ Main App-এর সেটিংস সংরক্ষিত হয়েছে!');
+  }catch(e){showToast('❌ '+e.message);}
+}
+
+// ── SETTINGS ──
+async function saveSettings(){
+  await db.ref('config').update({referEarn:parseFloat(document.getElementById('sref').value)||5,minWithdraw:parseFloat(document.getElementById('smwd').value)||50});
+  await db.ref('settings').update({
+    referralBonus:parseFloat(document.getElementById('sref').value)||5,
+    welcomeBonus:parseFloat(document.getElementById('swel').value)||2,
+    minWithdraw:parseFloat(document.getElementById('smwd').value)||50,
+    botUsername:document.getElementById('sbot').value.trim()
+  });
+  showToast('✅ সংরক্ষিত!');
+}
+async function saveBotToken(){
+  const token=document.getElementById('sBotToken').value.trim();
+  if(!token)return showToast('⚠️ Token দিন');
+  await db.ref('settings').update({botToken:token});
+  showToast('✅ Bot Token সংরক্ষিত!');
+}
+async function saveWelcome(){
+  const data={enabled:document.getElementById('welEnabled').checked,emoji:document.getElementById('welEmoji').value.trim()||'🎉',title:document.getElementById('welTitle').value.trim()||'Welcome!',message:document.getElementById('welMsg').value.trim()};
+  await db.ref('settings/welcome').set(data);
+  showToast('✅ Welcome Screen সংরক্ষিত!');
+}
+async function changePass(){
+  const n=document.getElementById('np').value,c=document.getElementById('cp').value;
+  if(!n)return showToast('⚠️ পাসওয়ার্ড দিন');
+  if(n!==c)return showToast('⚠️ মিলছে না');
+  await adminAuthDb.ref('adminAuth/password').set(n);
+  document.getElementById('np').value='';
+  document.getElementById('cp').value='';
+  showToast('✅ পাসওয়ার্ড পরিবর্তিত হয়েছে!');
+}
+
+// ── BALANCE ──
+function openBal(uid,name){
+  document.getElementById('bui').value=uid;
+  document.getElementById('bun').textContent=name;
+  document.getElementById('bamt').value='';
+  document.getElementById('balMod').classList.add('open');
+}
+async function adjustBal(){
+  const uid=document.getElementById('bui').value,
+        act=document.getElementById('ba').value,
+        amt=parseFloat(document.getElementById('bamt').value);
+  if(!amt)return showToast('⚠️ পরিমাণ দিন');
+  const s=await db.ref('users/'+uid).get();
+  if(!s.exists())return showToast('❌ ইউজার পাওয়া যায়নি');
+  const d=s.val();let nb=d.balance||0;
+  if(act==='add')nb+=amt;
+  else if(act==='sub')nb=Math.max(0,nb-amt);
+  else nb=amt;
+  await db.ref('users/'+uid).update({balance:nb});
+  cm('balMod');
+  showToast(`✅ ব্যালেন্স → ৳${nb.toFixed(2)}`);
+}
+
+// ── AUTO REJECT ──
+async function saveAutoReject(){
+  const data={enabled:document.getElementById('arEnabled').checked,hours:parseInt(document.getElementById('arHours').value)||1,reason:document.getElementById('arReason').value.trim()||'সময়মতো প্রসেস করা হয়নি'};
+  await db.ref('settings/autoReject').set(data);
+  showToast('✅ Auto Reject সংরক্ষিত!');
+}
+async function refundAutoRejectedWithdrawal(withdrawalId, withdrawal){
+  const w=withdrawal||{};
+  const uid=String(w.uid||w.userId||w.telegramId||'').trim();
+  const amount=Number(w.amount);
+  if(!uid||!Number.isFinite(amount)||amount<=0){
+    await db.ref('withdrawals/'+withdrawalId).update({refundError:!uid?'missing_uid':'invalid_amount'});
+    throw new Error(!uid?'Withdraw record-এ uid/userId নেই':'Withdraw amount সঠিক নয়');
   }
 
-  // Balance এবং refund marker একই user transaction-এ লেখা হয়, তাই একই
-  // withdrawal একাধিকবার process হলেও balance দ্বিতীয়বার বাড়বে না।
-  const tx = await dbTransaction(`users/${uid}`, user => {
-    if(!user) return;
-    const oldWithdraw = user.withdrawRefunds || {};
-    const oldAuto = user.autoRejectRefunds || {};
-    const alreadyRefunded = Object.prototype.hasOwnProperty.call(oldWithdraw, withdrawalId) ||
-      Object.prototype.hasOwnProperty.call(oldAuto, withdrawalId);
-    if(alreadyRefunded) return user;
-    const currentBalance = Number(user.balance);
-    if(!Number.isFinite(currentBalance)) return;
-    return {
-      ...user,
-      balance: currentBalance + amount,
-      withdrawRefunds: {
-        ...oldWithdraw,
-        [withdrawalId]: { amount, refundedAt: Date.now(), source }
-      }
-    };
+  // Main App-এর মতোই Balance এবং refund marker একই user transaction-এ:
+  // একই withdrawal একাধিকবার retry হলেও balance দ্বিতীয়বার বাড়বে না।
+  const tx=await db.ref('users/'+uid).transaction(user=>{
+    if(!user)return;
+    const oldWithdraw=user.withdrawRefunds||{};
+    const oldAuto=user.autoRejectRefunds||{};
+    const alreadyRefunded=Object.prototype.hasOwnProperty.call(oldWithdraw,withdrawalId)||
+      Object.prototype.hasOwnProperty.call(oldAuto,withdrawalId);
+    if(alreadyRefunded)return user;
+    const currentBalance=Number(user.balance);
+    if(!Number.isFinite(currentBalance))return;
+    return {...user,balance:currentBalance+amount,withdrawRefunds:{...oldWithdraw,[withdrawalId]:{amount,refundedAt:Date.now(),source:'auto'}}};
   });
 
-  const updatedUser = tx && tx.snapshot ? tx.snapshot.val() : null;
-  const hasMarker = !!(updatedUser && (
-    (updatedUser.withdrawRefunds && Object.prototype.hasOwnProperty.call(updatedUser.withdrawRefunds, withdrawalId)) ||
-    (updatedUser.autoRejectRefunds && Object.prototype.hasOwnProperty.call(updatedUser.autoRejectRefunds, withdrawalId))
+  const updatedUser=tx&&tx.snapshot?tx.snapshot.val():null;
+  const hasMarker=!!(updatedUser&&(
+    (updatedUser.withdrawRefunds&&Object.prototype.hasOwnProperty.call(updatedUser.withdrawRefunds,withdrawalId))||
+    (updatedUser.autoRejectRefunds&&Object.prototype.hasOwnProperty.call(updatedUser.autoRejectRefunds,withdrawalId))
   ));
   if(!hasMarker){
-    const userSnap = await dbGet(`users/${uid}`);
-    if(!userSnap.exists()) throw new Error(`users/${uid} পাওয়া যায়নি`);
-    const user = userSnap.val() || {};
-    if(!Number.isFinite(Number(user.balance))) throw new Error('User balance সংখ্যা নয় বা পাওয়া যায়নি');
+    const userSnap=await db.ref('users/'+uid).get();
+    if(!userSnap.exists())throw new Error('users/'+uid+' পাওয়া যায়নি');
+    if(!Number.isFinite(Number((userSnap.val()||{}).balance)))throw new Error('User balance সংখ্যা নয় বা পাওয়া যায়নি');
     throw new Error('Firebase balance transaction commit হয়নি');
   }
 
-  // এই update ব্যর্থ হলেও refund marker থাকবে; পরের retry-তে টাকা আবার যোগ হবে না।
-  await dbUpdate(`withdrawals/${withdrawalId}`, {
-    userRefunded: true,
-    refundRequired: false,
-    refundedAt: Date.now(),
-    refundSource: source,
-    refundError: null
+  // Marker লেখা হয়ে গেলে update ব্যর্থ হলেও পরের run-এ দ্বিতীয় refund হবে না।
+  await db.ref('withdrawals/'+withdrawalId).update({
+    userRefunded:true,refundRequired:false,refundedAt:Date.now(),refundSource:'auto',refundError:null
   });
   return true;
 }
 
-async function updateWithdrawal(key,status){
-  if(withdrawalBusy.has(key)) return;
-  const item=allWithdrawals?.[key];
-  if(!item || item.status!=='pending'){
-    toast('এই রিকোয়েস্ট আর Pending নেই। রিফ্রেশ হচ্ছে।','err');
-    await loadWithdrawals(activeWithdrawalFilter()); return;
-  }
-  let reason='';
-  if(status==='rejected'){
-    const response=prompt('❌ Reject করার কারণ লিখুন (ইউজারও দেখতে পারবে):','');
-    if(response===null) return;
-    reason=response.trim();
-    if(!reason){ toast('Reject Reason লেখা আবশ্যক','err'); return; }
-  }else if(!confirm('এই উইথড্র রিকোয়েস্ট Approved করবেন?')) return;
-  withdrawalBusy.add(key);
-  try{
-    // Read the live record first, then claim the status atomically to prevent double processing.
-    const liveSnap=await dbGet(`withdrawals/${key}`);
-    const live=liveSnap.val();
-    if(!live || live.status!=='pending'){
-      toast('এই রিকোয়েস্ট ইতিমধ্যে প্রসেস হয়েছে।','err');
-      await loadWithdrawals(activeWithdrawalFilter()); return;
-    }
-    const now=Date.now();
-    const result=await dbTransaction(`withdrawals/${key}`,current=>{
-      if(!current || current.status!=='pending') return;
-      return {...current,status,processedAt:now,processedBy:'admin',manualProcessed:true,manualProcessedAt:now,
-        ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false,refundRequired:true}:{approvedAt:now})};
-    });
-    if(!result.committed){
-      // If the transaction was aborted but the record is still pending,
-      // retry with one atomic multi-field update. The manualProcessed flag
-      // makes both client-side and admin-side auto-reject skip this request.
-      let latestSnap=await dbGet(`withdrawals/${key}`);
-      let latestCurrent=latestSnap.val();
-      if(latestCurrent && latestCurrent.status==='pending'){
-        await dbUpdate(`withdrawals/${key}`,{
-          status,
-          processedAt:now,
-          processedBy:'admin',
-          manualProcessed:true,
-          manualProcessedAt:now,
-          ...(status==='rejected'?{rejectedAt:now,reason,autoRejected:false,refundRequired:true}:{approvedAt:now})
-        });
-        latestSnap=await dbGet(`withdrawals/${key}`);
-        latestCurrent=latestSnap.val();
-        if(latestCurrent && latestCurrent.status===status && latestCurrent.manualProcessed===true){
-          result.committed=true;
-          result.snapshot=latestSnap;
-        }
-      }
-      if(!result.committed){
-        if(latestCurrent && latestCurrent.status==='rejected'){
-          toast(latestCurrent.autoRejected
-            ? 'এই Withdraw Auto Reject হয়েছে।'
-            : 'এই Withdraw আগেই Reject করা হয়েছে।','');
-        }else if(latestCurrent && latestCurrent.status==='approved'){
-          toast('এই Withdraw ইতিমধ্যে Approved হয়েছে।','');
-        }else{
-          toast('স্ট্যাটাস পরিবর্তন হয়নি। Firebase Rules/ডেটাবেস পারমিশন যাচাই করুন।','err');
-        }
-        await loadWithdrawals(activeWithdrawalFilter()); return;
-      }
-    }
-    // Keep the same withdrawal ID and record in the shared withdrawals tree,
-    // which the user's withdrawal-history view can read.
-    const latest=result.snapshot.val();
-    if(status==='rejected'){
-      try{
-        await refundRejectedWithdrawal(key, latest, 'manual');
-      }catch(refundError){
-        console.error('Manual refund failed:',refundError);
-        toast('Reject হয়েছে, কিন্তু Refund ব্যর্থ: '+(refundError.message||'Firebase error'),'err');
-      }
-    }
-    toast(status==='approved'?'✅ Approved হয়েছে, History সেভ আছে':'✅ Reject হয়েছে, Reason সেভ আছে');
-    await loadWithdrawals(activeWithdrawalFilter());
-  }catch(err){
-    console.error('Withdrawal update failed:',err);
-    toast(`আপডেট ব্যর্থ: ${err.code||err.message||'Firebase error'}`,'err');
-    await loadWithdrawals(activeWithdrawalFilter()).catch(console.error);
-  }finally{withdrawalBusy.delete(key);}
+function getWithdrawalRequestedAt(w){
+  const raw=w&&(w.requestedAt||w.createdAt);
+  if(!raw)return 0;
+  const numeric=Number(raw);
+  if(Number.isFinite(numeric)&&numeric>0)return numeric;
+  const parsed=Date.parse(raw);
+  return Number.isFinite(parsed)?parsed:0;
 }
 
-/* GENERAL */
-async function loadGeneral(){ const snap=await dbGet('config'); const cfg=snap.exists()?snap.val():{}; document.getElementById('cfgMinWithdraw').value=cfg.minWithdraw??50; document.getElementById('cfgReferEarn').value=cfg.referEarn??5; document.getElementById('cfgSupportLink').value=cfg.supportLink??''; }
-async function saveGeneral(){ const min=parseFloat(document.getElementById('cfgMinWithdraw').value); const ref=parseFloat(document.getElementById('cfgReferEarn').value); const link=document.getElementById('cfgSupportLink').value.trim(); if(isNaN(min)||isNaN(ref)){ toast('সংখ্যা সঠিকভাবে দিন','err'); return; } await dbUpdate('config',{minWithdraw:min,referEarn:ref,supportLink:link}); toast('✅ সেটিং সেভ হয়েছে!'); }
-async function loadAutoRejectSettings(){ const snap=await dbGet('settings/autoReject'); const cfg=snap.exists()?snap.val():{}; document.getElementById('autoRejectEnabled').checked=!!cfg.enabled; document.getElementById('autoRejectHours').value=Math.max(1,Number(cfg.hours)||24); document.getElementById('autoRejectReason').value=cfg.reason||'উইথড্র রিকোয়েস্ট নির্ধারিত সময়ের মধ্যে প্রসেস করা সম্ভব হয়নি।'; }
-async function saveAutoRejectSettings(){ const hours=Number(document.getElementById('autoRejectHours').value); const reason=document.getElementById('autoRejectReason').value.trim(); if(!Number.isInteger(hours)||hours<1){ toast('কমপক্ষে ১ ঘণ্টা সেট করুন','err'); return; } if(!reason){ toast('Reject Reason লিখুন','err'); return; } await dbSet('settings/autoReject',{enabled:document.getElementById('autoRejectEnabled').checked,hours,reason,updatedAt:Date.now()}); toast('✅ Auto Reject Settings সেভ হয়েছে!'); }
-
-let adminAutoRejectRunning=false;
-async function runAdminAutoReject(){
-  if(adminAutoRejectRunning) return; adminAutoRejectRunning=true;
+let autoRejectRunning=false;
+async function runAutoReject(){
+  if(autoRejectRunning)return;
+  autoRejectRunning=true;
   try{
-    const cfgSnap=await dbGet('settings/autoReject');
-    const cfg=cfgSnap.exists()?cfgSnap.val():null;
-    if(!cfg||!cfg.enabled) return;
-    const cutoff=Date.now()-Math.max(1,Number(cfg.hours)||1)*3600000;
-    const reason=String(cfg.reason||'নির্ধারিত সময়ের মধ্যে Withdraw প্রসেস করা হয়নি।').trim();
-    const ws=await dbGet('withdrawals');
-    if(!ws.exists()) return;
-    for(const [id,w] of Object.entries(ws.val()||{})){
-      if(w && w.status==='rejected' && w.refundRequired===true && w.userRefunded!==true){
-        try { await refundRejectedWithdrawal(id, w, w.autoRejected ? 'auto' : 'manual'); }
-        catch(refundErr){ console.error('Pending refund retry failed:', id, refundErr); }
+    const settSnap=await db.ref('settings/autoReject').get();
+    const cfg=settSnap.val();
+    if(!cfg||!cfg.enabled)return;
+
+    const hours=Math.max(1,Number(cfg.hours)||1);
+    const cutoff=Date.now()-hours*60*60*1000;
+    const reason=String(cfg.reason||'সময়মতো প্রসেস করা হয়নি').trim();
+    const wSnap=await db.ref('withdrawals').get();
+    if(!wSnap.exists())return;
+
+    const all=wSnap.val()||{};
+    for(const [id,w] of Object.entries(all)){
+      if(!w)continue;
+
+      // Main App-এর pending refund retry format support.
+      if(w.status==='rejected'&&w.refundRequired===true&&w.userRefunded!==true){
+        try{await refundAutoRejectedWithdrawal(id,w);}
+        catch(refundErr){console.error('Pending auto-refund retry failed:',id,refundErr);}
         continue;
       }
-      const requestedAt=Number(w.requestedAt||(w.createdAt?new Date(w.createdAt).getTime():0));
-      if(!requestedAt||requestedAt>cutoff) continue;
-      const claim=await dbTransaction(`withdrawals/${id}`,current=>{ if(!current||current.status!=='pending'||current.manualProcessed===true) return; return{...current,status:'rejected',reason:'[Auto] '+reason,autoRejected:true,refundRequired:true,rejectedAt:Date.now()}; });
+
+      const requestedAt=getWithdrawalRequestedAt(w);
+      if(w.status!=='pending'||w.manualProcessed===true||!requestedAt||requestedAt>cutoff)continue;
+
+      // Atomic claim: একই সময়ে Main App/Admin চললেও একটি process-ই pending claim করবে।
+      const claim=await db.ref('withdrawals/'+id).transaction(cur=>{
+        if(!cur||cur.status!=='pending'||cur.manualProcessed===true)return;
+        return {...cur,status:'rejected',reason:'[Auto] '+reason,autoRejected:true,
+          refundRequired:true,rejectedAt:Date.now(),processedAt:Date.now(),manualProcessed:true};
+      });
+      if(!claim.committed)continue;
       const latest=claim.snapshot&&claim.snapshot.val();
       if(latest&&latest.status==='rejected'&&latest.autoRejected&&latest.userRefunded!==true){
-        try { await refundRejectedWithdrawal(id, latest, 'auto'); }
-        catch(refundErr){ console.error('Admin auto refund failed:', id, refundErr); }
+        try{await refundAutoRejectedWithdrawal(id,latest);}
+        catch(refundErr){console.error('Auto reject refund failed:',id,refundErr);}
       }
     }
-  }catch(e){ console.warn('Admin auto reject failed:',e); }
-  finally{ adminAutoRejectRunning=false; }
+  }catch(e){console.error('Auto reject error:',e);}
+  finally{autoRejectRunning=false;}
 }
 
-/* POPUP */
-async function loadPopup(){ const snap=await dbGet('config/popup'); const p=snap.exists()?snap.val():{}; document.getElementById('popupEnabled').checked=!!p.enabled; document.getElementById('popupIcon').value=p.icon||''; document.getElementById('popupTitle').value=p.title||''; document.getElementById('popupBtnText').value=p.btnText||''; document.getElementById('popupMessage').value=p.message||''; }
-async function savePopup(){ const data={enabled:document.getElementById('popupEnabled').checked,icon:document.getElementById('popupIcon').value.trim(),title:document.getElementById('popupTitle').value.trim(),btnText:document.getElementById('popupBtnText').value.trim(),message:document.getElementById('popupMessage').value}; await dbSet('config/popup',data); toast('✅ পপআপ সেভ হয়েছে!'); }
+// ── USER BULK DELETE SYSTEM ──
+let selectedUsers=new Set();
 
-/* FAQ */
-async function loadFaqAdmin(){ const snap=await dbGet('config/helpItems'); const items=snap.exists()?snap.val():{}; const keys=Object.keys(items); const el=document.getElementById('faqListAdmin'); if(keys.length===0){ el.innerHTML='<p style="color:var(--text2);font-size:13px;">কোনো FAQ নেই।</p>'; return; } el.innerHTML=keys.map(k=>`<div class="task-row" style="flex-direction:column;align-items:flex-start;gap:6px;"><div style="display:flex;width:100%;justify-content:space-between;align-items:center;"><div style="font-size:13px;font-weight:600;">❓ ${items[k].q}</div><button class="btn btn-danger btn-sm" onclick="deleteFaq('${k}')">🗑️</button></div><div style="font-size:12px;color:var(--text2);">💬 ${items[k].a}</div></div>`).join(''); }
-async function addFaq(){ const q=document.getElementById('newFaqQ').value.trim(); const a=document.getElementById('newFaqA').value.trim(); if(!q||!a){ toast('প্রশ্ন ও উত্তর আবশ্যক','err'); return; } const key='q'+Date.now(); await dbSet(`config/helpItems/${key}`,{q,a}); toast('✅ FAQ যোগ হয়েছে!'); document.getElementById('newFaqQ').value=''; document.getElementById('newFaqA').value=''; loadFaqAdmin(); }
-async function deleteFaq(key){ if(!confirm('এই FAQ মুছবেন?')) return; await dbRemove(`config/helpItems/${key}`); toast('FAQ মুছা হয়েছে'); loadFaqAdmin(); }
+function userSelectToggle(cb){
+  const uid=cb.dataset.id;
+  if(cb.checked){selectedUsers.add(uid);cb.closest('tr')?.classList.add('sel-row');}
+  else{selectedUsers.delete(uid);cb.closest('tr')?.classList.remove('sel-row');}
+  updateUserBulkBar();
+}
+function toggleAllUsers(source){
+  const check=source===true?true:source.checked;
+  document.querySelectorAll('.u-checkbox').forEach(cb=>{
+    cb.checked=check;const uid=cb.dataset.id;
+    if(check){selectedUsers.add(uid);cb.closest('tr')?.classList.add('sel-row');}
+    else{selectedUsers.delete(uid);cb.closest('tr')?.classList.remove('sel-row');}
+  });
+  updateUserBulkBar();
+}
+function clearUserSelection(){
+  selectedUsers.clear();
+  document.querySelectorAll('.u-checkbox').forEach(cb=>{cb.checked=false;cb.closest('tr')?.classList.remove('sel-row');});
+  const chkAll=document.getElementById('uChkAll');
+  if(chkAll)chkAll.checked=false;
+  updateUserBulkBar();
+}
+function updateUserBulkBar(){
+  const bar=document.getElementById('userBulkBar');const count=selectedUsers.size;
+  if(bar){bar.classList.toggle('show',count>0);document.getElementById('userBulkCount').textContent=count+'টি selected';}
+}
+async function bulkDeleteUsers(){
+  if(!selectedUsers.size)return showToast('⚠️ কিছু select করুন');
+  if(!confirm(`${selectedUsers.size} জন ইউজার delete করবেন?\nসব data + withdrawal history মুছে যাবে!`))return;
+  if(!confirm('⚠️ FINAL CONFIRM! এই কাজ ফেরানো যাবে না!'))return;
+  try{
+    const deletedCount=selectedUsers.size;
+    showToast('⏳ Deleting...');
+    const updates={};
+    selectedUsers.forEach(uid=>{ updates['users/'+uid]=null; const mobile=AU[uid]?.mobile; if(mobile) updates['mobileIndex/'+String(mobile).replace(/\./g,'_')]=null; });
+    const wSnap=await db.ref('withdrawals').get();
+    if(wSnap.exists()){
+      const selectedArr=[...selectedUsers].map(String);
+      wSnap.forEach(c=>{
+        if(selectedArr.includes(String(c.val().uid||c.val().userId)))
+          updates['withdrawals/'+c.key]=null;
+      });
+    }
+    await db.ref().update(updates);
+    clearUserSelection();
+    showToast(`🗑️ ${deletedCount} জন ইউজার ডিলিট হয়েছে!`);
+  }catch(e){showToast('❌ Error: '+e.message);}
+}
 
-initAdmin();
-</script>
-</body>
+// ── HELPERS ──
+function go(s,el){
+  document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.si').forEach(x=>x.classList.remove('active'));
+  document.getElementById('sec-'+s).classList.add('active');
+  el.classList.add('active');
+}
+function cm(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mov').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function ta(iso){if(!iso)return'—';const m=Math.floor((Date.now()-new Date(iso))/60000);if(m<1)return'এইমাত্র';if(m<60)return m+' মিনিট আগে';const h=Math.floor(m/60);if(h<24)return h+' ঘণ্টা আগে';return Math.floor(h/24)+' দিন আগে';}
+function fd(iso){if(!iso)return'—';return new Date(iso).toLocaleString('bn-BD');}
+</script>  
+</body>  
 </html>
