@@ -916,36 +916,12 @@ function openTicketReply(id){
 }
 function closeTicketReply(id){const panel=document.getElementById('ticket-inline-'+id);if(panel)panel.style.display='none';}
 async function solveSupportTicket(id){
-  const input=document.getElementById('ticket-text-'+id);
-  const reply=String(input?.value||'').trim();
-  if(!id){showToast('❌ টিকেট পাওয়া যায়নি');return;}
-  if(!reply){showToast('সমাধানের উত্তর লিখুন');input?.focus();return;}
-  const btn=input?.parentElement?.querySelector('button.btn.bp');
-  const oldText=btn?.textContent;
-  if(btn){btn.disabled=true;btn.textContent='সংরক্ষণ হচ্ছে...';}
+  const input=document.getElementById('ticket-text-'+id),reply=input?.value.trim();
+  if(!id||!reply)return showToast('সমাধানের উত্তর লিখুন');
   try{
-    const ref=db.ref('supportTickets/'+id);
-    const snap=await ref.get();
-    if(!snap.exists()) throw new Error('টিকেটটি ডাটাবেজে পাওয়া যায়নি');
-    const current=snap.val()||{};
-    const now=Date.now();
-    // Preserve every existing ticket field while marking it solved.
-    await ref.set({...current,status:'solved',adminReply:reply,adminReason:reply,solvedAt:now,updatedAt:now});
-    const verify=await ref.get();
-    const saved=verify.val()||{};
-    if(saved.status!=='solved'||String(saved.adminReply||saved.adminReason||'').trim()!==reply){
-      throw new Error('ডাটাবেজে পরিবর্তন যাচাই করা যায়নি। Firebase Database Rules পরীক্ষা করুন।');
-    }
-    SUPPORT_TICKETS[id]=saved;
-    closeTicketReply(id);
-    setTicketFilter('solved');
-    showToast('✅ উত্তর সংরক্ষণ হয়েছে এবং টিকেট Solved হয়েছে');
-  }catch(e){
-    console.error('solveSupportTicket failed:',e);
-    showToast('❌ Solved হয়নি: '+(e?.message||'অজানা সমস্যা'));
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent=oldText||'✅ সমাধান করুন';}
-  }
+    await db.ref('supportTickets/'+id).update({status:'solved',adminReply:reply,adminReason:reply,solvedAt:Date.now(),updatedAt:Date.now()});
+    closeTicketReply(id);showToast('✅ টিকেট সমাধান করা হয়েছে');
+  }catch(e){showToast('❌ উত্তর সংরক্ষণ হয়নি: '+e.message);}
 }
 
 // ── VIDEO ──
