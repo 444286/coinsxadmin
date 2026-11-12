@@ -331,7 +331,7 @@ input:checked+.sldr:before{transform:translateX(20px);background:#fff}
 </div>
 
 <!-- SUPPORT TICKETS -->
-<div class="sec" id="sec-tickets"><div class="shd"><div><div class="stitle">🎫 সাপোর্ট টিকেট</div><div class="ssub">প্রথমে অপেক্ষমাণ টিকেট দেখাবে · সমাধান হলে Solved-এ চলে যাবে</div></div></div><div style="display:flex;gap:9px;margin:0 0 16px;flex-wrap:wrap"><button type="button" id="ticketPendingTab" class="btn bp" onclick="setTicketFilter('pending')">⏳ Pending <span id="pendingTicketCount">0</span></button><button type="button" id="ticketSolvedTab" class="btn bgh" onclick="setTicketFilter('solved')">✅ Solved <span id="solvedTicketCount">0</span></button></div><input type="hidden" id="ticketFilter" value="pending"><div id="supportTicketAdminList"><div class="tc">লোড হচ্ছে...</div></div></div>  
+<div class="sec" id="sec-tickets"><div class="shd"><div><div class="stitle">🎫 সাপোর্ট টিকেট</div><div class="ssub">প্রথমে অপেক্ষমাণ টিকেট দেখাবে · সমাধান হলে Solved-এ চলে যাবে</div></div></div><div class="tc" style="margin-bottom:14px"><div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap"><div class="fg" style="min-width:180px;flex:1"><label>প্রতিদিন সর্বোচ্চ টিকেট (প্রতি ইউজার)</label><input type="number" id="supportDailyLimitInput" min="1" max="100" value="1"></div><button class="btn bp" type="button" onclick="saveSupportDailyLimit()">💾 Limit Save</button></div><div style="font-size:11px;color:var(--muted);margin-top:8px">একটি Pending টিকেট থাকলে সমাধান না হওয়া পর্যন্ত নতুন টিকেট জমা দিতে পারবে না।</div></div><div style="display:flex;gap:9px;margin:0 0 16px;flex-wrap:wrap"><button type="button" id="ticketPendingTab" class="btn bp" onclick="setTicketFilter('pending')">⏳ Pending <span id="pendingTicketCount">0</span></button><button type="button" id="ticketSolvedTab" class="btn bgh" onclick="setTicketFilter('solved')">✅ Solved <span id="solvedTicketCount">0</span></button></div><input type="hidden" id="ticketFilter" value="pending"><div id="supportTicketAdminList"><div class="tc">লোড হচ্ছে...</div></div></div>  
 
 <!-- VIDEO -->
 <div class="sec" id="sec-video"><div class="shd"><div class="stitle">🎬 Tutorial ভিডিও</div></div><div class="fc"><div class="fg" style="margin-bottom:14px"><label>ভিডিও শিরোনাম</label><input type="text" id="vt" placeholder="EarnX ব্যবহার করবেন কিভাবে..."></div><div class="fg" style="margin-bottom:14px"><label>YouTube URL</label><input type="text" id="vu" placeholder="https://youtu.be/..."></div><div id="vp" style="display:none;margin-bottom:14px"><div style="border-radius:12px;overflow:hidden;aspect-ratio:16/9;background:#000"><iframe id="vf" style="width:100%;height:100%;border:none" allowfullscreen></iframe></div></div><button class="btn bp bfu" onclick="saveVideo()">💾 Save</button></div></div>  
@@ -455,7 +455,7 @@ function adsBadge(n){
 function initAdmin(){
   db.ref('users').on('value',s=>{AU=s.val()||{};renderDash();renderUsers();});
   db.ref('withdrawals').on('value',s=>{AW=s.val()||{};renderWd();renderPendDash();updateBadge();});
-  db.ref('config').on('value',s=>{const c=s.val()||{};renderTasksT(c.tasks||[]);syncMainConfigFields(c);renderIssueOptions(c.supportOptions||[]);});
+  db.ref('config').on('value',s=>{const c=s.val()||{};renderTasksT(c.tasks||[]);syncMainConfigFields(c);renderIssueOptions(c.supportOptions||[]);const lim=document.getElementById('supportDailyLimitInput');if(lim)lim.value=Math.max(1,Number(c.supportDailyLimit)||1);});
   db.ref('supportTickets').on('value',s=>{SUPPORT_TICKETS=s.val()||{};renderSupportTickets();updateTicketBadge();});
   runAutoReject();
   setInterval(runAutoReject,5*60*1000);
@@ -893,6 +893,13 @@ function legacyTicketNumber(id){let h=2166136261;for(const ch of String(id||''))
 function ticketIsSolved(t){return !!(t&&t.status==='solved');}
 function updateTicketBadge(){const tickets=Object.values(SUPPORT_TICKETS||{}).filter(Boolean),pending=tickets.filter(t=>!ticketIsSolved(t)).length,solved=tickets.length-pending,b=document.getElementById('ticketBadge');if(b){b.textContent=pending;b.style.display=pending?'inline-flex':'none';}const pc=document.getElementById('pendingTicketCount'),sc=document.getElementById('solvedTicketCount');if(pc)pc.textContent=pending;if(sc)sc.textContent=solved;}
 function setTicketFilter(filter){document.getElementById('ticketFilter').value=filter;const p=document.getElementById('ticketPendingTab'),s=document.getElementById('ticketSolvedTab');if(p){p.className=filter==='pending'?'btn bp':'btn bgh';}if(s){s.className=filter==='solved'?'btn bp':'btn bgh';}renderSupportTickets();}
+async function saveSupportDailyLimit(){
+  const input=document.getElementById('supportDailyLimitInput');
+  const limit=Math.max(1,Math.min(100,parseInt(input.value,10)||1));
+  input.value=limit;
+  try{await db.ref('config/supportDailyLimit').set(limit);showToast('✅ দৈনিক টিকেট লিমিট সংরক্ষণ হয়েছে');}
+  catch(e){showToast('❌ সংরক্ষণ হয়নি: '+e.message);}
+}
 function renderSupportTickets(){
   const el=document.getElementById('supportTicketAdminList');if(!el)return;
   const filter=document.getElementById('ticketFilter')?.value||'pending';
